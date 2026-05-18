@@ -1,46 +1,37 @@
-# rotas de conversação do back com o front
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User
-from schemas import UserCreate, UserLogin, UserResponse, token
-from auth import hash_password, verify_password, create_acess_token
+from schemas import UserCreate, UserLogin, UserResponse, Token
+from auth import hash_password, verify_password, create_access_token
 
-router = APIRouter(prefix="/auth", tags=["Autentificação"])
+router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Cadastrar um novo usuario"""
-
-    #Verifica de o e-mail ja está em uso e envia uma msg
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Este e-mail já esta cadastrado."
+            detail="Este e-mail já está cadastrado."
         )
-    
-    # Nunca salva a senhha em texto puro
-    hashed = hash_password(user_data.password)
-    new_user = User(name=user_data.name, email=user_data.email, password=hashed)
-
+    new_user = User(
+        name=user_data.name,
+        email=user_data.email,
+        password=hash_password(user_data.password)
+    )
     db.add(new_user)
     db.commit()
-    db.refresh(new_user) #atualiza o objeto com o id gerado pelo banco
+    db.refresh(new_user)
     return new_user
 
-@router.post("/login", response_model=token)
+@router.post("/login", response_model=Token)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Autentica um usuario e retorna um token JWT."""
-
-    user = db.query(User).filter(User.email == credentials.email).first
-
-    # Mesma mensagem para e-mail invalido E senha errada
+    user = db.query(User).filter(User.email == credentials.email).first()
     if not user or not verify_password(credentials.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="E-mail ou Senha incorretos."
+            detail="E-mail ou senha incorretos."
         )
-    
-    Token = create_acess_token(data={"sub": user.emil, "user.id": user.id})
-    return {"acess_token": token, "token_type": "beare", "user": user}
+    token = create_access_token(data={"sub": user.email, "user_id": user.id})
+    return {"access_token": token, "token_type": "bearer", "user": user}

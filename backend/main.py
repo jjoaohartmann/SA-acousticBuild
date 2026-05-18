@@ -4,16 +4,13 @@ from database import engine
 import models
 from routers import router
 
-#  Cria todas as tabelas no banco ao iniciar (se não exitir)
-models.Base.metadata.create.all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title = "AcousticBuild API",
-    description="API de Autenticação do AcosticBuild",
+    title="AcousticBuild API",
     version="1.0.0"
 )
 
-# CORS - Permite que o front-end (em outra porta) acesse a API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -26,4 +23,4 @@ app.include_router(router)
 
 @app.get("/")
 def root():
-    return {"mensagem": "Acoustic API está rodando"}
+    return {"message": "AcousticBuild API está no ar! 🚀"}
