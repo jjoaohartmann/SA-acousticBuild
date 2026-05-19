@@ -4,6 +4,7 @@
 
 # --- SEGURANÇA: Nunca versionar ---
 *.env
+.env
 .env.*
 *.db
 *.sqlite
@@ -14,20 +15,32 @@ backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/**/*.pyc
+backend/**/*.pyo
 backend/.pytest_cache/
+backend/.mypy_cache/
 *.egg-info/
+dist/
+build/
 
 # --- Node / Front-end ---
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.env
+frontend/.env.*
+
+# --- VSCode (cada dev tem o seu) ---
+.vscode/
+*.code-workspace
 
 # --- Sistema Operacional ---
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
 
 # --- IDEs e Editores ---
-.vscode/
 .idea/
 *.swp
+*.swo
+*~
