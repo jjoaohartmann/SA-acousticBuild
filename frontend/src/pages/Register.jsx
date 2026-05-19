@@ -5,7 +5,7 @@ import api from '../services/api';
 export default function Register() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ name: '', email: '', password: ''});
-    const [error, setErrror] = useState('');
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
@@ -14,14 +14,14 @@ export default function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrror('');
+        setError('');
         setLoading(True);
         try {
             await api.post('/auth/register', formData);
             navigate('/login');
         } catch (err) {
             const msg = err.response?.data?.detail;
-            setErrror(msg || 'Erro ao cadastrar. Tente novamente');
+            setError(msg || 'Erro ao cadastrar. Tente novamente');
         } finally{
             setLoading(false)
         }
