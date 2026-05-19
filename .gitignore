@@ -1,14 +1,15 @@
-# ==========================================
-# AcoustBuld - .gitignore
-# ==========================================
+# ============================================
+# AcousticBuild — .gitignore
+# ============================================
 
-# ---------- Segurança: Nunca versionar -----
-*.env,env,*
+# --- SEGURANÇA: Nunca versionar ---
+*.env
+.env.*
 *.db
 *.sqlite
 *.sqlite3
 
-# ----- Python \ Back-end
+# --- Python / Back-end ---
 backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
@@ -16,15 +17,13 @@ backend/**/*.pyc
 backend/.pytest_cache/
 *.egg-info/
 
-# ------- Node / Front=end 
+# --- Node / Front-end ---
 frontend/node_modules/
 frontend/dist/
-frontend/.vite
+frontend/.vite/
 
-# ------ Sistema Operacional
-#Mac
+# --- Sistema Operacional ---
 .DS_Store
-#Windows
 Thumbs.db
 desktop.ini
 
