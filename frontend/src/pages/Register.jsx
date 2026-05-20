@@ -34,7 +34,7 @@ export default function Register() {
         <div style={styles.panelContent}>
           <h1 style={styles.panelTitle}>AcousticBuild</h1>
           <p style={styles.panelSubtitle}>
-            Gerencie seus projetos com eficiência e estilo.
+            Cadastre-se para acessar nossos serviços e ficar por dentro das novidades.
           </p>
           <div style={styles.panelDecoration} />
         </div>
@@ -115,7 +115,7 @@ const styles = {
   },
   panel: {
     flex: 1,
-    background: 'linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)',
+    background: '#011B3F',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -194,7 +194,7 @@ const styles = {
     background: 'linear-gradient(135deg, #1a73e8, #0d47a1)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '80px',
     fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',

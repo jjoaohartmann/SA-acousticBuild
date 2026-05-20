@@ -87,7 +87,7 @@ export default function Login() {
         <div style={styles.panelContent}>
           <h1 style={styles.panelTitle}>AcousticBuild</h1>
           <p style={styles.panelSubtitle}>
-            Sua plataforma completa para gestão de projetos acústicos.
+            Entre com suas informações pessoais para acessar nossos serviços.
           </p>
           <div style={styles.panelDecoration} />
         </div>
@@ -154,7 +154,7 @@ const styles = {
     background: 'linear-gradient(135deg, #1a73e8, #0d47a1)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '80px',
     fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
@@ -186,7 +186,7 @@ const styles = {
   },
   panel: {
     flex: 1,
-    background: 'linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)',
+    background: '#011B3F',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
