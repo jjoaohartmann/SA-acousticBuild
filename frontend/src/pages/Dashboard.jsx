@@ -15,7 +15,7 @@ export default function Dashboard() {
       <header style={styles.header}>
         <h1 style={styles.logo}>AcousticBuild</h1>
         <div style={styles.headerRight}>
-          <span style={styles.welcomeText}>Olá, {user?.name}! 👋</span>
+          <span style={styles.welcomeText}>Olá, {user?.name}!</span>
           <button onClick={handleLogout} style={styles.logoutBtn}>
             Sair
           </button>
@@ -24,12 +24,12 @@ export default function Dashboard() {
 
       <main style={styles.main}>
         <div style={styles.card}>
-          <h2 style={styles.cardTitle}>🎉 Login realizado com sucesso!</h2>
+          <h2 style={styles.cardTitle}>Login realizado com sucesso!</h2>
           <p style={styles.cardText}>
             Você está autenticado como <strong>{user?.email}</strong>.
           </p>
           <p style={styles.cardText}>
-            O back-end e o front-end estão se comunicando perfeitamente.
+            A aplicação está funcionando perfeitamente(até então).
           </p>
         </div>
       </main>

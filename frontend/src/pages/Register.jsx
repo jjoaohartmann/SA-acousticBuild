@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import Logo from '../components/Logo';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -32,12 +33,11 @@ export default function Register() {
 
       <div style={styles.panel}>
         <div style={styles.panelContent}>
-          <h1 style={styles.panelTitle}>AcousticBuild</h1>
-          <p style={styles.panelSubtitle}>
-            Cadastre-se para acessar nossos serviços e ficar por dentro das novidades.
-          </p>
-          <div style={styles.panelDecoration} />
-        </div>
+                  <Logo width={320} light={true} />
+        
+                  <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
+      Cadastre-se para acessar nossos serviços e ficar por dentro das novidades                </p>
+                </div>
       </div>
 
       <div style={styles.formSide}>
@@ -83,6 +83,7 @@ export default function Register() {
                 placeholder="Mínimo 6 caracteres"
                 value={formData.password}
                 onChange={handleChange}
+                minLength={6}
                 required
               />
             </div>
@@ -125,12 +126,12 @@ const styles = {
     color: 'white',
     maxWidth: '360px',
   },
-  panelTitle: {
-    fontSize: '2.8rem',
-    fontWeight: '800',
-    marginBottom: '16px',
-    letterSpacing: '-1px',
-  },
+  panelDescription: {
+  fontSize: '0.95rem',
+  opacity: 0.75,
+  lineHeight: '1.6',
+  marginTop: '10px',
+},
   panelSubtitle: {
     fontSize: '1.1rem',
     opacity: 0.85,

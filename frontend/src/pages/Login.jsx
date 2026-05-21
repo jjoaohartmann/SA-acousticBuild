@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -85,11 +86,11 @@ export default function Login() {
 
       <div style={styles.panel}>
         <div style={styles.panelContent}>
-          <h1 style={styles.panelTitle}>AcousticBuild</h1>
-          <p style={styles.panelSubtitle}>
-            Entre com suas informações pessoais para acessar nossos serviços.
-          </p>
-          <div style={styles.panelDecoration} />
+          <Logo width={320} light={true} />
+
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
+             Entre com suas informações pessoais para acessar nossos serviços.
+        </p>
         </div>
       </div>
 
@@ -193,9 +194,12 @@ const styles = {
     padding: '40px',
   },
   panelContent: {
-    color: 'white',
-    maxWidth: '360px',
-  },
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  textAlign: 'center',
+  maxWidth: '320px',
+},
   panelTitle: {
     fontSize: '2.8rem',
     fontWeight: '800',
