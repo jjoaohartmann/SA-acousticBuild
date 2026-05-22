@@ -1,0 +1,71 @@
+.container {
+    min-Height: '100vh';
+    background: '#f8fafc';
+}
+
+header {
+    display: 'flex';
+    justify-Content: 'space-between';
+    align-items: 'center';
+    padding: '16px 40px';
+    background: 'white';
+    border-radius: '1px solid #e2e8f0';
+    box-Shadow: '0 1px 3px rgba(0,0,0,0.06)';
+}
+
+.logo {
+    font-Size: '1.4rem';
+    font-Weight: '800';
+    color: '#1a73e8';
+}
+
+.headerRight {
+    display: 'flex';
+    align-Items: 'center';
+    gap: '16px';
+}
+
+.welcomeText {
+    color: '#475569';
+    font-Size: '0.95rem';
+}
+
+.logoutBtn {
+    padding: '8px 20px';
+    background: 'transparent';
+    border: '1.5px solid #e2e8f0';
+    border-Radius: '8px';
+    cursor: 'pointer';
+    color: '#64748b';
+    font-Weight: '600';
+    font-Size: '0.875rem';
+}
+
+.main {
+    padding: '60px 40px';
+    display: 'flex';
+    justify-Content: 'center';
+}
+
+.card {
+    background: 'white';
+    border-Radius: '12px';
+    padding: '40px';
+    max-Width: '500px';
+    width: '100%';
+    box-Shadow: '0 4px 6px rgba(0,0,0,0.05)';
+    border: '1px solid #e2e8f0';
+}
+
+.cardTitle {
+    font-Size: '1.4rem';
+    font-Weight: '700';
+    color: '#1e293b';
+    margin-Bottom: '16px';
+}
+
+.cardText {
+    color: '#64748b';
+    line-Height: '1.6';
+    margin-Bottom: '8px';
+}
