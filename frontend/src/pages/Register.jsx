@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Logo from '../components/Logo';
-import '../style/Register.modules.css';
+import styles from '../style/Register.module.css';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -30,10 +30,10 @@ export default function Register() {
   };
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
 
-      <div style={styles.panel}>
-        <div style={styles.panelContent}>
+      <div className={styles.panel}>
+        <div className={styles.panelContent}>
                   <Logo width={320} light={true} />
         
                   <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
@@ -41,18 +41,18 @@ export default function Register() {
                 </div>
       </div>
 
-      <div style={styles.formSide}>
-        <div style={styles.formBox}>
-          <h2 style={styles.formTitle}>Criar conta</h2>
-          <p style={styles.formSubtitle}>Preencha os dados para começar</p>
+      <div className={styles.formSide}>
+        <div className={styles.formBox}>
+          <h2 className={styles.formTitle}>Criar conta</h2>
+          <p className={styles.formSubtitle}>Preencha os dados para começar</p>
 
-          {error && <div style={styles.errorBox}>{error}</div>}
+          {error && <div className={styles.errorBox}>{error}</div>}
 
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Nome completo</label>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Nome completo</label>
               <input
-                style={styles.input}
+                className={styles.input}
                 type="text"
                 name="name"
                 placeholder="Seu nome"
@@ -62,10 +62,10 @@ export default function Register() {
               />
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>E-mail</label>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>E-mail</label>
               <input
-                style={styles.input}
+                className={styles.input}
                 type="email"
                 name="email"
                 placeholder="seu@email.com"
@@ -75,10 +75,10 @@ export default function Register() {
               />
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Senha</label>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Senha</label>
               <input
-                style={styles.input}
+                className={styles.input}
                 type="password"
                 name="password"
                 placeholder="Mínimo 6 caracteres"
@@ -91,16 +91,16 @@ export default function Register() {
 
             <button
               type="submit"
-              style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
+              className={`${styles.button} ${loading ? styles.buttonDisabled : ''}`}
               disabled={loading}
             >
               {loading ? 'Cadastrando...' : 'Criar conta'}
             </button>
           </form>
 
-          <p style={styles.switchText}>
+          <p className={styles.switchText}>
             Já tem uma conta?{' '}
-            <Link to="/login" style={styles.link}>Entrar</Link>
+            <Link to="/login" className={styles.link}>Entrar</Link>
           </p>
         </div>
       </div>

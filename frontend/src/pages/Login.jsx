@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
-import '../style/Login.modules.css';
+import styles from '../style/Login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -33,20 +33,20 @@ export default function Login() {
   };
 
   return (
-    <div style={styles.container}>
+    <div className={styles.container}>
 
-      <div style={styles.formSide}>
-        <div style={styles.formBox}>
-          <h2 style={styles.formTitle}>Bem-vindo de volta!</h2>
-          <p style={styles.formSubtitle}>Entre com suas credenciais para continuar</p>
+      <div className={styles.formSide}>
+        <div className={styles.formBox}>
+          <h2 className={styles.formTitle}>Bem-vindo de volta!</h2>
+          <p className={styles.formSubtitle}>Entre com suas credenciais para continuar</p>
 
-          {error && <div style={styles.errorBox}>{error}</div>}
+          {error && <div className={styles.errorBox}>{error}</div>}
 
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>E-mail</label>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>E-mail</label>
               <input
-                style={styles.input}
+                className={styles.input}
                 type="email"
                 name="email"
                 placeholder="seu@email.com"
@@ -56,10 +56,10 @@ export default function Login() {
               />
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Senha</label>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Senha</label>
               <input
-                style={styles.input}
+                className={styles.input}
                 type="password"
                 name="password"
                 placeholder="Sua senha"
@@ -71,22 +71,22 @@ export default function Login() {
 
             <button
               type="submit"
-              style={loading ? { ...styles.button, ...styles.buttonDisabled } : styles.button}
+              className={`${styles.button} ${loading ? styles.buttonDisabled : ''}`}
               disabled={loading}
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
 
-          <p style={styles.switchText}>
+          <p className={styles.switchText}>
             Não tem uma conta?{' '}
-            <Link to="/register" style={styles.link}>Cadastrar-se</Link>
+            <Link to="/register" className={styles.link}>Cadastrar-se</Link>
           </p>
         </div>
       </div>
 
-      <div style={styles.panel}>
-        <div style={styles.panelContent}>
+      <div className={styles.panel}>
+        <div className={styles.panelContent}>
           <Logo width={320} light={true} />
 
           <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
