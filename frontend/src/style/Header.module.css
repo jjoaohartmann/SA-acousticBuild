@@ -1,0 +1,84 @@
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  z-index: 100;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.hamburger:hover {
+  opacity: 0.8;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btnOutline {
+  padding: 10px 28px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 80px;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btnOutline:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btnPrimary {
+  padding: 11px 28px;
+  background: #1E5EFF;
+  border: none;
+  border-radius: 80px;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #1650e0;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 16px 20px;
+  }
+  
+  .btnOutline,
+  .btnPrimary {
+    padding: 8px 18px;
+    font-size: 0.85rem;
+  }
+}
+
+.welcomeText {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+}

@@ -1,0 +1,164 @@
+.section {
+  background: #001A41;
+  padding: 100px 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.backgroundDots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+.container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  max-width: 1100px;
+  width: 100%;
+  gap: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.textSide {
+  flex: 1;
+  max-width: 500px;
+}
+
+.label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1E5EFF;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 24px;
+}
+
+.highlight {
+  color: #1E5EFF;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.8;
+  margin-bottom: 32px;
+  text-align: justify;
+}
+
+.btnOutline {
+  padding: 12px 32px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 80px;
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnOutline:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.gridSide {
+  flex: 1;
+  max-width: 480px;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.valueCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.valueIconBox {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.valueTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.valueText {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+.scrollIndicator {
+  margin-top: 60px;
+  animation: bounce 2s infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(10px); }
+  60% { transform: translateY(5px); }
+}
+
+@media (max-width: 968px) {
+  .section {
+    padding: 60px 30px 30px;
+  }
+  
+  .container {
+    flex-direction: column;
+    gap: 40px;
+  }
+  
+  .textSide {
+    max-width: 100%;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .gridSide {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,8 +3,36 @@
   margin: 0;
   padding: 0;
 }
-
+:root {
+  /*paleta de cores */
+  --dark-blue: #001A41;
+  --darker-blue: #011B3F;
+  --accent-blue: #1E5EFF;
+  --light-gray: #EDEDED;
+  --white: #FFFFFF;
+  --text-dark: #1e293b;
+  --text-gray: #64748b;
+  --text-light: rgba(255, 255, 255, 0.8);
+  --gradient-start: #FEFEFE;
+  --gradient-end: #CADBFA;
+  --border-light: #e2e8f0;
+}
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a{
+  text-decoration: none;
+  color: inherit;
+}
+
+button{
+  cursor:pointer;
+  font-family: inherit;
 }

@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+import UserProfile from './pages/UserProfile';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -14,12 +15,12 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={user ? <Navigate to="/profile" /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/profile" /> : <Register />} />
+      <Route path="/profile" element={
         <PrivateRoute>
-          <Dashboard />
+          <UserProfile />
         </PrivateRoute>
       } />
     </Routes>
