@@ -21,7 +21,7 @@
 
 .container {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   max-width: 1100px;
   width: 100%;
@@ -85,40 +85,43 @@
 .gridSide {
   flex: 1;
   max-width: 480px;
+  display: flex;
+  align-items: center;
 }
 
 .valuesGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 32px;
+  width: 100%;
 }
 
 .valueCard {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 18px;
 }
 
 .valueIconBox {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .valueTitle {
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .valueText {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.6);
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .scrollIndicator {

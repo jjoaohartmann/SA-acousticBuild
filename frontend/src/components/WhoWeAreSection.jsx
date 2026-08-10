@@ -35,7 +35,7 @@ export default function WhoWeAreSection() {
               return (
                 <div key={index} className={styles.valueCard}>
                   <div className={styles.valueIconBox}>
-                    <Icon size={28} color="#1E5EFF" />
+                    <Icon size={36} color="#1E5EFF" />
                   </div>
                   <div>
                     <h4 className={styles.valueTitle}>{item.title}</h4>
