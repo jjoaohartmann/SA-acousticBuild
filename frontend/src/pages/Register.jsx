@@ -30,8 +30,11 @@ export default function Register() {
   };
 
   return (
+        
     <div className={styles.container}>
 
+<Link to="/" className={styles.backLink}>Início</Link>
+     
       <div className={styles.panel}>
         <div className={styles.panelContent}>
                   <Logo width={320} light={true} />

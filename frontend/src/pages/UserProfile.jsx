@@ -18,7 +18,7 @@ export default function UserProfile() {
   if (view === 'view') {
     return (
       <div className={styles.container}>
-        <Link to="/" className={styles.backLink}>← Home</Link>
+        <Link to="/" className={styles.backLink}>Início</Link>
         <div className={styles.profileCard}>
           <div className={styles.avatar}>
             <IconPerson size={48} color="#001A41" />

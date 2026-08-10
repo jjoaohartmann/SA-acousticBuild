@@ -35,6 +35,8 @@ export default function Login() {
   return (
     <div className={styles.container}>
 
+      <Link to="/" className={styles.backLink}>Início</Link>
+
       <div className={styles.formSide}>
         <div className={styles.formBox}>
           <h2 className={styles.formTitle}>Bem-vindo de volta!</h2>
