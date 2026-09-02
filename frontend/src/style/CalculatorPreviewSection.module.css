@@ -1,0 +1,141 @@
+.section {
+  background: #fff;
+  padding: 100px 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.2;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: #475569;
+  line-height: 1.7;
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 40px;
+}
+
+.card {
+  max-width: 460px;
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.iconBox {
+  width: 56px;
+  height: 56px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exampleList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #475569;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.calcBtn {
+  padding: 12px 20px;
+  background: #1E5EFF;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.calcBtn:hover {
+  background: #0a47d4;
+}
+
+.calcBtn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.resultBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 158, 255, 0.05);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+}
+
+.resultMain {
+  font-size: 1.15rem;
+  color: #001A41;
+  margin: 0;
+}
+
+.resultClass {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.ctaLink {
+  margin-top: 4px;
+  color: #1E5EFF;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.ctaLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 24px 30px;
+  }
+  .title {
+    font-size: 1.7rem;
+  }
+}

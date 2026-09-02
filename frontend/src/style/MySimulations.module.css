@@ -1,0 +1,130 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FEFEFE 0%, #CADBFA 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  position: relative;
+}
+
+.backLink {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #001A41;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.backLink:hover {
+  background: rgba(0, 26, 65, 0.06);
+}
+
+.card {
+  width: 100%;
+  max-width: 620px;
+  margin-top: 40px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 36px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #001A41;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.status {
+  color: #1E5EFF;
+  font-weight: 600;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.emptyLink {
+  color: #1E5EFF;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.emptyLink:hover {
+  text-decoration: underline;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemType {
+  font-weight: 700;
+  color: #001A41;
+  font-size: 0.95rem;
+}
+
+.itemValue {
+  font-size: 0.85rem;
+  color: #1E5EFF;
+  font-weight: 600;
+}
+
+.itemDate {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.copyright {
+  margin-top: 40px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-align: center;
+}

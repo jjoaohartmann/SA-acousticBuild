@@ -257,3 +257,46 @@ export function IconGrid({ size = 24, color = '#001A41' }) {
     </svg>
   );
 }
+
+// ==== Novos ícones usados pela Calculadora (réplica do Figma) ====
+
+export function IconCalculator({ size = 24, color = '#FFFFFF' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="2" width="14" height="20" rx="2" stroke={color} strokeWidth="1.8"/>
+      <rect x="8" y="5" width="8" height="4" rx="1" stroke={color} strokeWidth="1.5"/>
+      <line x1="8" y1="12" x2="16" y2="12" stroke={color} strokeWidth="1.8"/>
+      <line x1="8" y1="16" x2="16" y2="16" stroke={color} strokeWidth="1.8"/>
+      <line x1="8" y1="19" x2="16" y2="19" stroke={color} strokeWidth="1.8"/>
+    </svg>
+  );
+}
+
+export function IconDownload({ size = 24, color = '#FFFFFF' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3V15" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <polyline points="8,11 12,15 16,11" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <line x1="4" y1="19" x2="20" y2="19" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+export function IconStar({ size = 24, color = '#FFFFFF' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="12,3 15,9 21,9.5 16.5,13.5 18,19 12,16 6,19 7.5,13.5 3,9.5 9,9"
+        stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+export function IconCircleX({ size = 24, color = '#FFFFFF' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.8" fill="none"/>
+      <line x1="8.5" y1="8.5" x2="15.5" y2="15.5" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="15.5" y1="8.5" x2="8.5" y2="15.5" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}

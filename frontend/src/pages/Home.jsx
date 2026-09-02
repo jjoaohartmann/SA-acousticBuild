@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import HeroSection from '../components/HeroSection';
 import WhatWeAreSection from '../components/WhatWeAreSection';
 import WhoWeAreSection from '../components/WhoWeAreSection';
+import CalculatorPreviewSection from '../components/calculator/CalculatorPreviewSection';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
 
@@ -16,6 +17,9 @@ export default function Home() {
       <HeroSection />
       <section id="o-que-somos">
         <WhatWeAreSection />
+      </section>
+      <section id="calculadora">
+        <CalculatorPreviewSection />
       </section>
       <section id="quem-somos">
         <WhoWeAreSection />

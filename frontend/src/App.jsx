@@ -4,6 +4,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserProfile from './pages/UserProfile';
+import Calculator from './pages/Calculator';
+import MySimulations from './pages/MySimulations';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -21,6 +23,13 @@ function AppRoutes() {
       <Route path="/profile" element={
         <PrivateRoute>
           <UserProfile />
+        </PrivateRoute>
+      } />
+      {/* NOVAS ROTAS */}
+      <Route path="/calculadora" element={<Calculator />} />
+      <Route path="/minhas-simulacoes" element={
+        <PrivateRoute>
+          <MySimulations />
         </PrivateRoute>
       } />
     </Routes>

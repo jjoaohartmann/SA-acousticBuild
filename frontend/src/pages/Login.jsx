@@ -23,7 +23,7 @@ export default function Login() {
     try {
       const response = await api.post('/auth/login', formData);
       login(response.data.user, response.data.access_token);
-      navigate('/dashboard');
+      navigate('/profile');
     } catch (err) {
       const msg = err.response?.data?.detail;
       setError(msg || 'Erro ao entrar. Tente novamente.');

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { IconPerson, IconEnvelope, IconLock, IconPencil, IconInfo, IconLogout } from '../components/IconSet';
+import { IconPerson, IconEnvelope, IconLock, IconPencil, IconInfo, IconLogout, IconWaveform } from '../components/IconSet';
 import styles from '../style/UserProfile.module.css';
 
 export default function UserProfile() {
@@ -27,6 +27,10 @@ export default function UserProfile() {
           <p className={styles.userEmail}>{user?.email || 'email@exemplo.com'}</p>
 
           <div className={styles.menuList}>
+            <button className={styles.menuItem} onClick={() => navigate('/minhas-simulacoes')}>
+              <IconWaveform size={22} color="#001A41" />
+              <span>MINHAS SIMULAÇÕES</span>
+            </button>
             <button className={styles.menuItem} onClick={() => setView('edit')}>
               <IconPencil size={22} color="#001A41" />
               <span>EDITAR INFORMAÇÕES</span>

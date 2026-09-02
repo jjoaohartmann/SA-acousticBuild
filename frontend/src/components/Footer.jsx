@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { IconWaveform, IconInstagram, IconMail, IconSend } from './IconSet';
 import styles from '../style/Footer.module.css';
 
@@ -42,7 +43,7 @@ export default function Footer() {
           <div className={styles.col}>
             <h4 className={styles.colTitle}>Produto</h4>
             <ul className={styles.colLinks}>
-              <li><a href="#">Calculadora</a></li>
+              <li><Link to="/calculadora">Calculadora</Link></li>
               <li><a href="#">Recursos</a></li>
             </ul>
           </div>

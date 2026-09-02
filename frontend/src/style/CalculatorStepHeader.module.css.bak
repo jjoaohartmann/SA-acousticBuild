@@ -1,0 +1,138 @@
+.header {
+  position: relative;
+  background: linear-gradient(180deg, #0A1128 0%, #0D1B3D 100%);
+  color: #FFFFFF;
+  padding: 56px 48px 40px;
+  overflow: hidden;
+}
+
+/* Grid 3D ondulado (decorativo) */
+.gridDecor {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(47, 111, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 111, 255, 0.08) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 80% 30%, #000 10%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Prédio wireframe à direita */
+.buildingDecor {
+  position: absolute;
+  right: 60px;
+  top: 20px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.buildingSvg {
+  width: 190px;
+  height: 200px;
+  filter: drop-shadow(0 0 6px rgba(47, 111, 255, 0.5));
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+
+.title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  color: #2F6FFF;
+}
+
+.subtitle {
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.6;
+  margin-bottom: 34px;
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+/* linha tracejada entre passos */
+.stepItem:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: 44px;
+  right: -16px;
+  height: 2px;
+  border-top: 2px dashed rgba(47, 111, 255, 0.6);
+}
+
+.stepCircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.stepCircle.done {
+  background: #2F6FFF;
+  border-color: #2F6FFF;
+  color: #FFFFFF;
+}
+
+.stepCircle.current {
+  background: #2F6FFF;
+  border-color: #2F6FFF;
+  color: #FFFFFF;
+}
+
+.stepLabel {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  padding-right: 22px;
+}
+
+.stepLabelCurrent {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 36px 20px 28px;
+  }
+  .buildingDecor {
+    right: 16px;
+    opacity: 0.5;
+  }
+  .title {
+    font-size: 1.7rem;
+  }
+  .stepLabel {
+    font-size: 0.72rem;
+  }
+}
