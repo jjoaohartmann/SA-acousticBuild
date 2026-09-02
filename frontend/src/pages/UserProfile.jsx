@@ -31,7 +31,7 @@ export default function UserProfile() {
               <IconPencil size={22} color="#001A41" />
               <span>EDITAR INFORMAÇÕES</span>
             </button>
-            <button className={styles.menuItem}>
+            <button className={styles.menuItem} onClick={() => navigate('/suporte')}>
               <IconInfo size={22} color="#001A41" />
               <span>SUPORTE</span>
             </button>

@@ -1,4 +1,4 @@
-import { IconRecycle, IconCircleCheck, IconBulb, IconPersonCircle, IconChevronDown } from './IconSet';
+import { IconRecycle, IconCircleCheck, IconBulb, IconPersonCircle } from './IconSet';
 import styles from '../style/WhoWeAreSection.module.css';
 
 const values = [
@@ -12,7 +12,7 @@ export default function WhoWeAreSection() {
   return (
     <section className={styles.section}>
       <div className={styles.backgroundDots} />
-      
+
       <div className={styles.container}>
         <div className={styles.textSide}>
           <span className={styles.label}>Quem somos</span>
@@ -20,12 +20,10 @@ export default function WhoWeAreSection() {
             Engenharia que constrói o <span className={styles.highlight}>silêncio</span>.
           </h2>
           <p className={styles.description}>
-            Somos uma equipe especializada em engenharia acústica, dedicada a transformar 
-            a forma como edificações são projetadas. Combinamos tecnologia avançada com 
-            conhecimento técnico para garantir ambientes com qualidade sonora excepcional, 
-            promovendo bem-estar e produtividade.
+            Somos estudantes e pesquisadores que tem como missão levar inovação para o mercado de planejamento arquitetônico através de 
+            um sistema de fácil acesso, ser referência na previsão acústica e incentivar uma maior preocupação por parte das 
+            empresas em relação à acústica do lugar que estão construindo.
           </p>
-          <button className={styles.btnOutline}>Saiba mais sobre nós →</button>
         </div>
 
         <div className={styles.gridSide}>
@@ -46,10 +44,6 @@ export default function WhoWeAreSection() {
             })}
           </div>
         </div>
-      </div>
-
-      <div className={styles.scrollIndicator}>
-        <IconChevronDown size={32} color="#FFFFFF" />
       </div>
     </section>
   );

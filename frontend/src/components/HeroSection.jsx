@@ -1,5 +1,6 @@
 import WavesIllustration from './WavesIllustration';
 import { IconChevronDown } from './IconSet';
+import { scrollToSection } from '../utils/scroll';
 import styles from '../style/HeroSection.module.css';
 
 export default function HeroSection() {
@@ -21,7 +22,19 @@ export default function HeroSection() {
         </div>
       </div>
       
-      <div className={styles.scrollIndicator}>
+      <div
+        className={styles.scrollIndicator}
+        role="button"
+        tabIndex={0}
+        aria-label="Rolar para baixo"
+        onClick={() => scrollToSection('o-que-somos')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            scrollToSection('o-que-somos');
+          }
+        }}
+      >
         <IconChevronDown size={32} color="#FFFFFF" />
       </div>
     </section>

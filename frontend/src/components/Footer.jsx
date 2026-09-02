@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { IconWaveform, IconInstagram, IconMail, IconSend } from './IconSet';
 import styles from '../style/Footer.module.css';
 
@@ -19,7 +20,7 @@ export default function Footer() {
               Tecnologia e conhecimento para construir um futuro mais silencioso e eficiente.
             </p>
             <div className={styles.socialIcons}>
-              <a href="#" className={styles.socialLink} aria-label="Instagram">
+              <a href="https://www.instagram.com/ic_floripa/" className={styles.socialLink} aria-label="Instagram">
                 <IconInstagram size={20} color="#FFFFFF" />
               </a>
               <a href="#" className={styles.socialLink} aria-label="E-mail">
@@ -34,7 +35,7 @@ export default function Footer() {
             <ul className={styles.colLinks}>
               <li><a href="#o-que-somos">O que somos</a></li>
               <li><a href="#quem-somos">Quem somos</a></li>
-              <li><a href="#produto">Produto</a></li>
+              <li><a href="#calculadora">Calculadora</a></li>
             </ul>
           </div>
 
@@ -51,8 +52,7 @@ export default function Footer() {
           <div className={styles.col}>
             <h4 className={styles.colTitle}>Suporte</h4>
             <ul className={styles.colLinks}>
-              <li><a href="#">Central de ajuda</a></li>
-              <li><a href="#">Fale conosco</a></li>
+              <li><Link to="/suporte">Central de ajuda</Link></li>
               <li><a href="#">Termos de uso</a></li>
               <li><a href="#">Privacidade</a></li>
             </ul>

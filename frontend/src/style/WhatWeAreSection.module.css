@@ -90,6 +90,7 @@
 .scrollIndicator {
   margin-top: 60px;
   animation: bounce 2s infinite;
+  cursor: pointer;
 }
 
 @keyframes bounce {

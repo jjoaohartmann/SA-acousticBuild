@@ -10,7 +10,7 @@ const navItems = [
   { section: 'Navegação', items: [
     { icon: IconBuilding, label: 'O que somos?', href: '#o-que-somos' },
     { icon: IconPersonCircle, label: 'Quem somos?', href: '#quem-somos' },
-    { icon: IconChartBars, label: 'Produto', href: '#produto' },
+    { icon: IconChartBars, label: 'Calculadora', href: '#calculadora' },
   ]},
   { section: 'Ferramentas', items: [
     { icon: IconHome, label: 'Isolamento Acústico', href: '#' },
@@ -19,7 +19,7 @@ const navItems = [
     { icon: IconWaveform, label: 'Relatório e Laudos', href: '#' },
   ]},
   { section: 'Suporte', items: [
-    { icon: IconHelp, label: 'Central de Ajuda', href: '#' },
+    { icon: IconHelp, label: 'Central de Ajuda', to: '/suporte' },
     { icon: IconShieldCheck, label: 'Termos de Uso', href: '#' },
   ]},
 ];
@@ -50,16 +50,29 @@ export default function Sidebar({ isOpen, onClose }) {
                   const Icon = item.icon;
                   return (
                     <li key={ii}>
-                      <a 
-                        href={item.href} 
-                        className={styles.navLink}
-                        onClick={item.href.startsWith('#') ? onClose : undefined}
-                      >
-                        <span className={styles.navIcon}>
-                          <Icon size={20} color="rgba(255,255,255,0.7)" />
-                        </span>
-                        <span>{item.label}</span>
-                      </a>
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          className={styles.navLink}
+                          onClick={onClose}
+                        >
+                          <span className={styles.navIcon}>
+                            <Icon size={20} color="rgba(255,255,255,0.7)" />
+                          </span>
+                          <span>{item.label}</span>
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className={styles.navLink}
+                          onClick={item.href.startsWith('#') ? onClose : undefined}
+                        >
+                          <span className={styles.navIcon}>
+                            <Icon size={20} color="rgba(255,255,255,0.7)" />
+                          </span>
+                          <span>{item.label}</span>
+                        </a>
+                      )}
                     </li>
                   );
                 })}

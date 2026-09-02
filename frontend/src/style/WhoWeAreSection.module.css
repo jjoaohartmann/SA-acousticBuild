@@ -124,19 +124,6 @@
   line-height: 1.6;
 }
 
-.scrollIndicator {
-  margin-top: 60px;
-  animation: bounce 2s infinite;
-  position: relative;
-  z-index: 1;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(10px); }
-  60% { transform: translateY(5px); }
-}
-
 @media (max-width: 968px) {
   .section {
     padding: 60px 30px 30px;

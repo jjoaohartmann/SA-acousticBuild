@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Support from './pages/Support';
 import UserProfile from './pages/UserProfile';
 
 function PrivateRoute({ children }) {
@@ -18,6 +19,7 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={user ? <Navigate to="/profile" /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/profile" /> : <Register />} />
+      <Route path="/suporte" element={<Support />} />
       <Route path="/profile" element={
         <PrivateRoute>
           <UserProfile />

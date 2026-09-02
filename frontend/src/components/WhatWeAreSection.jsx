@@ -1,4 +1,5 @@
 import { IconBuilding, IconChartUp, IconShieldCheck, IconChevronDownDark } from './IconSet';
+import { scrollToSection } from '../utils/scroll';
 import styles from '../style/WhatWeAreSection.module.css';
 
 const cards = [
@@ -28,7 +29,7 @@ export default function WhatWeAreSection() {
           Soluções acústicas para <span className={styles.highlight}>seu projeto</span>.
         </h2>
         <p className={styles.description}>
-          A Acústicbuild oferece uma ferramenta especializada para prever, analisar 
+          A AcousticBuild oferece uma ferramenta especializada para prever, analisar 
           e otimizar o desempenho acústico em diferentes edificações.
         </p>
 
@@ -48,7 +49,19 @@ export default function WhatWeAreSection() {
         </div>
       </div>
 
-      <div className={styles.scrollIndicator}>
+      <div
+        className={styles.scrollIndicator}
+        role="button"
+        tabIndex={0}
+        aria-label="Rolar para baixo"
+        onClick={() => scrollToSection('quem-somos')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            scrollToSection('quem-somos');
+          }
+        }}
+      >
         <IconChevronDownDark size={32} color="#64748b" />
       </div>
     </section>

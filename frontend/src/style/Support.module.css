@@ -1,0 +1,245 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background: #f8fafc;
+}
+
+/* Botão "← Início" fixo no topo */
+.backLink {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: white;
+  color: #1a73e8;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 80px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+}
+
+.backLink:hover {
+  background: #1a73e8;
+  color: white;
+  border-color: #1a73e8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+}
+
+.backLink:active {
+  transform: translateY(0);
+}
+
+/* Lado escuro — Central de Suporte + Fale Conosco */
+.panel {
+  flex: 1;
+  background: #011B3F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 48px;
+}
+
+.panelContent {
+  max-width: 440px;
+  width: 100%;
+  color: white;
+}
+
+.panelTitle {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 32px 0 16px;
+}
+
+.panelSubtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.channelsTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1E5EFF;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+a.channel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.channelIcon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.channelText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.channelLabel {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.channelValue {
+  font-size: 0.95rem;
+  color: #FFFFFF;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.channelHint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Lado claro — Perguntas Frequentes */
+.faqSide {
+  flex: 1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 48px;
+}
+
+.faqBox {
+  max-width: 560px;
+  width: 100%;
+}
+
+.faqLabel {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1E5EFF;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+
+.faqTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.2;
+  margin-bottom: 32px;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  background: #FFFFFF;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.faqItemOpen {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: left;
+}
+
+.faqIcon {
+  display: flex;
+  align-items: center;
+  color: #001A41;
+  transition: transform 0.2s;
+}
+
+.faqItemOpen .faqIcon {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  padding: 0 20px 18px;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .backLink {
+    top: 16px;
+    left: 16px;
+  }
+
+  .panel {
+    padding: 70px 24px 50px;
+  }
+
+  .faqSide {
+    padding: 50px 24px 70px;
+  }
+}
