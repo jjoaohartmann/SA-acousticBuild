@@ -10,11 +10,11 @@ const navItems = [
   { section: 'Navegação', items: [
     { icon: IconBuilding, label: 'O que somos?', href: '#o-que-somos' },
     { icon: IconPersonCircle, label: 'Quem somos?', href: '#quem-somos' },
-    { icon: IconChartBars, label: 'Calculadora', href: '#calculadora' },
+{ icon: IconChartBars, label: 'Produto', to: '/calculadora' },
   ]},
   { section: 'Ferramentas', items: [
-    { icon: IconHome, label: 'Isolamento Acústico', href: '#' },
-    { icon: IconZigzag, label: 'Absorção Sonora', href: '#' },
+    { icon: IconHome, label: 'Isolamento Acústico', to: '/calculadora?tipo=aereo' },
+    { icon: IconZigzag, label: 'Absorção Sonora', to: '/calculadora?tipo=impacto' },
     { icon: IconDocument, label: 'Relatório no Planejamento', href: '#' },
     { icon: IconWaveform, label: 'Relatório e Laudos', href: '#' },
   ]},
