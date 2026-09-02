@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthProvider';
+import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -9,8 +10,7 @@ import Calculator from './pages/Calculator';
 import MySimulations from './pages/MySimulations';
 
 function PrivateRoute({ children }) {
-  const { user, loading } = useAuth();
-  if (loading) return <div>Carregando...</div>;
+  const { user } = useAuth();
   return user ? children : <Navigate to="/login" />;
 }
 

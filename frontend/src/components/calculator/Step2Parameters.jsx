@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { IconInfo, IconChevronDown } from '../IconSet';
 import styles from '../../style/Calculator.module.css';
 
 export default function Step2Parameters({ form, setForm, onCalculate }) {
-  const [showLegenda, setShowLegenda] = useState(false);
   const set = (chave) => (e) => setForm((p) => ({ ...p, [chave]: e.target.value }));
 
   // A2 = 0,16 * V2 / T2  (calculado automaticamente, somente leitura)
@@ -111,7 +109,7 @@ export default function Step2Parameters({ form, setForm, onCalculate }) {
             <span>L<sub>2</sub> = L<sub>1</sub> + 10 log(T<sub>2</sub>/T<sub>1</sub>) + R − 10 log(S/A<sub>2</sub>)</span>
           </div>
 
-          <button type="button" className={styles.accordion} onClick={() => setShowLegenda((v) => !v)}>
+          <button type="button" className={styles.accordion}>
             <span>Legenda detalhada</span>
             <IconChevronDown size={18} color="#2F6FFF" />
           </button>

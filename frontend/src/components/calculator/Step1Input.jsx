@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { IconInfo, IconCalculator, IconChevronDown } from '../IconSet';
 import styles from '../../style/Calculator.module.css';
 
 export default function Step1Input({ form, setForm, onAdvanced }) {
-  const [showOpcionais, setShowOpcionais] = useState(false);
   const set = (chave) => (e) => setForm((p) => ({ ...p, [chave]: e.target.value }));
 
   return (
@@ -73,7 +71,7 @@ export default function Step1Input({ form, setForm, onAdvanced }) {
         </div>
       </div>
 
-      <button type="button" className={styles.accordion} onClick={() => setShowOpcionais((v) => !v)}>
+      <button type="button" className={styles.accordion}>
         <span>Parâmetros opcionais</span>
         <IconChevronDown size={18} color="#2F6FFF" />
       </button>
