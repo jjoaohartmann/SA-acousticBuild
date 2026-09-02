@@ -49,6 +49,14 @@ const faqs = [
     q: 'Meus dados estão seguros?',
     a: 'Sim. Utilizamos protocolos de segurança e armazenamento protegido. Seus dados são usados apenas para a operação da plataforma.',
   },
+  {
+    q: 'Quais normas são utilizadas nos cálcullos?',
+    a: 'Normas europeias do COMITÊ EUROPEU DE NORMALIZACION 12354-1 e 12354-2, de acústica em edificações.',
+  },
+  {
+    q: 'Posso salvar e editar meus projetos?',
+    a: 'Sim. Ao se cadastrar na plataforma você tem acesso ao seu histórico de cálculos.',
+  },
 ];
 
 export default function Support() {
