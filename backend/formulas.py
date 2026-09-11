@@ -1,158 +1,256 @@
-import math
+"""Motor de cálculo acústico - AcousticBuild.
 
-# Constantes de normalizacao (ISO 717 / NBR 15575)
-T0 = 0.5      # tempo de reverberacao de referencia (segundos)
-A0 = 10.0     # area de absorcao equivalente de referencia (m2)
-K  = 0.16     # constante de Sabine para ambientes tipicos
+Implementação rigorosa das normas ABNT NBR ISO 16283-1/2, ISO 12354-1/2, ISO 717-1/2 e NBR 15575.
+Compatível com chamadas analíticas diretas e com o motor relacional da Fase 3.
+"""
+from __future__ import annotations
+
+import math
+from typing import Any
+
+from engine import (
+    A0,
+    T0,
+    calcular_absorcao_sabine,
+    executar_calculo_motor,
+)
 
 
 def absorcao_equivalente(volume: float, tempo_reverb: float) -> float:
-    """A = (K * V) / T   (formula de Sabine)."""
-    return K * volume / tempo_reverb
+    """Calcula a absorcao equivalente do ambiente receptor pela formula de Sabine: A = 0.16 * V / T."""
+    return calcular_absorcao_sabine(volume, tempo_reverb)
 
 
 def _validar_positivo(valores):
-    """Valida presenca e positividade de todos os campos numericos antes de qualquer log10."""
+    """Valida presenca e positividade de campos numericos obrigatorios."""
     for nome, valor in valores:
         if valor is None:
-            raise ValueError(f'Campo obrigatorio ausente: {nome}')
+            raise ValueError(f"Campo obrigatorio ausente: {nome}")
         try:
             v = float(valor)
         except (TypeError, ValueError):
-            raise ValueError(f'Campo invalido (deve ser numero): {nome}')
+            raise ValueError(f"Campo invalido (deve ser numero): {nome}")
         if v <= 0:
-            raise ValueError(f'{nome} deve ser maior que zero (recebido: {valor})')
+            raise ValueError(f"{nome} deve ser estritamente maior que zero (recebido: {valor})")
 
 
 def calcular_tipo_aereo(dados):
     """
-    Isolamento ao ruido aereo (ISO 16283-1 / ISO 717-1).
-
-    Formula adotada (Figma / EN 12354-1):
-        A2 = 0,16 * V2 / T2
-        L2 = L1 + 10*log10(T2/T1) + R - 10*log10(S/A2)
-        DnT = (L1 - L2) + 10*log10(T2/T0)
-
-    Entradas:
-        area_elemento          (S)  - area do elemento separador (m2)
-        volume_receptor        (V2) - volume do ambiente receptor (m3)
-        reverberacao           (T2) - tempo de reverberacao do RECEPTOR (s)
-        reverberacao_emissor   (T1) - tempo de reverberacao do EMISSOR (s);
-                                      se ausente, assume T1 = T2 (fator de normalizacao neutro)
-        reducao_sonora         (R)  - indice de reducao sonora do material (dB)
-        l1                          - nivel de pressao sonora na fonte (dB)
-
-    Saidas:
-        L2  - nivel previsto no receptor (indicador principal pelo Figma)
-        DnT - diferenca normalizada (adicional)
-        R'  - indice de reducao sonora aparente (derivado)
+    Calculo de isolamento ao ruido aereo (UNE-EN 12354-1 / ISO 16283-1).
     """
-    S  = dados.get('area_elemento')
-    V2 = dados.get('volume_receptor')
-    T2 = dados.get('reverberacao')            # receptor
-    R  = dados.get('reducao_sonora')
+    S = dados.get('area_elemento') or dados.get('s')
+    V = dados.get('volume_receptor') or dados.get('v')
+    T = dados.get('reverberacao') or dados.get('t') or dados.get('t2')
     L1 = dados.get('l1')
 
     _validar_positivo([
         ('area_elemento', S),
-        ('volume_receptor', V2),
-        ('reverberacao', T2),
-        ('reducao_sonora', R),
+        ('volume_receptor', V),
+        ('reverberacao', T),
         ('l1', L1),
     ])
 
-    S = float(S); V2 = float(V2); T2 = float(T2); R = float(R); L1 = float(L1)
+    S = float(S)
+    V = float(V)
+    T = float(T)
+    L1 = float(L1)
 
-    T1 = dados.get('reverberacao_emissor')     # emissor (opcional, default = T2)
-    if T1 is None or T1 <= 0:
-        T1 = float(T2)
+    A = absorcao_equivalente(V, T)
+
+    L2_medido = dados.get('l2')
+    R_informado = dados.get('reducao_sonora') or dados.get('r')
+
+    if L2_medido is not None and str(L2_medido).strip() != '':
+        try:
+            L2_val = float(L2_medido)
+        except (TypeError, ValueError):
+            raise ValueError("L2 medido deve ser um numero valido.")
+        if L2_val <= 0:
+            raise ValueError("L2 medido deve ser maior que zero.")
+
+        L2 = L2_val
+        DnT = (L1 - L2) + 10.0 * math.log10(T / T0)
+        R_aparente = (L1 - L2) + 10.0 * math.log10(S / A)
+        modo = "medicao"
+        r_display = R_aparente
+        confiabilidade = "medicao_usuario"
+        origem = "Resultado baseado em medição informada pelo usuário"
+        fontes = ["Medição in situ informada pelo usuário"]
+        limitacoes = ["Resultado obtido a partir de medição in situ de L1 e L2."]
     else:
-        T1 = float(T1)
+        if R_informado is None or str(R_informado).strip() == '':
+            raise ValueError("Informe o indice de reducao sonora R (ou o nivel medido L2).")
+        try:
+            R_val = float(R_informado)
+        except (TypeError, ValueError):
+            raise ValueError("Reducao sonora R deve ser um numero valido.")
+        if R_val <= 0:
+            raise ValueError("Reducao sonora R deve ser maior que zero.")
 
-    A2 = absorcao_equivalente(V2, T2)                        # 0,16*V2/T2
-    L2 = L1 + 10.0 * math.log10(T2 / T1) + R - 10.0 * math.log10(S / A2)   # formula do Figma
-    DnT = (L1 - L2) + 10.0 * math.log10(T2 / T0)            # padronizado
-    R_aparente = L1 - L2 + 10.0 * math.log10(S / A2)        # "R aparente" derivado
+        L2 = L1 - R_val + 10.0 * math.log10(S / A)
+        DnT = (L1 - L2) + 10.0 * math.log10(T / T0)
+        R_aparente = R_val
+        modo = "previsao"
+        r_display = R_val
+        confiabilidade = "informado_usuario"
+        origem = "Resultado baseado em valor informado pelo usuário"
+        fontes = ["Valor informado pelo usuário"]
+        limitacoes = ["O cálculo assume que o valor informado corresponde ao índice de redução sonora do elemento."]
 
     return {
         'tipo': 'aereo',
-        'areas': {'absorcao_equivalente': round(A2, 4)},
+        'modo': modo,
+        'areas': {
+            'absorcao_equivalente': round(A, 4)
+        },
         'indicador_principal': {
-            'nome': 'L2',
-            'descricao': 'Nivel de pressao sonora previsto no ambiente receptor',
-            'valor': round(L2, 4),
+            'nome': 'DnT',
+            'descricao': 'Diferenca de nivel padronizada',
+            'valor': round(DnT, 2),
+            'valor_exato': DnT,
             'unidade': 'dB',
         },
         'indicador_secundario': {
-            'nome': "R'",
-            'descricao': 'Indice de reducao sonora aparente',
-            'valor': round(R_aparente, 4),
+            'nome': "R'" if modo == "medicao" else "R",
+            'descricao': 'Indice de reducao sonora aparente' if modo == "medicao" else 'Indice de reducao sonora do material',
+            'valor': round(r_display, 2),
+            'valor_exato': r_display,
             'unidade': 'dB',
         },
+        'resultado': {
+            'indicador_principal': {
+                'nome': 'DnT',
+                'descricao': 'Diferenca de nivel padronizada',
+                'valor': round(DnT, 2),
+                'valor_exato': DnT,
+                'unidade': 'dB',
+            },
+            'indicador_secundario': {
+                'nome': "R'" if modo == "medicao" else "R",
+                'descricao': 'Indice de reducao sonora aparente' if modo == "medicao" else 'Indice de reducao sonora do material',
+                'valor': round(r_display, 2),
+                'valor_exato': r_display,
+                'unidade': 'dB',
+            }
+        },
+        'metodo': {
+            'nome': 'Previsão de isolamento ao ruído aéreo' if modo == 'previsao' else 'Medição in situ de isolamento aéreo',
+            'norma': 'ABNT NBR ISO 16283-1 / ISO 717-1',
+            'equacao': 'DnT = (L1 - L2) + 10*log10(T / T0)'
+        },
+        'confiabilidade': confiabilidade,
+        'origem': origem,
+        'fontes': fontes,
+        'limitacoes': limitacoes,
         'detalhes': {
-            'l2_previsto': round(L2, 4),
-            'dnt': round(DnT, 4),
-            'absorcao_equivalente': round(A2, 4),
+            'dnt': round(DnT, 2),
+            'l2_previsto': round(L2, 2),
+            'l2_exato': L2,
+            'l1': L1,
+            'r': round(r_display, 2),
+            's': S,
+            'v': V,
+            't': T,
+            'absorcao_equivalente': round(A, 2),
+            'absorcao_exata': A,
+            'modo': modo,
         },
     }
 
 
 def calcular_tipo_impacto(dados):
     """
-    Nivel de pressao sonora de impacto (ISO 16283-2 / ISO 717-2).
-
-    Entradas:
-        area_elemento   (S)  - area do elemento (m2)
-        volume_receptor (V)  - volume do ambiente receptor (m3)
-        reverberacao    (T)  - tempo de reverberacao (s)
-        nivel_impacto (L2n)  - nivel medido no receptor (dB)
-
-    Saidas:
-        L'n  - nivel normalizado pela absorcao (A0)
-        L'nT - nivel normalizado pela reverberacao (T0) -> indicador principal
+    Calculo do nivel de pressao sonora de impacto (UNE-EN 12354-2 / ISO 16283-2).
     """
-    S   = dados.get('area_elemento')
-    V   = dados.get('volume_receptor')
-    T   = dados.get('reverberacao')
-    L2n = dados.get('nivel_impacto')
+    V = dados.get('volume_receptor') or dados.get('v')
+    T = dados.get('reverberacao') or dados.get('t') or dados.get('t2')
+    Li = dados.get('nivel_impacto') or dados.get('li')
 
     _validar_positivo([
-        ('area_elemento', S),
         ('volume_receptor', V),
         ('reverberacao', T),
-        ('nivel_impacto', L2n),
+        ('nivel_impacto', Li),
     ])
 
-    S = float(S); V = float(V); T = float(T); L2n = float(L2n)
+    V = float(V)
+    T = float(T)
+    Li = float(Li)
 
-    A   = absorcao_equivalente(V, T)
-    Ln  = L2n + 10.0 * math.log10(A / A0)   # L'n normalizado pela absorcao
-    LnT = L2n + 10.0 * math.log10(T / T0)   # L'nT padronizado pela reverba.
+    A = absorcao_equivalente(V, T)
+
+    # Formula padronizada: L'nT = Li - 10*log10(T / T0)
+    LnT = Li - 10.0 * math.log10(T / T0)
+
+    # Formula normalizada: L'n = Li + 10*log10(A / A0)
+    Ln = Li + 10.0 * math.log10(A / A0)
 
     return {
         'tipo': 'impacto',
-        'areas': {'absorcao_equivalente': round(A, 4)},
+        'areas': {
+            'absorcao_equivalente': round(A, 4)
+        },
         'indicador_principal': {
             'nome': "L'nT",
-            'descricao': 'Nivel normalizado de impacto (padronizado)',
-            'valor': round(LnT, 4),
+            'descricao': 'Nivel de pressao sonora de impacto padronizado',
+            'valor': round(LnT, 2),
+            'valor_exato': LnT,
             'unidade': 'dB',
         },
         'indicador_secundario': {
             'nome': "L'n",
-            'descricao': 'Nivel normalizado de impacto',
-            'valor': round(Ln, 4),
+            'descricao': 'Nivel de pressao sonora de impacto normalizado',
+            'valor': round(Ln, 2),
+            'valor_exato': Ln,
             'unidade': 'dB',
         },
+        'resultado': {
+            'indicador_principal': {
+                'nome': "L'nT",
+                'descricao': 'Nivel de pressao sonora de impacto padronizado',
+                'valor': round(LnT, 2),
+                'valor_exato': LnT,
+                'unidade': 'dB',
+            },
+            'indicador_secundario': {
+                'nome': "L'n",
+                'descricao': 'Nivel de pressao sonora de impacto normalizado',
+                'valor': round(Ln, 2),
+                'valor_exato': Ln,
+                'unidade': 'dB',
+            }
+        },
+        'metodo': {
+            'nome': 'Medição de ruído de impacto com máquina de percussão padronizada',
+            'norma': 'ABNT NBR ISO 16283-2 / ISO 717-2',
+            'equacao': "L'nT = Li - 10*log10(T / T0)"
+        },
+        'confiabilidade': 'medicao_usuario',
+        'origem': 'Resultado baseado em medição informada pelo usuário',
+        'fontes': ['Ensaio in situ com máquina de percussão padronizada'],
+        'limitacoes': ['Nível de impacto Li medido e informado pelo usuário.'],
         'detalhes': {
-            'absorcao_equivalente': round(A, 4),
+            'lnt': round(LnT, 2),
+            'ln': round(Ln, 2),
+            'li': Li,
+            'v': V,
+            't': T,
+            'absorcao_equivalente': round(A, 2),
+            'absorcao_exata': A,
         },
     }
 
 
-def calcular(dados):
-    """Orquestrador publico: escolhe motor por tipo_analise."""
-    tipo = dados.get('tipo_analise', 'aereo')
-    if tipo == 'impacto':
+def calcular(dados: dict[str, Any], db: Any | None = None) -> dict[str, Any]:
+    """
+    Orquestrador público da calculadora:
+    Se os dados contiverem sistema cadastrado (sistema_codigo / sistema_id) ou lista de camadas personalizadas,
+    despacha para o motor de decisão avançado (executar_calculo_motor).
+    Caso contrário, executa o cálculo de previsão/medição analítica clássico.
+    """
+    if dados.get("sistema_codigo") or dados.get("sistema_id") or dados.get("camadas"):
+        return executar_calculo_motor(dados, db=db)
+
+    tipo = str(dados.get('tipo_analise', 'aereo')).lower()
+    if tipo in ('impacto', 'lnt'):
         return calcular_tipo_impacto(dados)
     return calcular_tipo_aereo(dados)

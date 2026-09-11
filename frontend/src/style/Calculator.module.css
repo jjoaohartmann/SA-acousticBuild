@@ -136,33 +136,84 @@
 .primaryBtn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 13px 22px;
-  background: #2F6FFF;
-  color: #FFFFFF;
-  border: none;
+  gap: 8px;
+  padding: 12px 28px;
+  background: #1e3a8a;
+  color: #f8fafc;
+  border: 1px solid rgba(147, 197, 253, 0.22);
   border-radius: 999px;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .primaryBtn:hover {
-  background: #1e55e3;
+  background: #1d4ed8;
+  border-color: rgba(147, 197, 253, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
+  color: #ffffff;
+}
+
+.primaryBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .secondaryBtn {
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   cursor: pointer;
   font-family: inherit;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.selectionBtn {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #0c1836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.selectionBtn:hover {
+  background: #11224d;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.selectionBtnActive {
+  background: rgba(30, 58, 138, 0.3);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .outlineBtn {
@@ -553,3 +604,282 @@
     padding: 22px;
   }
 }
+
+/* ==========================================================
+   Novos estilos: Modos, Presets, Toggles, Badges e Relatório
+   ========================================================== */
+
+/* Seletor de Tipo de Análise (Aéreo / Impacto) */
+.modeSelector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: #101E42;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 12px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.modeBtnActive {
+  background: #2F6FFF;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(47, 111, 255, 0.35);
+}
+
+/* Barra de Presets Rápidos */
+.presetsBar {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: rgba(47, 111, 255, 0.08);
+  border: 1px dashed rgba(47, 111, 255, 0.4);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.presetsTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #9db9ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.presetsList {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.presetChip {
+  padding: 7px 14px;
+  background: #101E42;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.presetChip:hover {
+  background: #2F6FFF;
+  border-color: #2F6FFF;
+}
+
+/* Helper e Dica de Campo */
+.fieldHint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+/* Switch / Checkbox Estilizado */
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.toggleInput {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #2F6FFF;
+}
+
+/* Badges de Classificação */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badgeSuccess {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22C55E;
+  color: #22C55E;
+}
+
+.badgeDanger {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid #F43F5E;
+  color: #F43F5E;
+}
+
+.badgeWarning {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid #EAB308;
+  color: #EAB308;
+}
+
+.tileRed {
+  color: #F43F5E;
+}
+
+/* Card Dedicado de Tempo de Reverberação */
+.reverbCard {
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: #101E42;
+  border-radius: 16px;
+  border-left: 4px solid #2F6FFF;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reverbCard.alerta {
+  border-left-color: #EAB308;
+}
+
+.reverbTitle {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reverbText {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+/* Modal do Relatório */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modalContent {
+  background: #0A1128;
+  border: 1px solid rgba(47, 111, 255, 0.5);
+  border-radius: 20px;
+  max-width: 780px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  color: #FFFFFF;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.modalCloseBtn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.reportSheet {
+  background: #FFFFFF;
+  color: #0A1128;
+  border-radius: 12px;
+  padding: 30px;
+  font-family: Arial, sans-serif;
+}
+
+.reportHeader {
+  border-bottom: 2px solid #2F6FFF;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.reportHeader h2 {
+  font-size: 1.3rem;
+  color: #001A41;
+  margin: 0;
+}
+
+.reportSub {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.reportSection {
+  margin-bottom: 18px;
+}
+
+.reportSectionTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2F6FFF;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+.reportGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.reportGrid div strong {
+  color: #1e293b;
+}
+
+.reportActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}

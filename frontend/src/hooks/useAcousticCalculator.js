@@ -15,25 +15,34 @@ export function useAcousticCalculator(tipoInicial) {
     setLoading(true);
     setError('');
     setSaved(false);
+    if (payload.tipo_analise) {
+      setTipoAnalise(payload.tipo_analise);
+    }
     try {
       const { data } = await api.post('/acustica/calcular', payload);
       setDados(payload);
       setResultado(data);
+      return data;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erro ao calcular. Verifique os dados.');
+      const msg = err.response?.data?.detail || 'Erro ao calcular. Verifique os dados.';
+      setError(msg);
       setResultado(null);
+      throw new Error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const salvarSimulacao = async () => {
-    // so e chamado se user existir — o token ja vai no header pelo interceptor do api.js
     try {
-      await api.post('/acustica/salvar', { tipo_analise: tipoAnalise, dados_entrada: dados, resultado });
+      await api.post('/acustica/salvar', {
+        tipo_analise: tipoAnalise,
+        dados_entrada: dados,
+        resultado,
+      });
       setSaved(true);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erro ao salvar a simulacao.');
+      setError(err.response?.data?.detail || 'Erro ao salvar a simulação.');
     }
   };
 

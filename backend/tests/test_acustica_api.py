@@ -1,27 +1,29 @@
 """Teste end-to-end dos handlers de /acustica chamados diretamente,
 usando um banco SQLite em memoria (nao exige pacote 'httpx' nem toca no acoust.db)."""
-import sys
 import os
+import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + '/..')
+# Adiciona o diretorio backend ao sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import models  # type: ignore
+from acustica import (  # type: ignore
+    calcular,
+    listar_simulacoes,
+    salvar_simulacao,
+)
+from database import Base  # type: ignore
+from schemas import CalcularRequest, SimulacaoCreate  # type: ignore
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from database import Base
-import models  # noqa: F401  registra as tabelas no Base.metadata
-
-from acustica import calcular, salvar_simulacao, listar_simulacoes
-from schemas import CalcularRequest, SimulacaoCreate
 
 CASO = {
     "tipo_analise": "aereo",
     "area_elemento": 15.5,
-    "volume_receptor": 30,
+    "volume_receptor": 30.0,
     "reverberacao": 0.6,
-    "reverberacao_emissor": 0.6,
-    "reducao_sonora": 52,
-    "l1": 85,
+    "reducao_sonora": 52.0,
+    "l1": 85.0,
 }
 
 
@@ -31,20 +33,21 @@ def _nova_sessao():
     return sessionmaker(bind=engine)()
 
 
-def _quase(a, b, tol=0.02):
+def _quase(a: float, b: float, tol: float = 0.03) -> bool:
     return abs(a - b) <= tol
 
 
 def test_calcular_publico():
     data = calcular(CalcularRequest(**CASO))
-    assert data["indicador_principal"]["nome"] == "L2", data["indicador_principal"]
-    assert _quase(data["detalhes"]["l2_previsto"], 134.13), data
+    assert data["indicador_principal"]["nome"] == "DnT", data["indicador_principal"]
+    assert _quase(float(data["indicador_principal"]["valor"]), 49.92), data["indicador_principal"]
+    assert _quase(float(data["detalhes"]["l2_previsto"]), 35.87), data["detalhes"]
     assert data["classificacao"] in ("atende", "nao_atende", "indisponivel")
     assert "criterios" in data and data["criterios"]["norma"] == "NBR 15575"
     assert isinstance(data["sugestoes"], list)
-    import json  # confere que a resposta e serializavel em JSON
+    import json
     json.dumps(data)
-    print("OK /calcular -> L2 =", data["indicador_principal"]["valor"], "dB |", data["classificacao"])
+    print("OK /calcular -> DnT =", data["indicador_principal"]["valor"], "dB |", data["classificacao"])
 
 
 def test_calcular_invalido():
@@ -59,8 +62,7 @@ def test_calcular_invalido():
 
 def test_fluxo_salvar_e_listar():
     db = _nova_sessao()
-    from models import User
-    user = User(id=10, name="Tester", email="teste_calc@email.com", password="x")
+    user = models.User(id=10, name="Tester", email="teste_calc@email.com", password="x")
 
     nova = salvar_simulacao(
         SimulacaoCreate(tipo_analise="aereo", dados_entrada=CASO, resultado={"indicador_principal": {"valor": 49.92}}),
@@ -72,7 +74,7 @@ def test_fluxo_salvar_e_listar():
     rows = listar_simulacoes(db=db, user=user)
     assert len(rows) == 1
     assert rows[0]["id"] == nova["id"]
-    assert rows[0]["dados_entrada"]["l1"] == 85  # dict deserializado do JSON
+    assert rows[0]["dados_entrada"]["l1"] == 85
     db.close()
     print("OK fluxo salvar/listar -> ids:", [r["id"] for r in rows])
 

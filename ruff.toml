@@ -1,0 +1,4 @@
+# Configuracao do Ruff para o projeto AcousticBuild
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends", "Depends"]

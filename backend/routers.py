@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from auth import create_access_token, hash_password, verify_password
 from database import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
 from models import User
-from schemas import UserCreate, UserLogin, UserResponse, Token
-from auth import hash_password, verify_password, create_access_token
+from schemas import Token, UserCreate, UserLogin, UserResponse
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
@@ -28,7 +28,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == credentials.email).first()
-    if not user or not verify_password(credentials.password, user.password):
+    if not user or not verify_password(credentials.password, str(user.password)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="E-mail ou senha incorretos."

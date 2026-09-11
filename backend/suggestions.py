@@ -1,92 +1,139 @@
-# Motor de sugestoes.
-#
-# Camada 1: regras deterministicas em Python — funcionam sem dependencia externa.
-# Camada 2 (opcional): narrar() apenas redige em linguagem natural o que a
-# Camada 1 ja decidiu. NUNCA inventa numeros nem recomenda nuevas acoes.
+"""Motor de recomendacoes tecnicas para desempenho acustico.
+
+Regras deterministicas (Camada 1) alinhadas a fisica acustica e as normas
+NBR 15575 (partes 4 e 5), ANSI S12.60 e aos estudos de caso de obra.
+"""
 
 
-def gerar_sugestoes(tipo, resultado):
-    """
-    Regras da Camada 1 baseadas no indicador de criterio (DnT p/ aereo,
-    L'nT p/ impacto), nao no principal (que e o nivel previsto L2).
-
-    Retorna lista de dicts: {'recomendacao': str, 'motivo': str}
-    """
+def gerar_sugestoes(tipo: str, resultado: dict) -> list[dict]:
+    """Gera recomendacoes acionaveis e fisicamente coerentes."""
     sugestoes = []
     detalhes = resultado.get('detalhes', {})
+    principal = resultado.get('indicador_principal', {})
 
-    if tipo == 'aereo':
-        valor = detalhes.get('dnt', resultado['indicador_principal']['valor'])
-    else:
-        valor = resultado['indicador_principal']['valor']
+    tipo_norm = 'impacto' if tipo in ('impacto', 'lnt') else 'aereo'
 
-    if tipo == 'aereo':
-        if valor < 30:
+    if tipo_norm == 'aereo':
+        dnt = detalhes.get('dnt', principal.get('valor', 0))
+
+        if dnt < 35.0:
             sugestoes.append({
-                'recomendacao': 'Trocar o material do elemento',
-                'motivo': 'Isolamento muito baixo — buscar material com indice de reducao sonora (R) superior.',
+                'recomendacao': 'Substituir ou duplicar o elemento separador',
+                'motivo': (
+                    'Isolamento acústico insuficiente (DnT < 35 dB). Recomenda-se sistema de parede dupla '
+                    'desolidarizada ou reforço de drywall com chapas duplas de alta densidade e preenchimento '
+                    'integral da cavidade com lã mineral (rocha ou vidro).'
+                ),
             })
-        elif valor < 45:
             sugestoes.append({
-                'recomendacao': 'Reforcar a vedacao/frestas do elemento',
-                'motivo': 'Perdas por frestas tipicamente reduzem a diferenca medida em relacao ao material.',
+                'recomendacao': 'Verificar caixas elétricas e passagens de tubulação',
+                'motivo': (
+                    'Caixas de tomada posicionadas costas com costas e passagens de instalações vazadas '
+                    'criam pontes acústicas severas que anulam o isolamento da partição.'
+                ),
+            })
+        elif dnt < 45.0:
+            sugestoes.append({
+                'recomendacao': 'Tratamento de frestas e vedação perimetral com selante acústico',
+                'motivo': (
+                    'Isolamento abaixo do mínimo exigido pela NBR 15575 (45 dB). Frestas entre parede e laje, '
+                    'portas ou juntas sem calafetação com mástique elástico reduzem sensivelmente o isolamento aparente.'
+                ),
+            })
+            sugestoes.append({
+                'recomendacao': 'Adicionar placa acústica de acabamento ou revestimento resiliente',
+                'motivo': (
+                    'A aplicação de uma placa de gesso adicional sobre a estrutura existente proporciona o ganho '
+                    'de massa necessário para atingir o patamar regulatório.'
+                ),
             })
         else:
             sugestoes.append({
-                'recomendacao': 'Manter a solucao atual',
-                'motivo': 'O isolamento ja atende aos patamares comuns de conforto acustico.',
+                'recomendacao': 'Manter o sistema construtivo atual',
+                'motivo': (
+                    'O isolamento aéreo atende ou supera o desempenho mínimo estipulado pela NBR 15575.'
+                ),
             })
-    elif tipo == 'impacto':
-        if valor > 78:
+
+    elif tipo_norm == 'impacto':
+        lnt = detalhes.get('lnt', principal.get('valor', 0))
+
+        if lnt > 65.0:
             sugestoes.append({
-                'recomendacao': 'Adicionar piso flutuante ou material resiliente',
-                'motivo': 'Nivel de impacto elevado pede desacoplamento entre piso e estrutura.',
+                'recomendacao': 'Implementar contrapiso flutuante com manta acústica resiliente',
+                'motivo': (
+                    'Transmissão de impacto severa (L\'nT > 65 dB, similar ao piso cerâmico sem tratamento). '
+                    'É indispensável a execução de contrapiso flutuante desacoplado da laje por manta de polietileno '
+                    'expandido, lã de rocha de alta densidade ou borracha, com virada perimetral nas paredes.'
+                ),
             })
-        elif valor > 65:
             sugestoes.append({
-                'recomendacao': 'Reforcar a laje/capa com desacoplamento acustico',
-                'motivo': 'Nivel de impacto moderado pode ser reduzido com desacoplamento a camadas.',
+                'recomendacao': 'Desolidarizar rodapés e esquadrias em contato com o piso',
+                'motivo': (
+                    'Evitar o contato rígido entre os rodapés cerâmicos e o contrapiso flutuante para não formar '
+                    'pontes acústicas laterais de vibração.'
+                ),
+            })
+        elif lnt > 55.0:
+            sugestoes.append({
+                'recomendacao': 'Instalar revestimento de piso resiliente ou manta sob acabamento',
+                'motivo': (
+                    'Nível de impacto acima do limite máximo de 55 dB da NBR 15575-5. A troca para piso vinílico '
+                    'acústico, carpete ou inserção de manta de amortecimento sob piso laminado atenua diretamente o impacto.'
+                ),
             })
         else:
             sugestoes.append({
-                'recomendacao': 'Manter a solucao atual',
-                'motivo': 'O nivel de impacto esta confortavel em relacao a patamares comuns.',
+                'recomendacao': 'Manter a solução de piso e laje atual',
+                'motivo': (
+                    'O nível de ruído de impacto atende ao requisito regulatório da NBR 15575-5 (<= 55 dB).'
+                ),
             })
 
-    # sugestao generica baseada na absorcao equivalente (util para ambos os tipos)
-    a = detalhes.get('absorcao_equivalente')
-    if a is not None and a < 8:
+    # Regra para Tempo de Reverberacao (especialmente ambientes de ensino / salas de aula)
+    t = detalhes.get('t')
+    if t is not None and t > 0.60:
         sugestoes.append({
-            'recomendacao': 'Aumentar a absorcao sonora do ambiente receptor',
-            'motivo': 'Absorcao equivalente baixa eleva o nivel sonoro projetado no receptor.',
+            'recomendacao': 'Instalar forro acústico mineral ou painéis fonoabsorventes',
+            'motivo': (
+                f'Tempo de reverberação medido ({t:.2f} s) ultrapassa o limite de 0,60 s da norma ANSI S12.60 para salas de aula. '
+                'A introdução de forro fonoabsorvente ou baffles reduz ecos e melhora a clareza da comunicação.'
+            ),
+        })
+
+    # Regra para Absorcao Equivalente
+    a = detalhes.get('absorcao_equivalente')
+    v = detalhes.get('v')
+    if a is not None and v is not None and v > 40 and a < 10:
+        sugestoes.append({
+            'recomendacao': 'Aumentar a absorção sonora do ambiente receptor',
+            'motivo': (
+                'Área de absorção equivalente reduzida para o volume da sala amplifica a sensação de reverberação e reverberância sonora.'
+            ),
         })
 
     return sugestoes
 
 
-def narrar(tipo, resultado, sugestoes):
-    """
-    Camada 2 (opcional, RDICAO): apenas narra o que as regras ja decidiram.
-    Nao gera novos numeros. Se indisponivel, descreve o motivo do mesmo modo.
-    """
-    principal = resultado['indicador_principal']
-    valor = principal['valor']
-    unidade = principal['unidade']
-    partes = []
-    partes.append(
-        f'O {principal["nome"]} estimado para este cenario e de aproximadamente '
-        f'{valor:.2f} {unidade}.'
-    )
+def narrar(tipo: str, resultado: dict, sugestoes: list[dict]) -> dict:
+    """Narra em linguagem natural e técnica o resumo dos resultados obtidos."""
+    principal = resultado.get('indicador_principal', {})
+    valor = principal.get('valor', 0)
+    nome = principal.get('nome', '')
+    unidade = principal.get('unidade', 'dB')
+
+    tipo_nome = 'ruído de impacto' if tipo in ('impacto', 'lnt') else 'ruído aéreo'
+    partes = [
+        f"Para a análise de {tipo_nome}, o indicador principal obtido foi {nome} = {valor:.2f} {unidade}."
+    ]
 
     if sugestoes:
-        partes.append('Com base nas regras tecnicas, recomendamos:')
+        partes.append("Ações técnicas recomendadas:")
         for s in sugestoes:
-            partes.append(f'- {s["recomendacao"]} ({s["motivo"]})')
-    else:
-        partes.append('Nenhuma recomendacao adicional foi gerada pelas regras.')
+            partes.append(f"• {s['recomendacao']}: {s['motivo']}")
 
     return {
         'tipo': tipo,
         'narrativa': ' '.join(partes),
-        'fonte': 'regras-deterministicas',
+        'fonte': 'regras-tecnicas-normativas',
     }
