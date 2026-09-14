@@ -28,6 +28,7 @@ frontend/dist/
 frontend/.vite/
 frontend/.env
 frontend/.env.*
+!frontend/.env.example
 
 # --- VSCode (cada dev tem o seu) ---
 .vscode/

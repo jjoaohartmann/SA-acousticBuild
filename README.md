@@ -253,6 +253,31 @@ Vantagens:
 
 ---
 
+## ☁️ Deploy na Vercel (automático)
+
+O projeto está pronto para a Vercel: **backend (FastAPI) e frontend (React/Vite) no mesmo domínio**, com deploy automático a cada `git push` no `main` (o `vercel.json` na raiz faz o roteamento).
+
+### 1) Crie um Postgres gratuito
+Use o **Neon** ([neon.tech](https://neon.tech)) ou o **Vercel Postgres**. Gere uma connection string `postgres://...` (o sistema converte para `postgresql+psycopg` automaticamente).
+
+### 2) Configure as variáveis de ambiente na Vercel
+| Variável | Exemplo | Obrigatória? |
+|---|---|---|
+| `DATABASE_URL` | `postgres://user:pass@host/db?sslmode=require` | ✅ |
+| `SECRET_KEY` | uma frase longa e aleatória | recomendada |
+| `ALLOWED_ORIGINS` | (opcional — front e back no mesmo domínio) | — |
+
+### 3) Importe o repositório na Vercel
+- Vercel detecta o `vercel.json` e publica **backend + frontend juntos**.
+- O domínio gerado (ex.: `SA-acousticBuild-xxx.vercel.app`) serve os dois.
+
+### 4) Pronto 🎉
+- **Deploy automático**: todo push no `main` republica o site.
+- Roteamento: `/auth/*`, `/acustica/*`, `/docs` → backend · demais rotas → SPA React.
+- Comandos locais não mudam: continue usando `npm run dev` e `uvicorn main:app`.
+
+---
+
 ## 📄 Licença
 
 Este projeto é de uso educacional — Curso Técnico + Iniciação Científica de Matemática.

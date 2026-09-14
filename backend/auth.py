@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 
-SECRET_KEY = "acousticbuild-super-secret-key-troque-em-producao"
+SECRET_KEY = os.getenv("SECRET_KEY", "acousticbuild-super-secret-key-troque-em-producao")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 

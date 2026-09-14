@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
@@ -12,9 +14,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# CORS: em producao front e back ficam no mesmo dominio, mas libera-se por env
+# quando precessario (origens separadas por virgula). Default mantem o dev local.
+_ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173")
+_ALLOWED_ORIGINS_LIST = [o.strip() for o in _ALLOWED_ORIGINS.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_ALLOWED_ORIGINS_LIST,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
