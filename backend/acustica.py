@@ -1,7 +1,10 @@
+import math
 import json
+from contextlib import suppress
 from typing import Any
 
 from auth import get_current_user
+from conforto import avaliar_conforto, resolver_ambiente
 from criteria import CRITERIOS_CENARIOS, avaliar_reverberacao, classificar
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,7 +14,7 @@ from schemas import CalcularRequest, SimulacaoCreate, SimulacaoResponse
 from sqlalchemy.orm import Session
 from suggestions import gerar_sugestoes, narrar
 
-router = APIRouter(prefix="/acustica", tags=["Calculadora Acustica"])
+router = APIRouter(prefix="/acustica", tags=["Calculadora Acústica"])
 
 
 def _serializar_simulacao(sim: Simulacao) -> dict[str, Any]:
@@ -33,6 +36,7 @@ def _montar_resposta(
     cenario: str | None = None,
     incluir_narrativa: bool = True,
     metadados: dict[str, Any] | None = None,
+    ambiente_tipo: str | None = None,
 ) -> dict[str, Any]:
     principal = resultado.get('indicador_principal')
     if principal is None and resultado.get('resultado'):
@@ -69,10 +73,30 @@ def _montar_resposta(
         criterio_nome = "L'nT,w" if 'w' in principal.get('nome', '') else "L'nT"
 
     classificacao = classificar(tipo, float(valor_criterio), cenario_id=cenario)
-    sugestoes = gerar_sugestoes(tipo, resultado)
+    sugestoes = gerar_sugestoes(tipo, resultado, classificacao)
 
     t_val = resultado.get('detalhes', {}).get('t')
-    avaliacao_reverb = avaliar_reverberacao(float(t_val)) if t_val is not None else None
+    # A reverberação é julgada com o mesmo ambiente usado no conforto, para as
+    # duas leituras não citarem normas diferentes sobre o mesmo cômodo.
+    ambiente_resolvido = resolver_ambiente(cenario, ambiente_tipo)
+    avaliacao_reverb = (
+        avaliar_reverberacao(float(t_val), ambiente_resolvido) if t_val is not None else None
+    )
+
+    # Nível que efetivamente chega ao ambiente receptor — é ele que se compara
+    # com a NBR 10152 (escala intuitiva: menos decibéis é sempre melhor).
+    det = resultado.get('detalhes', {})
+    if tipo in ('aereo', 'dnt'):
+        nivel_recebido = det.get('l2_previsto', det.get('l2'))
+        # no caminho por sistema documentado o L2 não é devolvido; reconstrói-se
+        # a partir do indicador padronizado: L2 = L1 - DnT + 10*log10(T/T0)
+        if nivel_recebido is None and det.get('dnt') is not None and det.get('t'):
+            l1_base = float(det.get('l1') or 85.0)
+            nivel_recebido = l1_base - float(det['dnt']) + 10.0 * math.log10(float(det['t']) / 0.5)
+    else:
+        nivel_recebido = det.get('lnt', det.get('ln'))
+
+    conforto = avaliar_conforto(nivel_recebido, cenario, ambiente_tipo)
 
     # Status direto em relação ao critério selecionado (ATENDE / NÃO ATENDE)
     status_atendimento = "ATENDE" if classificacao.get("nivel") in ("minimo", "intermediario", "superior", "atende") else "NÃO ATENDE"
@@ -95,6 +119,8 @@ def _montar_resposta(
             "unidade": "dB",
         },
         "reverberacao_avaliacao": avaliacao_reverb,
+        "conforto": conforto,
+        "nivel_recebido": round(float(nivel_recebido), 2) if nivel_recebido is not None else None,
         "motivo": classificacao['motivo'],
         "confiabilidade": resultado.get("confiabilidade", "documentado"),
         "origem": resultado.get("origem", "Resultado calculado pelo motor técnico"),
@@ -108,10 +134,10 @@ def _montar_resposta(
     }
 
     if incluir_narrativa and sugestoes:
-        try:
+        # A narrativa e' um enfeite: se faltar chave no resultado, o calculo
+        # continua valido e a resposta sai sem ela.
+        with suppress(KeyError, ValueError, TypeError):
             resposta["narrativa"] = narrar(tipo, resultado, sugestoes)['narrativa']
-        except (KeyError, ValueError, TypeError):
-            pass
 
     return resposta
 
@@ -132,7 +158,9 @@ def calcular(request: CalcularRequest, db: Session = Depends(get_db)):
     try:
         resultado = executar_calculo(payload, db=db)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e)
+        ) from e
 
     tipo = str(payload.get('tipo_analise', 'aereo'))
     cenario = payload.get('cenario')
@@ -144,7 +172,13 @@ def calcular(request: CalcularRequest, db: Session = Depends(get_db)):
         "cenario": cenario,
     }
 
-    return _montar_resposta(tipo, resultado, cenario=cenario, metadados=metadados)
+    return _montar_resposta(
+        tipo,
+        resultado,
+        cenario=cenario,
+        metadados=metadados,
+        ambiente_tipo=payload.get('ambiente_receptor_tipo'),
+    )
 
 
 @router.post("/salvar", response_model=SimulacaoResponse, status_code=201)
@@ -153,7 +187,7 @@ def salvar_simulacao(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """PROTEGIDO — grava a simulacao do usuario logado."""
+    """PROTEGIDO — grava a simulação do usuário logado."""
     nova = Simulacao(
         user_id=user.id,
         tipo_analise=sim.tipo_analise,
@@ -171,7 +205,7 @@ def listar_simulacoes(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """PROTEGIDO — lista somente as simulacoes do usuario logado."""
+    """PROTEGIDO — lista somente as simulações do usuário logado."""
     rows = (
         db.query(Simulacao)
         .filter(Simulacao.user_id == user.id)

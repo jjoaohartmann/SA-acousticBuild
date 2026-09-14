@@ -5,14 +5,21 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    password: str
+    # mesma regra do PUT /auth/me e do formulário — a API aceitava senha de 1 caractere
+    password: str = Field(min_length=6, max_length=128)
 
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class UserUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=2, max_length=120)
+    email: EmailStr | None = None
+    password: str | None = Field(default=None, min_length=6, max_length=128)
 
 
 class UserResponse(BaseModel):
@@ -131,6 +138,7 @@ class CalcularRequest(BaseModel):
     cenario: str | None = None                    # ID do cenário parametrizado NBR 15575
     ambiente_emissor: str | None = None           # Nome/identificação do emissor
     ambiente_receptor: str | None = None          # Nome/identificação do receptor
+    ambiente_receptor_tipo: str | None = None     # Tipo p/ conforto NBR 10152 (eixo independente)
     elemento_separador: str | None = None         # Tipo/material do elemento separador
     area_elemento: float | None = None            # S (m²)
     volume_receptor: float | None = None          # V (m³)

@@ -1,6 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getCenarios } from '../../services/api';
 import styles from '../../style/Calculator.module.css';
+
+// ABNT NBR 10152:2017, Tabela 1 — nível de conforto recomendado por ambiente.
+// Eixo independente do cenário da NBR 15575 (que define a exigência legal).
+const AMBIENTES_10152 = [
+  { chave: 'dormitorio', nome: 'Dormitório', recomendado: 35 },
+  { chave: 'sala_estar', nome: 'Sala de estar', recomendado: 40 },
+  { chave: 'sala_aula', nome: 'Sala de aula', recomendado: 40 },
+  { chave: 'biblioteca', nome: 'Biblioteca (área de leitura)', recomendado: 35 },
+  { chave: 'enfermaria', nome: 'Enfermaria / quarto hospitalar', recomendado: 35 },
+  { chave: 'escritorio', nome: 'Escritório individual', recomendado: 40 },
+];
+
+// Palpite inicial a partir do cenário — o usuário pode trocar
+const SUGESTAO_POR_CENARIO = {
+  parede_entre_unidades: 'dormitorio',
+  parede_dormitorio_area_comum: 'dormitorio',
+  sala_aula_educacional: 'sala_aula',
+  generico: 'sala_estar',
+  laje_entre_unidades: 'dormitorio',
+  laje_coletiva_dormitorio: 'dormitorio',
+  laje_escolar_educacional: 'sala_aula',
+};
 
 export default function Step2Parameters({ form, setForm, onCalculate }) {
   const [errorLocal, setErrorLocal] = useState('');
@@ -31,6 +53,9 @@ export default function Step2Parameters({ form, setForm, onCalculate }) {
   const A = !Number.isNaN(V) && !Number.isNaN(T) && T > 0 ? (0.16 * V) / T : null;
 
   const cenariosTipo = cenariosDisponiveis[tipoAtual] || {};
+
+  const cenarioAtual = form.cenario || (tipoAtual === 'impacto' ? 'laje_entre_unidades' : 'parede_entre_unidades');
+  const ambienteSugerido = SUGESTAO_POR_CENARIO[cenarioAtual] || 'sala_estar';
 
   const handleExecutar = () => {
     if (Number.isNaN(V) || V <= 0) {
@@ -113,30 +138,109 @@ export default function Step2Parameters({ form, setForm, onCalculate }) {
         )}
       </div>
 
-      {/* Critério Normativo NBR 15575 */}
-      <div style={{ marginBottom: '24px' }}>
-        <label className={styles.labelInline} style={{ marginBottom: '6px' }}>
-          Cenário de Desempenho Normativo (ABNT NBR 15575):
-        </label>
-        <select
-          className={styles.select}
-          value={form.cenario || (tipoAtual === 'impacto' ? 'laje_entre_unidades' : 'parede_entre_unidades')}
-          onChange={setChave('cenario')}
-        >
-          {Object.entries(cenariosTipo).map(([chave, item]) => (
-            <option key={chave} value={chave}>
-              {item.nome} (Exigência Mínima: {tipoAtual === 'aereo' ? `≥ ${item.minimo}` : `≤ ${item.minimo}`} dB)
-            </option>
-          ))}
-          {Object.keys(cenariosTipo).length === 0 && (
-            <option value={tipoAtual === 'impacto' ? 'laje_entre_unidades' : 'parede_entre_unidades'}>
-              {tipoAtual === 'impacto' ? 'Laje entre unidades autônomas (≤ 55 dB)' : 'Parede entre unidades autônomas (≥ 45 dB)'}
-            </option>
-          )}
-        </select>
-        <span style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.55)', marginTop: '4px', display: 'block' }}>
-          O resultado da simulação será julgado automaticamente contra os limites estabelecidos por este cenário.
-        </span>
+      {/* Fonte de ruído — antes era 85 dB fixo e invisível para o usuário */}
+      {tipoAtual === 'aereo' && (
+        <div className={styles.eixo} style={{ marginBottom: '24px' }}>
+          <label className={styles.labelInline} style={{ marginBottom: '6px' }}>
+            Quanto de barulho existe no ambiente vizinho? (L₁)
+          </label>
+          <div className={styles.fieldRowDouble}>
+            <select
+              className={styles.select}
+              value={String(form.l1 ?? 85)}
+              onChange={setChave('l1')}
+            >
+              <option value="60">Conversa normal — 60 dB</option>
+              <option value="70">TV ou música em volume alto — 70 dB</option>
+              <option value="85">Conversa alta, festa, som ligado — 85 dB (padrão)</option>
+              <option value="95">Festa com som potente — 95 dB</option>
+            </select>
+            <div className={styles.inputUnit}>
+              <input
+                className={styles.input}
+                type="number"
+                min="30"
+                max="120"
+                value={form.l1 ?? 85}
+                onChange={setChave('l1')}
+              />
+              <span className={styles.unit}>dB</span>
+            </div>
+          </div>
+          <span className={styles.eixoAjuda}>
+            Esse valor <strong>não muda</strong> o veredito da NBR 15575 — ele se cancela na conta
+            do isolamento. Ele só define <strong>quanto de ruído sobra</strong> do seu lado, que é
+            a leitura de conforto.
+          </span>
+        </div>
+      )}
+
+      {/* Dois eixos independentes: exigência legal x referência de conforto */}
+      <div className={styles.doisEixos}>
+        {/* EIXO 1 — exigência legal */}
+        <div className={styles.eixo}>
+          <span className={styles.eixoTag}>Exigência legal</span>
+          <label className={styles.labelInline} style={{ marginBottom: '6px' }}>
+            Cenário de desempenho (ABNT NBR 15575)
+          </label>
+          <select
+            className={styles.select}
+            value={form.cenario || (tipoAtual === 'impacto' ? 'laje_entre_unidades' : 'parede_entre_unidades')}
+            onChange={setChave('cenario')}
+          >
+            {Object.entries(cenariosTipo).map(([chave, item]) => (
+              <option key={chave} value={chave}>
+                {item.nome}
+                {tipoAtual === 'aereo'
+                  ? ` — precisa bloquear ${item.minimo} dB ou mais`
+                  : ` — o ruído embaixo precisa ficar em ${item.minimo} dB ou menos`}
+              </option>
+            ))}
+            {Object.keys(cenariosTipo).length === 0 && (
+              <option value={tipoAtual === 'impacto' ? 'laje_entre_unidades' : 'parede_entre_unidades'}>
+                {tipoAtual === 'impacto'
+                  ? 'Laje entre unidades autônomas — ruído embaixo em 55 dB ou menos'
+                  : 'Parede entre unidades autônomas — precisa bloquear 45 dB ou mais'}
+              </option>
+            )}
+          </select>
+          <span className={styles.eixoAjuda}>
+            {tipoAtual === 'aereo' ? (
+              <>
+                Atenção: esses dB são <strong>o quanto a parede tem que barrar</strong>, não o
+                barulho que sobra no quarto. Bloquear mais é melhor. É o veredito ATENDE / NÃO ATENDE.
+              </>
+            ) : (
+              <>
+                Aqui os dB são <strong>o barulho que chega no vizinho de baixo</strong>. Quanto
+                menos, melhor. É o veredito ATENDE / NÃO ATENDE.
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* EIXO 2 — referência de conforto */}
+        <div className={styles.eixo}>
+          <span className={`${styles.eixoTag} ${styles.eixoTagConforto}`}>Referência de conforto</span>
+          <label className={styles.labelInline} style={{ marginBottom: '6px' }}>
+            Ambiente que recebe o ruído (ABNT NBR 10152)
+          </label>
+          <select
+            className={styles.select}
+            value={form.ambiente_receptor_tipo || ambienteSugerido}
+            onChange={setChave('ambiente_receptor_tipo')}
+          >
+            {AMBIENTES_10152.map((a) => (
+              <option key={a.chave} value={a.chave}>
+                {a.nome} (recomendado: até {a.recomendado} dB)
+              </option>
+            ))}
+          </select>
+          <span className={styles.eixoAjuda}>
+            Define quanto ruído é <strong>confortável</strong> nesse ambiente. Não altera o
+            veredito legal — serve para interpretar o resultado.
+          </span>
+        </div>
       </div>
 
       {/* Geometria e Propriedades da Sala Receptora */}

@@ -45,3 +45,5 @@ ehthumbs.db
 *.swp
 *.swo
 *~
+# --- Ferramentas de IA / editores agênticos ---
+.claude/

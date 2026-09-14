@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// Em desenvolvimento o back-end roda local; em produção basta definir
+// VITE_API_URL no ambiente de build — nada de endereço fixo no código.
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
 });
 
 api.interceptors.request.use((config) => {
@@ -16,22 +18,13 @@ api.interceptors.request.use((config) => {
 export const getMateriais = (categoria) =>
   api.get('/materiais', { params: categoria ? { categoria } : {} });
 
-export const getMaterial = (id) =>
-  api.get(`/materiais/${id}`);
-
 export const getSistemas = (tipoElemento) =>
   api.get('/sistemas', { params: tipoElemento ? { tipo_elemento: tipoElemento } : {} });
-
-export const getSistemaPorCodigo = (codigo) =>
-  api.get(`/sistemas/${codigo}`);
 
 export const montarSistema = (camadas) =>
   api.post('/sistemas/montar', { camadas });
 
 export const getCenarios = () =>
   api.get('/acustica/cenarios');
-
-export const calcularAcustica = (payload) =>
-  api.post('/acustica/calcular', payload);
 
 export default api;

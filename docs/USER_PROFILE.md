@@ -42,17 +42,18 @@ A página possui **duas telas** controladas pelo estado `view`:
 │   ℹ️ SUPORTE                 │
 │   🚪 SAIR                    │
 │                              │
-│  Copyright © 2025            │
+│  Copyright © 2026            │
 └──────────────────────────────┘
 ```
 
 - **Avatar**: círculo com ícone de pessoa, borda azul-marinho
 - **Nome**: texto do usuário logado (centralizado, bold)
 - **E-mail**: texto cinza, menor
-- **3 opções** de menu com ícones:
-  1. ✏️ **EDITAR INFORMAÇÕES** → alterna para tela de edição
-  2. ℹ️ **SUPORTE** → (placeholder para funcionalidade futura)
-  3. 🚪 **SAIR** → faz logout e redireciona para Home
+- **4 opções** de menu com ícones:
+  1. 📊 **MINHAS SIMULAÇÕES** → vai para `/minhas-simulacoes`
+  2. ✏️ **EDITAR INFORMAÇÕES** → alterna para a tela de edição
+  3. ℹ️ **SUPORTE** → vai para `/suporte`
+  4. 🚪 **SAIR** → faz logout e redireciona para a Home
 
 ### Tela 2 — Editar Perfil
 
@@ -70,7 +71,7 @@ A página possui **duas telas** controladas pelo estado `view`:
 │                              │
 │       [ ATUALIZAR ]          │
 │                              │
-│  Copyright © 2025            │
+│  Copyright © 2026            │
 └──────────────────────────────┘
 ```
 
@@ -90,7 +91,9 @@ A página possui **duas telas** controladas pelo estado `view`:
 |---------|-----------|
 | `src/pages/UserProfile.jsx` | Página principal com ambas as telas |
 | `src/style/UserProfile.module.css` | Estilos da página |
-| `src/context/AuthContext.jsx` | Contexto de autenticação |
+| `src/context/AuthProvider.jsx` | Guarda usuário e token |
+| `src/context/AuthContext.js` | `useAuth()` |
+| `backend/routers.py` | `GET /auth/me` e `PUT /auth/me` |
 
 ---
 
@@ -107,8 +110,19 @@ A página possui **duas telas** controladas pelo estado `view`:
 
 | Ação | Comportamento |
 |------|---------------|
-| ← Home | Redireciona para `/` (Landing Page) |
-| EDITAR INFORMAÇÕES | Alterna para modo edição |
-| SUPORTE | Placeholder (sem ação ainda) |
-| SAIR | Limpa dados do usuário, redireciona para `/` |
+| ← Home | Redireciona para `/` (landing page) |
+| MINHAS SIMULAÇÕES | Abre `/minhas-simulacoes` |
+| EDITAR INFORMAÇÕES | Alterna para o modo de edição |
+| SUPORTE | Abre `/suporte` |
+| SAIR | Limpa os dados do usuário e redireciona para `/` |
+| ATUALIZAR | `PUT /auth/me` com os campos alterados |
+
+### O que acontece no ATUALIZAR
+
+Os três campos são opcionais: só o que foi preenchido é enviado. Como o e-mail faz parte
+do payload do JWT, o back-end **reemite o token** e o front-end substitui o que está
+guardado — sem isso, mudar de e-mail derrubaria a sessão. O back-end recusa (`400`) um
+e-mail que já pertença a outra conta.
+
+> Esta tela já foi puramente decorativa. Hoje o botão grava de verdade.
 | ATUALIZAR | Placeholder (sem integração com API ainda) |

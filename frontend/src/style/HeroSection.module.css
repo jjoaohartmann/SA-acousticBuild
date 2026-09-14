@@ -1,6 +1,7 @@
 .hero {
   min-height: 100vh;
-  background: #001A41;
+  /* transparente: o vídeo de fundo fixo aparece através da seção */
+  background: transparent;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,16 +14,15 @@
 .content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   max-width: 1200px;
   width: 100%;
-  gap: 60px;
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .textSide {
-  flex: 1;
-  max-width: 550px;
+  max-width: 560px;
 }
 
 .title {
@@ -45,18 +45,12 @@
   max-width: 480px;
 }
 
-.imageSide {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 450px;
-}
-
 .scrollIndicator {
   margin-top: 40px;
   animation: bounce 2s infinite;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes bounce {

@@ -1,4 +1,3 @@
-import WavesIllustration from './WavesIllustration';
 import { IconChevronDown } from './IconSet';
 import { scrollToSection } from '../utils/scroll';
 import styles from '../style/HeroSection.module.css';
@@ -13,15 +12,13 @@ export default function HeroSection() {
             melhores edificações.
           </h1>
           <p className={styles.subtitle}>
-            Plataforma que prevê e otimiza o desempenho acústico de edificações, 
+            Plataforma que prevê e otimiza o desempenho acústico de edificações,
             garantindo mais qualidade sonora desde o planejamento.
           </p>
         </div>
-        <div className={styles.imageSide}>
-          <WavesIllustration width={400} />
-        </div>
       </div>
-      
+
+
       <div
         className={styles.scrollIndicator}
         role="button"

@@ -1,12 +1,15 @@
-import React, { useRef, useState } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { useRef, useState } from 'react';
 
 export default function PdfReportGenerator({ resultado, form, user }) {
   const reportRef = useRef(null);
   const [gerando, setGerando] = useState(false);
 
   const principal = resultado?.indicador_principal;
+  const conforto = resultado?.conforto;
+  const detalhes = resultado?.detalhes || {};
+  const sugestoes = resultado?.sugestoes || [];
+  const fmt = (v, c = 1) =>
+    typeof v === 'number' ? v.toFixed(c).replace('.', ',') : '—';
   const criterios = resultado?.criterios;
   const statusAtende = resultado?.status_atendimento === 'ATENDE' || resultado?.classificacao === 'atende';
 
@@ -14,6 +17,12 @@ export default function PdfReportGenerator({ resultado, form, user }) {
     if (!reportRef.current) return;
     setGerando(true);
     try {
+      // jsPDF + html2canvas somam ~1 MB. Carregar só no clique tira esse peso
+      // do carregamento inicial de todas as páginas do site.
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas'),
+      ]);
       const element = reportRef.current;
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -78,8 +87,10 @@ export default function PdfReportGenerator({ resultado, form, user }) {
         <span>{gerando ? 'Compilando Relatório em PDF...' : 'Baixar Relatório Técnico em PDF'}</span>
       </button>
 
-      {/* Template de Impressão do Relatório (Renderizado em branco/preto corporativo de alta definição) */}
-      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+      {/* Template do relatório: existe só para o html2canvas fotografar.
+          aria-hidden evita que leitores de tela leiam o relatório inteiro
+          duas vezes — ele já está na página, em forma de resultado. */}
+      <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <div
           ref={reportRef}
           style={{
@@ -121,12 +132,19 @@ export default function PdfReportGenerator({ resultado, form, user }) {
           >
             <div>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', fontWeight: 700 }}>
-                Indicador Principal ({resultado?.tipo === 'aereo' ? 'Isolamento ao Ruído Aéreo' : 'Ruído de Impacto'})
+                {conforto
+                  ? `Quanto de ruído chega ${conforto.artigo || 'no'} ${conforto.ambiente.toLowerCase()}`
+                  : 'Ruído que chega no ambiente receptor'}
               </span>
-              <div style={{ fontSize: '32px', fontWeight: 800, color: statusAtende ? '#15803d' : '#b91c1c', margin: '4px 0' }}>
-                {principal ? `${principal.nome} = ${principal.valor} ${principal.unidade}` : 'Não Determinado'}
+              <div style={{ fontSize: '34px', fontWeight: 800, color: statusAtende ? '#15803d' : '#b91c1c', margin: '4px 0' }}>
+                {conforto ? `${fmt(conforto.nivel_estimado, 0)} dB` : '—'}
               </div>
-              <div style={{ fontSize: '12px', color: '#475569' }}>
+              {conforto && (
+                <div style={{ fontSize: '12px', color: '#475569' }}>
+                  ≈ {conforto.comparacao_cotidiano} · NBR 10152 recomenda até {fmt(conforto.recomendado, 0)} dB
+                </div>
+              )}
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                 {resultado?.origem || 'Resultado calculado pelo motor técnico'}
               </div>
             </div>
@@ -157,10 +175,53 @@ export default function PdfReportGenerator({ resultado, form, user }) {
             </div>
           </div>
 
+          {/* Caminho do som — mesma leitura da tela */}
+          {conforto && (
+            <div style={{ marginBottom: '22px' }}>
+              <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
+                1. Como esse número foi obtido
+              </h3>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch', fontSize: '12px' }}>
+                {[
+                  { n: 1, t: 'Barulho no ambiente vizinho', v: `${fmt(detalhes.l1 ?? 85, 0)} dB` },
+                  { n: 2, t: 'A parede barra parte do som', v: `−${fmt(detalhes.rw ?? detalhes.r)} dB` },
+                  { n: 3, t: 'Sobra no ambiente receptor', v: `${fmt(conforto.nivel_estimado, 0)} dB` },
+                ].map((p) => (
+                  <div key={p.n} style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px' }}>
+                    <div style={{ color: '#64748b', marginBottom: '4px' }}>{p.n}. {p.t}</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{p.v}</div>
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: '11px', color: '#475569', margin: '8px 0 0 0', lineHeight: 1.5 }}>
+                O {principal?.nome} ({fmt(principal?.valor)} dB) mede o passo 2 já considerando o
+                tamanho e o acabamento do ambiente — por isso difere do valor de catálogo. É esse
+                número que a NBR 15575 fiscaliza (exigência: {resultado?.tipo === 'aereo' ? '≥' : '≤'} {criterios?.referencia} dB).
+              </p>
+            </div>
+          )}
+
+          {/* Recomendações — mesmas da tela */}
+          {sugestoes.length > 0 && (
+            <div style={{ marginBottom: '22px' }}>
+              <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
+                2. Recomendações técnicas
+              </h3>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '12px', lineHeight: 1.6 }}>
+                {sugestoes.map((s, i) => (
+                  <li key={i} style={{ marginBottom: '6px' }}>
+                    <strong>{s.recomendacao || s}</strong>
+                    {s.motivo && <div style={{ color: '#64748b', fontSize: '11px' }}>{s.motivo}</div>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Sistema Construtivo e Camadas */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
-              1. Composição do Elemento Construtivo
+              3. Composição do Elemento Construtivo
             </h3>
             <div style={{ fontSize: '12px', lineHeight: '1.6' }}>
               <div><strong>Elemento:</strong> {form.elemento === 'piso_laje' ? 'Piso / Laje' : 'Parede de Vedação'}</div>
@@ -201,12 +262,12 @@ export default function PdfReportGenerator({ resultado, form, user }) {
           {/* Dados do Ambiente Receptor */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
-              2. Parâmetros do Ambiente Receptor
+              4. Parâmetros do Ambiente Receptor
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', fontSize: '12px' }}>
-              <div><strong>Área (S):</strong> {form.area || 15} m²</div>
-              <div><strong>Volume (V):</strong> {form.volume || 36} m³</div>
-              <div><strong>Reverberação (T):</strong> {form.t || 0.6} s</div>
+              <div><strong>Área (S):</strong> {detalhes.s ?? form.area ?? '—'} m²</div>
+              <div><strong>Volume (V):</strong> {detalhes.v ?? form.volume ?? '—'} m³</div>
+              <div><strong>Reverberação (T):</strong> {detalhes.t ?? form.t ?? '—'} s</div>
               <div><strong>Absorção (A):</strong> {resultado?.detalhes?.absorcao_equivalente || '—'} m²</div>
             </div>
           </div>
@@ -214,7 +275,7 @@ export default function PdfReportGenerator({ resultado, form, user }) {
           {/* Método e Fontes */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
-              3. Metodologia de Cálculo e Fontes Rastreáveis
+              5. Metodologia de Cálculo e Fontes Rastreáveis
             </h3>
             <div style={{ fontSize: '12px', lineHeight: '1.6' }}>
               <div><strong>Método Aplicado:</strong> {resultado?.metodo?.nome || 'Previsão Acústica Normalizada'}</div>

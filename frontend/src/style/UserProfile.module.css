@@ -167,8 +167,32 @@
   font-family: inherit;
 }
 
-.updateBtn:hover {
+.updateBtn:hover:not(:disabled) {
   background: #002b6a;
+}
+
+.updateBtn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.feedbackOk,
+.feedbackErro {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.feedbackOk {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.feedbackErro {
+  color: #b91c1c;
+  background: #fee2e2;
 }
 
 .copyright {

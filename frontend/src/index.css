@@ -27,6 +27,21 @@ html {
   scroll-behavior: smooth;
 }
 
+[id] {
+  scroll-margin-top: 90px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 a{
   text-decoration: none;
   color: inherit;

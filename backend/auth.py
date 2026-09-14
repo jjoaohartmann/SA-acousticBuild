@@ -37,7 +37,7 @@ def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Nao foi possivel validar as credenciais.",
+        detail="Não foi possível validar as credenciais.",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -46,8 +46,8 @@ def get_current_user(
         if user_id_raw is None:
             raise credentials_exception
         user_id = int(user_id_raw)
-    except JWTError:
-        raise credentials_exception
+    except JWTError as e:
+        raise credentials_exception from e
 
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:

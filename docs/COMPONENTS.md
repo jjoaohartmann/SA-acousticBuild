@@ -1,213 +1,93 @@
 # 🧩 Catálogo de Componentes
 
-Catálogo completo de todos os componentes React do frontend.
+Todos os componentes React do front-end, agrupados por função. Cada um tem seu CSS
+Module de mesmo nome em `src/style/`.
 
 ---
 
-## 📁 Lista de Componentes
+## 🗺️ Páginas (`src/pages/`)
 
-| Componente | Arquivo | Descrição |
-|------------|---------|-----------|
-| Logo | `Logo.jsx` | Logotipo AcousticBuild com onda sonora SVG |
-| Header | `Header.jsx` | Header condicional (logado/não logado) |
-| HeroSection | `HeroSection.jsx` | Seção principal da Home |
-| WhatWeAreSection | `WhatWeAreSection.jsx` | Seção "O que somos" |
-| WhoWeAreSection | `WhoWeAreSection.jsx` | Seção "Quem somos" |
-| Footer | `Footer.jsx` | Footer com 5 colunas |
-| Sidebar | `Sidebar.jsx` | Menu lateral de navegação |
-| IconSet | `IconSet.jsx` | Biblioteca de ícones SVG |
-| WavesIllustration | `WavesIllustration.jsx` | Ilustração do prédio com ondas |
+| Página | Rota | Autenticada | O que faz |
+|---|---|:---:|---|
+| `Home.jsx` | `/` | — | Landing page: vídeo de fundo, hero, seções institucionais e produto |
+| `About.jsx` | `/sobre` | — | O projeto, as equipes de 2026 e 2025 e a metodologia (`#metodologia`) |
+| `Calculator.jsx` | `/calculadora` | — | Hospeda o assistente de cálculo em 3 passos |
+| `MySimulations.jsx` | `/minhas-simulacoes` | 🔒 | Histórico de simulações salvas |
+| `Support.jsx` | `/suporte` | — | Canais de contato e perguntas frequentes |
+| `Login.jsx` | `/login` | — | Entrada na conta |
+| `Register.jsx` | `/register` | — | Criação de conta |
+| `UserProfile.jsx` | `/profile` | 🔒 | Dados da conta e edição de perfil |
+| `Terms.jsx` | `/termos` | — | Termos de uso |
+| `Privacy.jsx` | `/privacidade` | — | Política de privacidade |
 
----
-
-## 🏷️ Logo
-
-**Arquivo:** `src/components/Logo.jsx`
-
-Componente do logotipo da AcousticBuild com:
-- Onda sonora em SVG (barras de áudio estilizadas)
-- Nome "AcousticBuild" em bold
-- Subtítulo "Previsões Acústicas" em uppercase
-
-**Props:**
-
-| Prop | Tipo | Padrão | Descrição |
-|------|------|--------|-----------|
-| `width` | number | `220` | Largura do componente |
-| `light` | boolean | `false` | Modo claro (fundo escuro) |
+Qualquer URL desconhecida é redirecionada para `/` (`App.jsx`).
 
 ---
 
-## 🧭 Header
+## 🏗️ Estrutura e navegação
 
-**Arquivo:** `src/components/Header.jsx`
-
-Header fixo no topo da página com navegação condicional.
-
-**Props:**
-
-| Prop | Tipo | Descrição |
-|------|------|-----------|
-| `onMenuClick` | function | Callback ao clicar no hamburguer |
-
-**Comportamento:**
-- Usuário não logado: exibe botões [Entrar] e [Cadastrar]
-- Usuário logado: exibe "Olá, Nome" e [Meu Perfil]
+| Componente | Props | Descrição |
+|---|---|---|
+| `Logo` | `width`, `to`, `className`, `onClick` | Logotipo; por padrão é um link para a Home. `to={null}` desativa o link |
+| `Header` | `onMenuClick` | Barra superior. Deslogado mostra [Entrar]/[Cadastrar]; logado, "Olá, Nome" e [Meu Perfil] |
+| `Sidebar` | `isOpen`, `onClose` | Menu lateral com Navegação, Ferramentas e Suporte. O rodapé do menu reflete o estado de login |
+| `Footer` | — | Cinco colunas + inscrição de novidades (abre um e-mail pronto; não há serviço de newsletter) |
+| `ScrollToHash` | — | Rola até a âncora ao trocar de rota e volta ao topo quando não há hash |
+| `IconSet` | `size`, `color` | 30 ícones SVG exportados nomeadamente (`IconHome`, `IconCalculator`, …) |
 
 ---
 
-## 🎯 HeroSection
+## 🏠 Seções da Home
 
-**Arquivo:** `src/components/HeroSection.jsx`
-
-Seção hero da landing page com:
-- Título com destaque em azul na palavra "acústica"
-- Parágrafo descritivo
-- Ilustração do WavesIllustration
-- Seta de scroll animada
-
----
-
-## 📊 WhatWeAreSection
-
-**Arquivo:** `src/components/WhatWeAreSection.jsx`
-
-Seção "O que somos" com:
-- Label descritivo
-- Título com destaque em "seu projeto"
-- 3 cards (Precisão, Eficiência, Confiabilidade)
-
-**Estrutura dos cards:**
-
-```js
-const cards = [
-  {
-    icon: IconBuilding,      // Componente do ícone
-    title: 'Precisão',       // Título do card
-    text: 'Descrição...'     // Texto descritivo
-  },
-  // ...
-]
-```
+| Componente | Descrição |
+|---|---|
+| `ScrollVideoBackground` | Vídeo de fundo em tela cheia cujo tempo é controlado pela rolagem da página. Props: `src`, `poster` |
+| `HeroSection` | Título, chamada e seta de rolagem |
+| `SourcesStrip` | Faixa com as normas e diretrizes que embasam a metodologia |
+| `WhatWeAreSection` | "O que somos" — rastreabilidade, eficiência e base normativa |
+| `WhoWeAreSection` | "Quem somos" — missão e valores |
+| `ProductSection` | Cartões das quatro frentes do produto |
+| `AccessCalculatorButton` | Chamada final para a calculadora |
+| `Reveal` | Envelope de animação: revela o conteúdo ao entrar na viewport. Props: `children`, `delay`, `className` |
 
 ---
 
-## 👥 WhoWeAreSection
+## 🧮 Calculadora (`src/components/calculator/`)
 
-**Arquivo:** `src/components/WhoWeAreSection.jsx`
+| Componente | Props | Descrição |
+|---|---|---|
+| `CalculatorWizard` | `tipoInicial` | Orquestra os três passos e monta o payload do cálculo |
+| `CalculatorStepHeader` | `step` | Título da página e trilha 1 → 2 → 3 |
+| `Step1Input` | `form`, `setForm`, `onAdvanced` | Escolha do elemento: opção pronta do catálogo ou composição por camadas |
+| `LayerComposer` | `onCompositionChange`, `initialLayers` | Montagem de um elemento camada a camada |
+| `SystemInfoCard` | `sistema`, `propriedadesFisicas`, `dadosAcusticos`, `fontes`, `modo` | Ficha do sistema com selo de "ensaio documentado" ou aviso de transparência |
+| `Step2Parameters` | `form`, `setForm`, `onCalculate` | Ruído da fonte (L₁), os dois eixos normativos e a geometria do ambiente |
+| `Step3Results` | `resultado`, `user`, `salvarSimulacao`, `saved`, `form` | Resultado: destaque do nível recebido, cadeia de cálculo, indicadores, interpretação e recomendações |
+| `NoiseGauge` | `valor`, `recomendado`, `min`, `max` | Régua verde/âmbar/vermelha com a marca do limite recomendado |
+| `InfoTip` | `termo`, `children` | Ícone (i) que abre a explicação do termo em linguagem comum |
+| `PdfReportGenerator` | `resultado`, `form`, `user` | Relatório em PDF. As bibliotecas só são carregadas no clique |
 
-Seção "Quem somos" com:
-- Label em azul
-- Título com destaque em "silêncio"
-- Texto justificado descritivo
-- Botão "Saiba mais →"
-- Grid 2×2 de valores (Sustentabilidade, 100%, Inovação, Foco)
-- Fundo com padrão de pontos decorativos
-
----
-
-## 📝 Footer
-
-**Arquivo:** `src/components/Footer.jsx`
-
-Footer com 5 colunas em grid:
-1. **Marca**: Logo + descrição + ícones sociais
-2. **Navegação**: Links âncora para seções
-3. **Produto**: Links para ferramentas
-4. **Suporte**: Links de ajuda
-5. **Newsletter**: Input de e-mail + botão de envio
+`glossario.js` guarda os 12 verbetes usados pelo `InfoTip`.
 
 ---
 
-## 📱 Sidebar
+## 🔗 Contexto, hooks e serviços
 
-**Arquivo:** `src/components/Sidebar.jsx`
-
-Menu lateral que abre com animação slide.
-
-**Props:**
-
-| Prop | Tipo | Descrição |
-|------|------|-----------|
-| `isOpen` | boolean | Controla visibilidade |
-| `onClose` | function | Callback ao fechar |
-
-**Seções:**
-- **Navegação**: O que somos?, Quem somos?, Produto
-- **Ferramentas**: Isolamento Acústico, Absorção Sonora, Relatórios
-- **Suporte**: Central de Ajuda, Termos de Uso
-
-**Funcionalidades:**
-- Overlay escuro ao fundo
-- Fecha ao clicar no overlay ou em links âncora
-- Link "Entrar" no rodapé
+| Arquivo | Descrição |
+|---|---|
+| `context/AuthProvider.jsx` | Guarda usuário e token, persiste no `localStorage` |
+| `context/AuthContext.js` | `useAuth()` — acesso ao usuário e às ações de login/logout |
+| `hooks/useAcousticCalculator.js` | Chama a API de cálculo e a de salvar simulação |
+| `hooks/useInView.js` | Detecta entrada na viewport (base do `Reveal`) |
+| `services/api.js` | Instância do axios com `VITE_API_URL` e injeção do token |
+| `utils/scroll.js` | `scrollToSection(id)` — rolagem suave até uma seção |
 
 ---
 
-## 🎨 IconSet
+## 🎨 Convenções
 
-**Arquivo:** `src/components/IconSet.jsx`
-
-Biblioteca de 25+ ícones SVG exportados como componentes React.
-
-**Ícones disponíveis:**
-
-| Nome | Descrição | Cor padrão |
-|------|-----------|------------|
-| `IconHamburger` | Menu hamburguer ☰ | Branco |
-| `IconBuilding` | Prédio | Azul #1E5EFF |
-| `IconChartUp` | Gráfico ascendente | Azul #1E5EFF |
-| `IconShieldCheck` | Escudo com check | Azul #1E5EFF |
-| `IconRecycle` | Reciclagem | Azul #1E5EFF |
-| `IconCircleCheck` | Check em círculo | Azul #1E5EFF |
-| `IconBulb` | Lâmpada | Azul #1E5EFF |
-| `IconPersonCircle` | Pessoa em círculo | Azul #1E5EFF |
-| `IconChartBars` | Gráfico de barras | Branco |
-| `IconHome` | Casa | Branco |
-| `IconZigzag` | Zigue-zague (ondas) | Branco |
-| `IconDocument` | Documento | Branco |
-| `IconWaveform` | Onda sonora | Branco |
-| `IconHelp` | Interrogação | Branco |
-| `IconPerson` | Pessoa | Azul marinho |
-| `IconEnvelope` | Envelope | Azul marinho |
-| `IconLock` | Cadeado | Azul marinho |
-| `IconPencil` | Lápis | Azul marinho |
-| `IconInfo` | Informação | Azul marinho |
-| `IconLogout` | Sair | Azul marinho |
-| `IconChevronDown` | Seta para baixo | Branco |
-| `IconChevronDownDark` | Seta para baixo | Cinza |
-| `IconSend` | Avião de papel | Branco |
-| `IconInstagram` | Instagram | Branco |
-| `IconMail` | E-mail (círculo) | Branco |
-| `IconGrid` | Grade/Grid | Azul marinho |
-
-**Uso:**
-
-```jsx
-import { IconBuilding, IconChartUp } from './IconSet';
-
-// Tamanho e cor personalizáveis
-<IconBuilding size={32} color="#1E5EFF" />
-<IconChartUp size={24} color="#333333" />
-```
-
----
-
-## 🏢 WavesIllustration
-
-**Arquivo:** `src/components/WavesIllustration.jsx`
-
-Ilustração SVG de um prédio wireframe com ondas sonoras na base.
-
-**Props:**
-
-| Prop | Tipo | Padrão | Descrição |
-|------|------|--------|-----------|
-| `width` | number | `400` | Largura da ilustração |
-
-**Elementos:**
-- Prédio principal com janelas e porta
-- Prédio menor ao lado
-- Antena no topo
-- 3 camadas de ondas sonoras na base (tons de azul)
-- Partículas decorativas flutuantes
+- **CSS Modules** para tudo: `Componente.jsx` ↔ `style/Componente.module.css`.
+- **Sem estilos globais novos**: `index.css` cuida apenas de reset e tipografia base.
+- **Nomes em português** nas variáveis de domínio (`resultado`, `cenário`, `camadas`) e em
+  inglês nas de infraestrutura React (`props`, `state`, `ref`).
+- Textos voltados a leigos: todo termo técnico da interface tem um `InfoTip` ao lado.

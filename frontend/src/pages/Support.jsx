@@ -35,7 +35,11 @@ const faqs = [
   },
   {
     q: 'O que a plataforma prevê?',
-    a: 'A AcousticBuild prevê e otimiza o desempenho acústico de edificações, calculando isolamento e absorção sonora a partir dos dados do seu projeto.',
+    a: 'A AcousticBuild estima quanto barulho atravessa uma parede ou um piso e chega ao ambiente vizinho. Você descreve o sistema construtivo e o cômodo; a plataforma devolve o nível de ruído esperado do outro lado, em decibéis, e diz se isso atende à norma brasileira de desempenho.',
+  },
+  {
+    q: 'Preciso entender de acústica para usar?',
+    a: 'Não. Todo termo técnico da tela tem um ícone (i) ao lado com a explicação em linguagem comum, e o resultado principal vem em uma régua colorida com comparações do dia a dia — conversa, TV, aspirador. Os números técnicos ficam guardados em "Detalhamento técnico", para quem quiser conferir.',
   },
   {
     q: 'Preciso instalar algum software?',
@@ -50,8 +54,16 @@ const faqs = [
     a: 'Sim. Utilizamos protocolos de segurança e armazenamento protegido. Seus dados são usados apenas para a operação da plataforma.',
   },
   {
-    q: 'Quais normas são utilizadas nos cálcullos?',
-    a: 'Normas europeias do COMITÊ EUROPEU DE NORMALIZACION 12354-1 e 12354-2, de acústica em edificações.',
+    q: 'Quais normas são utilizadas nos cálculos?',
+    a: 'A referência legal é a ABNT NBR 15575 — parte 4 para paredes (ruído aéreo) e parte 3 para pisos (ruído de impacto). O conforto do ambiente é comparado com a ABNT NBR 10152. Os índices seguem as ISO 717-1 e 717-2, a medição em campo segue a ISO 16283, e o modelo de previsão a partir da composição das camadas segue a EN 12354-1 e 12354-2.',
+  },
+  {
+    q: 'De onde vêm os números de cada material?',
+    a: 'Sempre que existe ensaio de laboratório documentado, a plataforma usa o valor medido e mostra a fonte. Quando não existe, ela avisa: se todas as camadas forem rígidas, o isolamento é estimado pela lei da massa e rotulado como estimativa; se houver camada resiliente (lã mineral, manta), a plataforma se recusa a inventar o número e pede um valor de ensaio.',
+  },
+  {
+    q: 'O resultado substitui um laudo acústico?',
+    a: 'Não. É uma estimativa de projeto, feita para orientar decisões antes da obra. A conformidade com a NBR 15575 só é comprovada por medição em campo feita por profissional habilitado, conforme a ISO 16283.',
   },
   {
     q: 'Posso salvar e editar meus projetos?',
@@ -71,7 +83,7 @@ export default function Support() {
       {/* Lado escuro — Central de Suporte + Fale Conosco */}
       <div className={styles.panel}>
         <div className={styles.panelContent}>
-          <Logo width={260} light={true} />
+          <Logo width={260} />
           <h1 className={styles.panelTitle}>Central de Suporte</h1>
           <p className={styles.panelSubtitle}>
             Estamos aqui para ajudar você a aproveitar ao máximo a plataforma. 

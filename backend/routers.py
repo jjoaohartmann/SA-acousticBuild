@@ -1,8 +1,8 @@
-from auth import create_access_token, hash_password, verify_password
+from auth import create_access_token, get_current_user, hash_password, verify_password
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from models import User
-from schemas import Token, UserCreate, UserLogin, UserResponse
+from schemas import Token, UserCreate, UserLogin, UserResponse, UserUpdate
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
@@ -33,5 +33,37 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="E-mail ou senha incorretos."
         )
+    token = create_access_token(data={"sub": user.email, "user_id": user.id})
+    return {"access_token": token, "token_type": "bearer", "user": user}
+
+@router.get("/me", response_model=UserResponse)
+def read_me(user: User = Depends(get_current_user)):
+    return user
+
+@router.put("/me", response_model=Token)
+def update_me(
+    dados: UserUpdate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    if dados.email and dados.email != user.email:
+        em_uso = db.query(User).filter(User.email == dados.email, User.id != user.id).first()
+        if em_uso:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Este e-mail já está cadastrado."
+            )
+        user.email = dados.email
+
+    if dados.name:
+        user.name = dados.name
+
+    if dados.password:
+        user.password = hash_password(dados.password)
+
+    db.commit()
+    db.refresh(user)
+
+    # o e-mail entra no token, então ele é reemitido para não invalidar a sessão
     token = create_access_token(data={"sub": user.email, "user_id": user.id})
     return {"access_token": token, "token_type": "bearer", "user": user}

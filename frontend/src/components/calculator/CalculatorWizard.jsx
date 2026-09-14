@@ -24,6 +24,8 @@ export default function CalculatorWizard({ tipoInicial }) {
       cenario: form.cenario,
       ambiente_emissor: form.emissor || '',
       ambiente_receptor: form.receptor || '',
+      // eixo NBR 10152 (conforto) — independente do cenário NBR 15575 (exigência legal)
+      ambiente_receptor_tipo: form.ambiente_receptor_tipo || undefined,
       elemento_separador: form.elemento || '',
       volume_receptor: Number(form.volume ?? 36),
       reverberacao: Number(form.t ?? 0.6),
@@ -49,7 +51,7 @@ export default function CalculatorWizard({ tipoInicial }) {
       }
     }
 
-    calcular(payload).then((success) => {
+    calcular(payload).then(() => {
       // useAcousticCalculator define resultado no sucesso
       setStep(3);
     }).catch(() => {});

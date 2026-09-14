@@ -160,7 +160,7 @@ def montar_sistema_personalizado(request: MontarSistemaRequest, db: Session = De
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(e)
-        )
+        ) from e
 
     # Verifica correspondência documental exata
     sistema_correspondente = buscar_correspondencia_exata(propriedades["camadas"], db=db)

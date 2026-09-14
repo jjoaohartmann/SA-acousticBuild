@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Logo from '../components/Logo';
+import { IconPerson, IconEnvelope, IconLock } from '../components/IconSet';
 import styles from '../style/Register.module.css';
 
 export default function Register() {
@@ -30,35 +31,42 @@ export default function Register() {
   };
 
   return (
-        
     <div className={styles.container}>
+      <Link to="/" className={styles.backLink}>← Início</Link>
 
-<Link to="/" className={styles.backLink}>Início</Link>
-     
+      {/* Lado escuro — convite */}
       <div className={styles.panel}>
         <div className={styles.panelContent}>
-                  <Logo width={320} light={true} />
-        
-                  <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
-      Cadastre-se para acessar nossos serviços e ficar por dentro das novidades                </p>
-                </div>
+          <Logo width={300} />
+          <h2 className={styles.panelTitle}>Você conhece a AcousticBuild?</h2>
+          <p className={styles.panelText}>
+            Cadastre-se para acessar nossos serviços e ficar por dentro das novidades
+          </p>
+          <Link to="/login" className={styles.panelLink}>Já sou cliente</Link>
+        </div>
       </div>
 
+      {/* Lado claro — formulário */}
       <div className={styles.formSide}>
         <div className={styles.formBox}>
-          <h2 className={styles.formTitle}>Criar conta</h2>
-          <p className={styles.formSubtitle}>Preencha os dados para começar</p>
+          <h1 className={styles.formTitle}>Criar conta</h1>
+
+
+          <p className={styles.formHint}>Registre-se com o seu email:</p>
 
           {error && <div className={styles.errorBox}>{error}</div>}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Nome completo</label>
+              <span className={styles.inputIcon}>
+                <IconPerson size={20} color="#1E5EFF" />
+              </span>
               <input
                 className={styles.input}
                 type="text"
                 name="name"
-                placeholder="Seu nome"
+                placeholder="nome"
+                aria-label="Nome completo"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -66,12 +74,15 @@ export default function Register() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>E-mail</label>
+              <span className={styles.inputIcon}>
+                <IconEnvelope size={20} color="#1E5EFF" />
+              </span>
               <input
                 className={styles.input}
                 type="email"
                 name="email"
-                placeholder="seu@email.com"
+                placeholder="email"
+                aria-label="E-mail"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -79,12 +90,15 @@ export default function Register() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Senha</label>
+              <span className={styles.inputIcon}>
+                <IconLock size={20} color="#1E5EFF" />
+              </span>
               <input
                 className={styles.input}
                 type="password"
                 name="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="senha (mínimo 6 caracteres)"
+                aria-label="Senha (mínimo 6 caracteres)"
                 value={formData.password}
                 onChange={handleChange}
                 minLength={6}
@@ -92,22 +106,12 @@ export default function Register() {
               />
             </div>
 
-            <button
-              type="submit"
-              className={`${styles.button} ${loading ? styles.buttonDisabled : ''}`}
-              disabled={loading}
-            >
-              {loading ? 'Cadastrando...' : 'Criar conta'}
+            <button type="submit" className={styles.button} disabled={loading}>
+              {loading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
           </form>
-
-          <p className={styles.switchText}>
-            Já tem uma conta?{' '}
-            <Link to="/login" className={styles.link}>Entrar</Link>
-          </p>
         </div>
       </div>
-
     </div>
   );
 }

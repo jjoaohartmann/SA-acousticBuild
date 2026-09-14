@@ -1,0 +1,28 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* poster estático: aparece enquanto o vídeo carrega e se ele falhar */
+  background-color: #011530;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  /* escurece a esquerda (onde fica o texto) e o rodapé, mantendo o prédio visível à direita */
+  background:
+    linear-gradient(90deg, rgba(0, 20, 52, 0.82) 0%, rgba(0, 20, 52, 0.45) 42%, rgba(0, 20, 52, 0.12) 70%),
+    linear-gradient(180deg, rgba(0, 26, 65, 0.5) 0%, rgba(0, 26, 65, 0.2) 40%, rgba(1, 21, 48, 0.6) 100%);
+}

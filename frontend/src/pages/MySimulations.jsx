@@ -52,7 +52,13 @@ export default function MySimulations() {
               const tipoLabel = isImpacto ? "Ruído de Impacto (L'nT)" : 'Ruído Aéreo (DnT)';
               const principal = sim.resultado?.indicador_principal;
               const classificacao = sim.resultado?.classificacao;
-              const atende = classificacao === 'atende';
+              // 'indisponivel' significa "faltou dado", não "reprovou" — pintar
+              // de vermelho e escrever "Não Atende" seria mentir sobre o sistema.
+              const selo = {
+                atende: { texto: 'Atende NBR 15575', cor: '#22C55E' },
+                nao_atende: { texto: 'Não Atende', cor: '#F43F5E' },
+                indisponivel: { texto: 'Sem dado para julgar', cor: '#FACC15' },
+              }[classificacao];
 
               return (
                 <li key={sim.id} className={styles.item}>
@@ -60,15 +66,18 @@ export default function MySimulations() {
                     <span className={styles.itemType}>{tipoLabel}</span>
                     {principal && (
                       <span className={styles.itemValue}>
-                        {principal.nome} = {principal.valor.toFixed(2)} {principal.unidade}
-                        {classificacao && (
+                        {principal.nome} ={' '}
+                        {Number.isFinite(principal.valor)
+                          ? `${principal.valor.toFixed(2)} ${principal.unidade}`
+                          : '—'}
+                        {selo && (
                           <span style={{
                             marginLeft: '10px',
                             fontSize: '0.78rem',
                             fontWeight: 700,
-                            color: atende ? '#22C55E' : '#F43F5E',
+                            color: selo.cor,
                           }}>
-                            ({atende ? 'Atende NBR 15575' : 'Não Atende'})
+                            ({selo.texto})
                           </span>
                         )}
                       </span>

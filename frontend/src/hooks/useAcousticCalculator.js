@@ -27,7 +27,7 @@ export function useAcousticCalculator(tipoInicial) {
       const msg = err.response?.data?.detail || 'Erro ao calcular. Verifique os dados.';
       setError(msg);
       setResultado(null);
-      throw new Error(msg);
+      throw new Error(msg, { cause: err });
     } finally {
       setLoading(false);
     }

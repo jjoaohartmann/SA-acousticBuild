@@ -31,26 +31,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.logoRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logoName {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1;
-}
-
-.logoSub {
-  font-size: 0.55rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-}
-
 .nav {
   flex: 1;
   padding: 20px 0;

@@ -1,0 +1,79 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.botao {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid rgba(157, 187, 255, 0.6);
+  background: rgba(47, 111, 255, 0.16);
+  color: #9DBBFF;
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.botao:hover {
+  background: #2F6FFF;
+  color: #FFFFFF;
+}
+
+.balao {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px 16px;
+  background: #0A142C;
+  border: 1px solid rgba(157, 187, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  text-align: left;
+  white-space: normal;
+  cursor: default;
+}
+
+.balaoTitulo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.balaoTexto {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 400;
+}
+
+.balaoAncora {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #9DBBFF;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 7px;
+  font-weight: 400;
+}
+
+@media (max-width: 560px) {
+  .balao {
+    width: 230px;
+  }
+}

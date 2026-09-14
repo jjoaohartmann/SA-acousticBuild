@@ -1,35 +1,9 @@
-﻿.header {
+﻿/* Transparente: quem desenha o fundo é a imagem da página da calculadora */
+.header {
   position: relative;
-  background: linear-gradient(180deg, #0A1128 0%, #0D1B3D 100%);
+  background: transparent;
   color: #FFFFFF;
-  padding: 56px 48px 40px;
-  overflow: hidden;
-}
-
-/* Grid 3D ondulado (decorativo) */
-.gridDecor {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(47, 111, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(47, 111, 255, 0.08) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(circle at 80% 30%, #000 10%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Predio wireframe a direita */
-.buildingDecor {
-  position: absolute;
-  right: 60px;
-  top: 20px;
-  opacity: 0.9;
-  pointer-events: none;
-}
-.buildingSvg {
-  width: 190px;
-  height: 200px;
-  filter: drop-shadow(0 0 6px rgba(47, 111, 255, 0.5));
+  padding: 120px 48px 40px;
 }
 
 .content {
@@ -37,6 +11,8 @@
   z-index: 1;
   max-width: 720px;
   margin: 0 auto;
+  /* mantém o texto legível sobre a arte do fundo */
+  text-shadow: 0 2px 12px rgba(0, 8, 24, 0.75);
 }
 
 .title {
@@ -131,11 +107,7 @@
 
 @media (max-width: 640px) {
   .header {
-    padding: 36px 20px 28px;
-  }
-  .buildingDecor {
-    right: 16px;
-    opacity: 0.5;
+    padding: 96px 20px 28px;
   }
   .title {
     font-size: 1.7rem;

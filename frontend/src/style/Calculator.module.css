@@ -1,6 +1,15 @@
 .page {
   min-height: 70vh;
-  background: #0A1128;
+  /* paradas em px (não em %) para o escurecimento não variar com a altura da página,
+     que muda entre Parede e Piso por terem campos diferentes */
+  background:
+    linear-gradient(180deg,
+      rgba(10, 17, 40, 0.30) 0px,
+      rgba(10, 17, 40, 0.55) 170px,
+      rgba(10, 17, 40, 0.93) 360px,
+      #0A1128 500px),
+    url('../assets/bg-calculadora.jpg') top center / 100% auto no-repeat,
+    #0A1128;
   padding-bottom: 80px;
 }
 
@@ -25,21 +34,10 @@
   margin-bottom: 24px;
 }
 
-/* Grid de 2 colunas (Tela 1) */
-.grid2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
 .field {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.fieldRow {
-  max-width: 300px;
 }
 
 .fieldRowDouble {
@@ -96,34 +94,6 @@
 
 .inputUnit .input {
   padding-right: 42px;
-}
-
-.readonly {
-  width: 100%;
-  padding: 12px 14px;
-  background: #101E42;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  color: #2F6FFF;
-  font-size: 0.9rem;
-  font-weight: 700;
-  font-family: inherit;
-}
-
-/* Accordion */
-.accordion {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 20px;
-  background: transparent;
-  border: none;
-  color: #2F6FFF;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 0;
 }
 
 /* Botões */
@@ -216,356 +186,6 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.outlineBtn {
-  display: inline-block;
-  padding: 9px 16px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #FFFFFF;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-  align-self: center;
-  font-family: inherit;
-}
-
-/* Card secundário "Sobre os cálculos" */
-.infoCard {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 28px;
-  padding: 18px 20px;
-  background: rgba(47, 111, 255, 0.08);
-  border: 1px solid rgba(47, 111, 255, 0.3);
-  border-radius: 14px;
-}
-
-.infoIconBox {
-  width: 46px;
-  height: 46px;
-  background: #101E42;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.infoText {
-  flex: 1;
-}
-
-.infoTitle {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  margin-bottom: 4px;
-}
-
-.infoDesc {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.5;
-}
-
-/* Tela 2: blocos de cálculo */
-.calcBlock {
-  display: flex;
-  gap: 14px;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.calcBlock:last-of-type {
-  border-bottom: none;
-}
-
-.blockIndex {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #2F6FFF;
-  border-radius: 50%;
-  color: #2F6FFF;
-  font-weight: 700;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.blockBody {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.blockTitle {
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  margin-bottom: 8px;
-}
-
-.formulaLabel {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.formulaBox {
-  background: #0A1128;
-  border: 1px solid rgba(47, 111, 255, 0.6);
-  border-radius: 12px;
-  padding: 16px 18px;
-  color: #9db9ff;
-  font-size: 1rem;
-  letter-spacing: 0.3px;
-  overflow-x: auto;
-}
-
-.formulaBox sub {
-  font-size: 0.7em;
-}
-
-.resultCalcRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.resultCalcBox {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.resultCalcLabel {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.resultCalcValue {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #2F6FFF;
-}
-
-.resultCalcValue sub {
-  font-size: 0.7em;
-}
-/* Tela 3: resultados */
-.resultsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.resultsHeader .cardTitle {
-  margin-bottom: 0;
-}
-
-.downloadBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #2F6FFF;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.resultsGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.resultTile {
-  background: #101E42;
-  border-radius: 16px;
-  padding: 26px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
-.tileIcon {
-  width: 46px;
-  height: 46px;
-  background: #0A1128;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.tileValue {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: #2F6FFF;
-}
-
-.tileGreen {
-  color: #22C55E;
-}
-
-.tileLabel {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  line-height: 1.35;
-}
-
-.tileCaption {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
-}
-
-/* Integratividade + recomendações */
-.resultsLower {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 26px;
-}
-
-.blockHead {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.blockHead h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #FFFFFF;
-}
-
-.interpretText {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.78);
-  line-height: 1.7;
-}
-
-.varBlue {
-  color: #2F6FFF;
-}
-
-.veredict {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-top: 12px;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.6;
-}
-
-.recoText {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.6;
-  margin-bottom: 8px;
-}
-
-.recoList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.recoList li {
-  position: relative;
-  padding-left: 16px;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.5;
-}
-
-.recoList li::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: #2F6FFF;
-  font-weight: 800;
-}
-
-/* Faixa de rodapé */
-.footerBand {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 26px;
-  padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.6);
-  line-height: 1.6;
-}
-
-/* Ações de salvamento */
-.resultsActions {
-  margin-top: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.saveBtn {
-  padding: 12px 20px;
-  background: #22C55E;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.saveBtn:hover {
-  background: #1aa84e;
-}
-
-.saveBtn:disabled {
-  background: #14532d;
-  cursor: default;
-}
-
-.saveHint {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.saveHint a {
-  color: #2F6FFF;
-  font-weight: 700;
-}
-
 /* Erro / carregando */
 .errorBox {
   margin-top: 16px;
@@ -591,10 +211,7 @@
 }
 
 @media (max-width: 700px) {
-  .grid2,
-  .fieldRowDouble,
-  .resultsGrid,
-  .resultsLower {
+  .fieldRowDouble {
     grid-template-columns: 1fr;
   }
   .wizard {
@@ -604,282 +221,49 @@
     padding: 22px;
   }
 }
-
-/* ==========================================================
-   Novos estilos: Modos, Presets, Toggles, Badges e Relatório
-   ========================================================== */
-
-/* Seletor de Tipo de Análise (Aéreo / Impacto) */
-.modeSelector {
-  display: flex;
-  gap: 12px;
+/* ===== Dois eixos independentes: exigência legal x conforto ===== */
+.doisEixos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
   margin-bottom: 24px;
-  background: #101E42;
-  padding: 6px;
-  border-radius: 14px;
+}
+
+.eixo {
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modeBtn {
-  flex: 1;
-  padding: 12px 18px;
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.modeBtnActive {
-  background: #2F6FFF;
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(47, 111, 255, 0.35);
-}
-
-/* Barra de Presets Rápidos */
-.presetsBar {
-  margin-bottom: 22px;
-  padding: 14px 16px;
-  background: rgba(47, 111, 255, 0.08);
-  border: 1px dashed rgba(47, 111, 255, 0.4);
   border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 18px;
 }
 
-.presetsTitle {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #9db9ff;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.presetsList {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.presetChip {
-  padding: 7px 14px;
-  background: #101E42;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  color: #FFFFFF;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.presetChip:hover {
-  background: #2F6FFF;
-  border-color: #2F6FFF;
-}
-
-/* Helper e Dica de Campo */
-.fieldHint {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 2px;
-}
-
-/* Switch / Checkbox Estilizado */
-.toggleContainer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 12px 0;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.toggleInput {
-  cursor: pointer;
-  width: 18px;
-  height: 18px;
-  accent-color: #2F6FFF;
-}
-
-/* Badges de Classificação */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.8rem;
+.eixoTag {
+  display: inline-block;
+  font-size: 0.66rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 1.4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  color: #9DBBFF;
+  background: rgba(47, 111, 255, 0.16);
+  border: 1px solid rgba(47, 111, 255, 0.45);
 }
 
-.badgeSuccess {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid #22C55E;
-  color: #22C55E;
+.eixoTagConforto {
+  color: #86EFAC;
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(74, 222, 128, 0.45);
 }
 
-.badgeDanger {
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid #F43F5E;
-  color: #F43F5E;
+.eixoAjuda {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.badgeWarning {
-  background: rgba(234, 179, 8, 0.15);
-  border: 1px solid #EAB308;
-  color: #EAB308;
+.eixoAjuda strong {
+  color: rgba(255, 255, 255, 0.8);
 }
-
-.tileRed {
-  color: #F43F5E;
-}
-
-/* Card Dedicado de Tempo de Reverberação */
-.reverbCard {
-  margin-top: 20px;
-  padding: 18px 22px;
-  background: #101E42;
-  border-radius: 16px;
-  border-left: 4px solid #2F6FFF;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.reverbCard.alerta {
-  border-left-color: #EAB308;
-}
-
-.reverbTitle {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.reverbText {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.5;
-}
-
-/* Modal do Relatório */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.modalContent {
-  background: #0A1128;
-  border: 1px solid rgba(47, 111, 255, 0.5);
-  border-radius: 20px;
-  max-width: 780px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 28px;
-  color: #FFFFFF;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.modalCloseBtn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.reportSheet {
-  background: #FFFFFF;
-  color: #0A1128;
-  border-radius: 12px;
-  padding: 30px;
-  font-family: Arial, sans-serif;
-}
-
-.reportHeader {
-  border-bottom: 2px solid #2F6FFF;
-  padding-bottom: 12px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.reportHeader h2 {
-  font-size: 1.3rem;
-  color: #001A41;
-  margin: 0;
-}
-
-.reportSub {
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-.reportSection {
-  margin-bottom: 18px;
-}
-
-.reportSectionTitle {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #2F6FFF;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 4px;
-  margin-bottom: 10px;
-}
-
-.reportGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  font-size: 0.85rem;
-}
-
-.reportGrid div strong {
-  color: #1e293b;
-}
-
-.reportActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-}

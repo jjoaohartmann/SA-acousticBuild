@@ -10,12 +10,24 @@
 
 ## 📋 Sobre o Projeto
 
-O **AcousticBuild** é uma aplicação web full-stack para prever, analisar e otimizar o desempenho acústico de edificações. A plataforma oferece:
+O **AcousticBuild** é uma aplicação web full-stack que estima o desempenho acústico de
+sistemas construtivos e diz se ele atende às normas brasileiras. A plataforma oferece:
 
-- 🌐 **Landing Page** institucional com apresentação da empresa
-- 🔐 **Sistema de autenticação** (cadastro e login) com JWT
-- 👤 **Perfil de usuário** com edição de dados
-- 📱 **Design responsivo** e moderno
+- 🧮 **Calculadora acústica** em 3 passos — ruído aéreo (paredes) e de impacto (pisos)
+- 📚 **Catálogo construtivo** com sistemas de ensaio documentado e fontes rastreáveis
+- 🧱 **Composição por camadas** para elementos que não estão no catálogo
+- ⚖️ **Duplo julgamento**: exigência legal (ABNT NBR 15575) e conforto (ABNT NBR 10152)
+- 🏷️ **Rótulo de confiabilidade** em cada resultado — ensaio, medição ou estimativa
+- 📄 **Relatório técnico em PDF** com a memória de cálculo
+- 🌐 **Landing page** institucional, página do projeto e da equipe
+- 🔐 **Contas com JWT**, perfil editável e histórico de simulações
+- 📱 **Design responsivo** e linguagem acessível a quem não é da área
+
+### Um princípio acima dos outros
+
+Quando não há dado confiável para um cálculo, a plataforma **recusa o resultado e explica
+o que falta** — em vez de devolver um número inventado. Todo valor exibido carrega a
+origem: ensaio de laboratório, medição do usuário ou estimativa teórica.
 
 ---
 
@@ -86,9 +98,15 @@ venv\Scripts\activate
 # Instalar dependências
 pip install -r requirements.txt
 
+# Popular o catálogo construtivo (só na primeira vez)
+python seed.py
+
 # Iniciar o servidor (http://localhost:8000)
 uvicorn main:app --reload
 ```
+
+> ⚠️ Sem rodar o `seed.py` o catálogo fica vazio e a calculadora não tem sistemas para
+> oferecer no passo 1.
 
 API disponível em: **http://localhost:8000**
 Documentação Swagger: **http://localhost:8000/docs**
@@ -117,35 +135,42 @@ npm run dev
 ```
 SA-acousticBuild/
 ├── backend/
-│   ├── auth.py              # Hash de senha e JWT
+│   ├── main.py              # FastAPI, CORS, registro dos routers
 │   ├── database.py          # SQLAlchemy + SQLite
-│   ├── main.py              # FastAPI, CORS, rotas
-│   ├── models.py            # Modelo ORM (User)
-│   ├── routers.py           # Endpoints /auth/register e /auth/login
+│   ├── models.py            # Modelos ORM (usuários, catálogo, simulações)
 │   ├── schemas.py           # Schemas Pydantic
+│   ├── auth.py              # Hash bcrypt e JWT
+│   ├── routers.py           # /auth/register, /auth/login, /auth/me
+│   ├── catalogo.py          # /materiais, /sistemas, /sistemas/montar
+│   ├── acustica.py          # /acustica/calcular, /cenarios, histórico
+│   ├── engine.py            # Motor de cálculo e matriz de confiabilidade
+│   ├── formulas.py          # Fórmulas e validação das faixas físicas
+│   ├── criteria.py          # Critérios da NBR 15575 e reverberação
+│   ├── conforto.py          # Camada de conforto da NBR 10152
+│   ├── suggestions.py       # Recomendações a partir do resultado
+│   ├── formatar.py          # Números com vírgula decimal (pt-BR)
+│   ├── seed.py              # Popula o catálogo construtivo
+│   ├── tests/               # Suíte pytest (21 testes)
 │   └── requirements.txt     # Dependências Python
 │
 ├── frontend/
 │   ├── public/              # Arquivos estáticos
 │   └── src/
 │       ├── assets/          # Imagens e recursos
-│       ├── components/      # Componentes React reutilizáveis
-│       │   ├── Header.jsx         # Header com navegação condicional
-│       │   ├── HeroSection.jsx    # Seção hero da landing page
-│       │   ├── WhatWeAreSection.jsx  # Seção "O que somos"
-│       │   ├── WhoWeAreSection.jsx   # Seção "Quem somos"
-│       │   ├── Footer.jsx        # Footer completo
-│       │   ├── Sidebar.jsx       # Sidebar de navegação
-│       │   ├── IconSet.jsx       # Biblioteca de ícones SVG
-│       │   ├── WavesIllustration.jsx  # Ilustração do prédio
-│       │   └── Logo.jsx          # Logo AcousticBuild
-│       ├── context/
-│       │   └── AuthContext.jsx   # Contexto de autenticação
-│       ├── pages/
-│       │   ├── Home.jsx         # Landing Page (pública)
-│       │   ├── Login.jsx        # Página de login
-│       │   ├── Register.jsx     # Página de cadastro
-│       │   └── UserProfile.jsx  # Perfil do usuário (protegida)
+│       ├── components/      # Componentes React (ver docs/COMPONENTS.md)
+│       │   ├── calculator/       # Assistente de cálculo em 3 passos
+│       │   ├── ScrollVideoBackground.jsx  # Vídeo controlado pela rolagem
+│       │   ├── Header.jsx · Sidebar.jsx · Footer.jsx · Logo.jsx
+│       │   ├── HeroSection.jsx · SourcesStrip.jsx
+│       │   ├── WhatWeAreSection.jsx · WhoWeAreSection.jsx
+│       │   ├── ProductSection.jsx · AccessCalculatorButton.jsx
+│       │   ├── Reveal.jsx · ScrollToHash.jsx
+│       │   └── IconSet.jsx       # Biblioteca de ícones SVG
+│       ├── context/         # AuthProvider e useAuth
+│       ├── hooks/           # useAcousticCalculator, useInView
+│       ├── pages/           # Home, Calculator, About, Support, Login,
+│       │                    # Register, UserProfile, MySimulations,
+│       │                    # Terms, Privacy
 │       ├── services/
 │       │   └── api.js           # Axios config
 │       ├── style/               # CSS Modules
@@ -157,11 +182,11 @@ SA-acousticBuild/
 │   └── package.json
 │
 ├── docs/                    # Documentação adicional
-│   ├── HOME_PAGE.md         # Landing Page detalhada
-│   ├── USER_PROFILE.md      # Perfil do usuário
-│   ├── SIDEBAR.md           # Sidebar e navegação
-│   ├── COMPONENTS.md        # Catálogo de componentes
+│   ├── MATRIZ_CALCULO_E_FONTES.md  # Fórmulas, catálogo e confiabilidade
 │   ├── API.md               # Endpoints da API
+│   ├── COMPONENTS.md        # Catálogo de componentes
+│   ├── HOME_PAGE.md         # Landing page detalhada
+│   ├── USER_PROFILE.md      # Perfil do usuário
 │   └── PALETTE.md           # Guia de identidade visual
 │
 └── README.md
@@ -172,32 +197,45 @@ SA-acousticBuild/
 ## 🔐 Fluxo de Navegação
 
 ```
-[Usuário não logado]
-  /  (Home) → Landing Page pública
-  ├── Header: [Entrar] [Cadastrar]
-  ├── /login → Página de login
-  ├── /register → Página de cadastro
-  └── Após login → redireciona para /profile
+[Público — não exige conta]
+  /                  Landing page
+  /calculadora       Calculadora acústica (3 passos, resultado e PDF)
+  /sobre             O projeto, as equipes e a metodologia (#metodologia)
+  /suporte           Canais de contato e perguntas frequentes
+  /termos            Termos de uso
+  /privacidade       Política de privacidade
+  /login /register   Entrar ou criar conta
 
-[Usuário logado]
-  /  (Home) → Landing Page
-  ├── Header: "Olá, Nome" [Meu Perfil]
-  ├── /profile → Perfil do usuário (visualização)
-  │   ├── EDITAR INFORMAÇÕES → modo edição
-  │   ├── SUPORTE → (placeholder)
-  │   └── SAIR → logout + redireciona para Home
-  └── Sidebar pode ser aberta pelo menu hamburguer
+[Exige conta]
+  /profile             Perfil — ver e editar nome, e-mail e senha (PUT /auth/me)
+  /minhas-simulacoes   Histórico de simulações salvas
+
+Qualquer URL desconhecida redireciona para /.
+O menu ☰ (Sidebar) e o rodapé estão presentes nas páginas principais.
 ```
 
 ---
 
 ## 🔗 Endpoints da API
 
+Referência completa em [`docs/API.md`](docs/API.md).
+
 | Método | Rota | Descrição | Autenticação |
 |--------|------|-----------|--------------|
+| GET | `/` | Health check da API | ❌ Não |
 | POST | `/auth/register` | Cadastrar novo usuário | ❌ Não |
 | POST | `/auth/login` | Login + token JWT | ❌ Não |
-| GET | `/` | Health check da API | ❌ Não |
+| GET | `/auth/me` | Dados da conta | ✅ Sim |
+| PUT | `/auth/me` | Editar nome, e-mail ou senha | ✅ Sim |
+| GET | `/materiais` | Catálogo de materiais | ❌ Não |
+| GET | `/materiais/{id}` | Material e suas variações | ❌ Não |
+| GET | `/sistemas` | Catálogo de sistemas construtivos | ❌ Não |
+| GET | `/sistemas/{codigo}` | Composição e ensaio de um sistema | ❌ Não |
+| POST | `/sistemas/montar` | Montar composição por camadas | ❌ Não |
+| GET | `/acustica/cenarios` | Cenários e limites da NBR 15575 | ❌ Não |
+| POST | `/acustica/calcular` | Executar o cálculo acústico | ❌ Não |
+| POST | `/acustica/salvar` | Salvar simulação no histórico | ✅ Sim |
+| GET | `/acustica/simulacoes` | Listar o histórico do usuário | ✅ Sim |
 
 ### Exemplo — Cadastro
 

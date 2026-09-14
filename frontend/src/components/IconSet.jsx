@@ -248,16 +248,6 @@ export function IconMail({ size = 24, color = '#FFFFFF' }) {
   );
 }
 
-export function IconGrid({ size = 24, color = '#001A41' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.8" fill="none"/>
-      <line x1="12" y1="3" x2="12" y2="21" stroke={color} strokeWidth="1.8"/>
-      <line x1="3" y1="12" x2="21" y2="12" stroke={color} strokeWidth="1.8"/>
-    </svg>
-  );
-}
-
 // ==== Novos ícones usados pela Calculadora (réplica do Figma) ====
 
 export function IconCalculator({ size = 24, color = '#FFFFFF' }) {
@@ -272,21 +262,33 @@ export function IconCalculator({ size = 24, color = '#FFFFFF' }) {
   );
 }
 
-export function IconDownload({ size = 24, color = '#FFFFFF' }) {
+export function IconClipboardCheck({ size = 32, color = '#1E5EFF' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 3V15" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
-      <polyline points="8,11 12,15 16,11" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      <line x1="4" y1="19" x2="20" y2="19" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="20" height="22" rx="3" stroke={color} strokeWidth="1.8"/>
+      <rect x="11" y="3" width="10" height="6" rx="2" stroke={color} strokeWidth="1.8" fill="none"/>
+      <path d="M11.5 17.5L14.5 20.5L20.5 14" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
-export function IconStar({ size = 24, color = '#FFFFFF' }) {
+export function IconSpeakerWave({ size = 32, color = '#1E5EFF' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="12,3 15,9 21,9.5 16.5,13.5 18,19 12,16 6,19 7.5,13.5 3,9.5 9,9"
-        stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 12H10L16 7V25L10 20H6V12Z" stroke={color} strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="M21 10C23 12 23 20 21 22" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M24.5 6.5C28.5 11 28.5 21 24.5 25.5" stroke={color} strokeWidth="1.8" strokeLinecap="round" opacity="0.5"/>
+    </svg>
+  );
+}
+
+export function IconBriefcase({ size = 32, color = '#1E5EFF' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="11" width="24" height="16" rx="2" stroke={color} strokeWidth="1.8"/>
+      <path d="M11 11V8C11 6.5 12 5.5 13.5 5.5H18.5C20 5.5 21 6.5 21 8V11" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="4" y1="18" x2="28" y2="18" stroke={color} strokeWidth="1.8"/>
+      <rect x="14" y="16" width="4" height="4" rx="0.5" fill={color}/>
     </svg>
   );
 }

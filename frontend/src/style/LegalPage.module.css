@@ -1,0 +1,106 @@
+.page {
+  min-height: 100vh;
+  background: var(--white);
+}
+
+.backLink {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  border-radius: 80px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.backLink:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+.hero {
+  position: relative;
+  background: var(--dark-blue);
+  padding: 100px 60px 56px;
+  text-align: center;
+}
+
+.heroLabel {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+
+.heroTitle {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.heroUpdated {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.content {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 24px 100px;
+}
+
+.content h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 40px 0 14px;
+}
+
+.content h2:first-child {
+  margin-top: 0;
+}
+
+.content p {
+  font-size: 0.98rem;
+  color: var(--text-gray);
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+
+.content ul {
+  margin: 0 0 14px 20px;
+  color: var(--text-gray);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.content a {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.content a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 90px 24px 40px;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+}

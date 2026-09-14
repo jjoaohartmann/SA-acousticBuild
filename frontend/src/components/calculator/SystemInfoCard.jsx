@@ -1,17 +1,16 @@
-import React from 'react';
-import styles from '../../style/Calculator.module.css';
+
 
 export default function SystemInfoCard({
   sistema,
   propriedadesFisicas,
   dadosAcusticos = [],
   fontes = [],
-  limitacoes = [],
   modo = 'documentado', // 'documentado' | 'personalizado'
 }) {
   const espessuraCm =
     propriedadesFisicas?.espessura_total_cm ??
-    (sistema?.espessura_total ? Math.round(sistema.espessura_total * 100) : null);
+    // 7,3 cm não pode virar "7 cm" — a espessura é dado técnico
+    (sistema?.espessura_total ? Number((sistema.espessura_total * 100).toFixed(1)) : null);
 
   const massaTotal =
     propriedadesFisicas?.massa_superficial_total ??
@@ -177,7 +176,7 @@ export default function SystemInfoCard({
               color: '#f1c40f',
             }}
           >
-            <strong>Aviso de transparência:</strong> O sistema possui propriedades físicas calculadas, mas não possui ensaio acústico de laboratório documentado no banco de dados. O cálculo poderá ser estimado ou exigir valor medido.
+            <strong>Aviso de transparência:</strong> não há ensaio de laboratório documentado para esta composição. Se todas as camadas forem rígidas e coladas, o isolamento será <strong>estimado</strong> pela lei da massa e rotulado como tal. Se houver camada resiliente (lã, manta), o cálculo exigirá um valor medido — a plataforma não inventa o número.
           </div>
         )}
       </div>

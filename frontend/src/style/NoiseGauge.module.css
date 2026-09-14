@@ -1,0 +1,106 @@
+.wrap {
+  margin-top: 26px;
+  padding-top: 26px;
+}
+
+.track {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.zonaBoa,
+.zonaAtencao,
+.zonaRuim {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+.zonaBoa {
+  left: 0;
+  background: linear-gradient(90deg, #22C55E, #4ADE80);
+  border-radius: 999px 0 0 999px;
+}
+
+.zonaAtencao {
+  background: #F59E0B;
+}
+
+.zonaRuim {
+  background: linear-gradient(90deg, #F87171, #DC2626);
+  border-radius: 0 999px 999px 0;
+}
+
+/* linha vertical do limite recomendado */
+.limite {
+  position: absolute;
+  top: -7px;
+  bottom: -7px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateX(-1px);
+}
+
+/* pino do resultado */
+.marcador {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 3px solid #0D1B3D;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+}
+
+.marcadorValor {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: rgba(0, 12, 33, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 3px 9px;
+}
+
+.escala {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.escalaLimite {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .escalaLimite {
+    position: static;
+    transform: none;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .escala {
+    flex-wrap: wrap;
+  }
+}

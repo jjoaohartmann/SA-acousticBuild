@@ -17,26 +17,44 @@ from engine import (
 
 
 def absorcao_equivalente(volume: float, tempo_reverb: float) -> float:
-    """Calcula a absorcao equivalente do ambiente receptor pela formula de Sabine: A = 0.16 * V / T."""
+    """Calcula a absorção equivalente do ambiente receptor pela formula de Sabine: A = 0.16 * V / T."""
     return calcular_absorcao_sabine(volume, tempo_reverb)
 
 
+# Faixas fisicamente plausiveis para ambientes construidos (ISO 12354 / NBR 15575)
+FAIXAS_PLAUSIVEIS = {
+    'area_elemento': (0.5, 500.0, 'm²'),
+    'volume_receptor': (1.0, 10000.0, 'm³'),
+    'reverberacao': (0.1, 5.0, 's'),
+    'l1': (20.0, 140.0, 'dB'),
+    'l2': (10.0, 140.0, 'dB'),
+    'nivel_impacto': (20.0, 140.0, 'dB'),
+    'reducao_sonora': (1.0, 80.0, 'dB'),
+}
+
+
 def _validar_positivo(valores):
-    """Valida presenca e positividade de campos numericos obrigatorios."""
+    """Valida presenca, positividade e plausibilidade física dos campos."""
     for nome, valor in valores:
         if valor is None:
-            raise ValueError(f"Campo obrigatorio ausente: {nome}")
+            raise ValueError(f"Campo obrigatório ausente: {nome}")
         try:
             v = float(valor)
-        except (TypeError, ValueError):
-            raise ValueError(f"Campo invalido (deve ser numero): {nome}")
+        except (TypeError, ValueError) as e:
+            raise ValueError(f"Campo inválido (deve ser número): {nome}") from e
         if v <= 0:
             raise ValueError(f"{nome} deve ser estritamente maior que zero (recebido: {valor})")
+        faixa = FAIXAS_PLAUSIVEIS.get(nome)
+        if faixa and not (faixa[0] <= v <= faixa[1]):
+            raise ValueError(
+                f"{nome} = {valor} {faixa[2]} está fora da faixa plausível "
+                f"({faixa[0]:g} a {faixa[1]:g} {faixa[2]}). Confira o valor informado."
+            )
 
 
 def calcular_tipo_aereo(dados):
     """
-    Calculo de isolamento ao ruido aereo (UNE-EN 12354-1 / ISO 16283-1).
+    Cálculo de isolamento ao ruído aéreo (UNE-EN 12354-1 / ISO 16283-1).
     """
     S = dados.get('area_elemento') or dados.get('s')
     V = dados.get('volume_receptor') or dados.get('v')
@@ -63,10 +81,12 @@ def calcular_tipo_aereo(dados):
     if L2_medido is not None and str(L2_medido).strip() != '':
         try:
             L2_val = float(L2_medido)
-        except (TypeError, ValueError):
-            raise ValueError("L2 medido deve ser um numero valido.")
-        if L2_val <= 0:
-            raise ValueError("L2 medido deve ser maior que zero.")
+        except (TypeError, ValueError) as e:
+            raise ValueError("L2 medido deve ser um número válido.") from e
+        if not (10.0 <= L2_val <= 140.0):
+            raise ValueError("L2 medido deve ficar entre 10 e 140 dB. Confira a leitura do sonometro.")
+        if L2_val > L1:
+            raise ValueError("O nível no receptor (L2) não pode ser maior que o do emissor (L1).")
 
         L2 = L2_val
         DnT = (L1 - L2) + 10.0 * math.log10(T / T0)
@@ -79,13 +99,13 @@ def calcular_tipo_aereo(dados):
         limitacoes = ["Resultado obtido a partir de medição in situ de L1 e L2."]
     else:
         if R_informado is None or str(R_informado).strip() == '':
-            raise ValueError("Informe o indice de reducao sonora R (ou o nivel medido L2).")
+            raise ValueError("Informe o indice de redução sonora R (ou o nível medido L2).")
         try:
             R_val = float(R_informado)
-        except (TypeError, ValueError):
-            raise ValueError("Reducao sonora R deve ser um numero valido.")
-        if R_val <= 0:
-            raise ValueError("Reducao sonora R deve ser maior que zero.")
+        except (TypeError, ValueError) as e:
+            raise ValueError("Redução sonora R deve ser um número válido.") from e
+        if not (1.0 <= R_val <= 80.0):
+            raise ValueError("Redução sonora R deve ficar entre 1 e 80 dB — acima disso nenhum sistema construtivo real alcanca.")
 
         L2 = L1 - R_val + 10.0 * math.log10(S / A)
         DnT = (L1 - L2) + 10.0 * math.log10(T / T0)
@@ -105,14 +125,14 @@ def calcular_tipo_aereo(dados):
         },
         'indicador_principal': {
             'nome': 'DnT',
-            'descricao': 'Diferenca de nivel padronizada',
+            'descricao': 'Diferenca de nível padronizada',
             'valor': round(DnT, 2),
             'valor_exato': DnT,
             'unidade': 'dB',
         },
         'indicador_secundario': {
             'nome': "R'" if modo == "medicao" else "R",
-            'descricao': 'Indice de reducao sonora aparente' if modo == "medicao" else 'Indice de reducao sonora do material',
+            'descricao': 'Indice de redução sonora aparente' if modo == "medicao" else 'Indice de redução sonora do material',
             'valor': round(r_display, 2),
             'valor_exato': r_display,
             'unidade': 'dB',
@@ -120,14 +140,14 @@ def calcular_tipo_aereo(dados):
         'resultado': {
             'indicador_principal': {
                 'nome': 'DnT',
-                'descricao': 'Diferenca de nivel padronizada',
+                'descricao': 'Diferenca de nível padronizada',
                 'valor': round(DnT, 2),
                 'valor_exato': DnT,
                 'unidade': 'dB',
             },
             'indicador_secundario': {
                 'nome': "R'" if modo == "medicao" else "R",
-                'descricao': 'Indice de reducao sonora aparente' if modo == "medicao" else 'Indice de reducao sonora do material',
+                'descricao': 'Indice de redução sonora aparente' if modo == "medicao" else 'Indice de redução sonora do material',
                 'valor': round(r_display, 2),
                 'valor_exato': r_display,
                 'unidade': 'dB',
@@ -160,7 +180,7 @@ def calcular_tipo_aereo(dados):
 
 def calcular_tipo_impacto(dados):
     """
-    Calculo do nivel de pressao sonora de impacto (UNE-EN 12354-2 / ISO 16283-2).
+    Cálculo do nível de pressao sonora de impacto (UNE-EN 12354-2 / ISO 16283-2).
     """
     V = dados.get('volume_receptor') or dados.get('v')
     T = dados.get('reverberacao') or dados.get('t') or dados.get('t2')
@@ -191,14 +211,14 @@ def calcular_tipo_impacto(dados):
         },
         'indicador_principal': {
             'nome': "L'nT",
-            'descricao': 'Nivel de pressao sonora de impacto padronizado',
+            'descricao': 'Nível de pressao sonora de impacto padronizado',
             'valor': round(LnT, 2),
             'valor_exato': LnT,
             'unidade': 'dB',
         },
         'indicador_secundario': {
             'nome': "L'n",
-            'descricao': 'Nivel de pressao sonora de impacto normalizado',
+            'descricao': 'Nível de pressao sonora de impacto normalizado',
             'valor': round(Ln, 2),
             'valor_exato': Ln,
             'unidade': 'dB',
@@ -206,14 +226,14 @@ def calcular_tipo_impacto(dados):
         'resultado': {
             'indicador_principal': {
                 'nome': "L'nT",
-                'descricao': 'Nivel de pressao sonora de impacto padronizado',
+                'descricao': 'Nível de pressao sonora de impacto padronizado',
                 'valor': round(LnT, 2),
                 'valor_exato': LnT,
                 'unidade': 'dB',
             },
             'indicador_secundario': {
                 'nome': "L'n",
-                'descricao': 'Nivel de pressao sonora de impacto normalizado',
+                'descricao': 'Nível de pressao sonora de impacto normalizado',
                 'valor': round(Ln, 2),
                 'valor_exato': Ln,
                 'unidade': 'dB',

@@ -107,26 +107,43 @@ Onde:
 - $T$: tempo de reverberação medido ou estimado ($\text{s}$)
 
 ### 4.2 Isolamento Aéreo: Previsão de Campo $D_{nT,w}$ a partir de $R_w$
-Conforme modelo simplificado da ISO 12354-1 / ISO 717-1 para transmissão direta:
-$$D_{nT,w} \approx R_w + 10\log_{10}\left(\frac{T}{T_0}\right) - 10\log_{10}\left(\frac{A}{S}\right) \quad [\text{dB}]$$
-Com $T_0 = 0,5\text{ s}$.
+Conforme modelo simplificado da ISO 12354-1 / ISO 717-1 para transmissão direta.
+Parte-se da diferença de nível bruta $D = R - 10\log_{10}(S/A)$ e padroniza-se pelo tempo
+de reverberação:
+$$D_{nT,w} \approx R_w - 10\log_{10}\left(\frac{S}{A}\right) + 10\log_{10}\left(\frac{T}{T_0}\right) \quad [\text{dB}]$$
+Com $T_0 = 0,5\text{ s}$. Como $A$ cresce com o volume e o acabamento da sala, salas
+maiores e mais absorventes recebem menos energia — daí o sinal negativo do termo de área.
 
 ### 4.3 Isolamento Aéreo: Medição in situ com Fonte e Receptor ($L_1, L_2$)
 $$D_{nT} = (L_1 - L_2) + 10\log_{10}\left(\frac{T}{T_0}\right) \quad [\text{dB}]$$
 $$R' = (L_1 - L_2) + 10\log_{10}\left(\frac{S}{A}\right) \quad [\text{dB}]$$
 
 ### 4.4 Ruído de Impacto: Previsão de Campo $L'_{nT,w}$ a partir de $L_{n,w}$
-Conforme ISO 12354-2 / ISO 717-2:
-$$L'_{nT,w} \approx L_{n,w} - 10\log_{10}\left(\frac{A}{A_0}\right) + 10\log_{10}\left(\frac{T}{T_0}\right) \quad [\text{dB}]$$
+Conforme ISO 12354-2 / ISO 717-2. O $L_{n,w}$ de laboratório já vem normalizado por
+$A_0$; desfaz-se essa normalização para o ambiente real e padroniza-se por $T$:
+$$L'_{nT,w} \approx L_{n,w} - 10\log_{10}\left(\frac{A}{A_0}\right) - 10\log_{10}\left(\frac{T}{T_0}\right) \quad [\text{dB}]$$
 Com $A_0 = 10,0\text{ m}^2$ e $T_0 = 0,5\text{ s}$.
+
+> **Atenção ao sentido da escala.** $D_{nT}$ é *atenuação*: quanto maior, melhor, e a
+> NBR 15575-4 fixa um **mínimo**. Já $L'_{nT}$ é *nível de ruído*: quanto menor, melhor,
+> e a NBR 15575-3 fixa um **máximo**. São grandezas de sentidos opostos.
 
 ### 4.5 Ruído de Impacto: Medição in situ com Tapping Machine ($L_i$)
 $$L'_{nT} = L_i - 10\log_{10}\left(\frac{T}{T_0}\right) \quad [\text{dB}]$$
 $$L'_n = L_i + 10\log_{10}\left(\frac{A}{A_0}\right) \quad [\text{dB}]$$
 
 ### 4.6 Modelo Teórico Analítico (Lei da Massa para Parede Simples)
-Aplicado exclusivamente a elementos homogêneos de camada única sem ensaio cadastrado:
-$$R_{w,\text{estimado}} \approx 20\log_{10}(m') + 10 \quad [\text{dB}]$$
+Aplicado exclusivamente a elementos que vibram como um corpo só — camada única, ou
+várias camadas rígidas e coladas (densidade $\geq 100\text{ kg/m}^3$) — e sem ensaio
+cadastrado. Havendo camada resiliente (lã mineral, manta), o conjunto é massa-mola-massa
+e a lei da massa **não** o descreve: nesse caso o motor recusa a estimativa e exige um
+valor medido.
+
+Partindo de $R = 20\log_{10}(m' \cdot f) - 47$, avaliada na banda de referência de 500 Hz:
+$$R_{w,\text{estimado}} \approx 20\log_{10}(m') + \big(20\log_{10}(500) - 47\big) = 20\log_{10}(m') + 6{,}98 \quad [\text{dB}]$$
+No código a constante é escrita como a própria conta que a origina, para não poder
+divergir da fórmula citada. O resultado é rotulado como **estimativa teórica**, nunca
+como ensaio.
 
 ---
 
@@ -141,3 +158,51 @@ $$R_{w,\text{estimado}} \approx 20\log_{10}(m') + 10 \quad [\text{dB}]$$
 | `POST` | `/sistemas/montar` | Valida camadas, calcula $e_{\text{total}}$ e $m'$, e busca ensaio exato |
 | `POST` | `/acustica/calcular` | Executa o motor com julgamento normativo NBR 15575 |
 | `GET` | `/acustica/cenarios` | Retorna cenários e exigências mínimas da NBR 15575 |
+| `POST` | `/acustica/salvar` | Grava a simulação no histórico do usuário (autenticado) |
+| `GET` | `/acustica/simulacoes` | Lista o histórico de simulações do usuário (autenticado) |
+| `POST` | `/auth/register` | Cria conta (senha com mínimo de 6 caracteres) |
+| `POST` | `/auth/login` | Devolve o token JWT |
+| `GET` | `/auth/me` | Dados da conta autenticada |
+| `PUT` | `/auth/me` | Edita nome/e-mail/senha e reemite o token |
+
+---
+
+## 6. Os Dois Eixos de Julgamento
+
+A plataforma responde a **duas perguntas diferentes** sobre o mesmo cálculo, e nunca as
+mistura:
+
+| | Exigência legal | Referência de conforto |
+|---|---|---|
+| Norma | ABNT NBR 15575 (partes 3 e 4) | ABNT NBR 10152 |
+| Grandeza julgada | $D_{nT,w}$ (aéreo) ou $L'_{nT,w}$ (impacto) | nível que chega ao receptor, em dB |
+| Escolhido pelo usuário como | **cenário** (parede entre unidades, laje…) | **ambiente receptor** (dormitório, sala de aula…) |
+| Resultado | veredito **ATENDE / NÃO ATENDE** | leitura **confortável / aceitável / desconfortável** |
+| Sentido da escala | depende do indicador (ver 4.4) | sempre "menos decibéis é melhor" |
+
+Os dois eixos são **independentes**: trocar o ambiente de conforto não altera o veredito
+legal, e vice-versa. A comparação com a NBR 10152 é declarada como **orientativa** na
+própria interface, porque aquela norma trata de nível de ruído de fundo ($L_{Aeq}$) do
+ambiente, e não do ruído transmitido por um elemento específico.
+
+### 6.1 Reverberação
+A faixa de 0,40 s a 0,60 s só é atribuída à ANSI/ASA S12.60 quando o ambiente receptor é
+uma **sala de aula** — escopo real daquela norma. Para os demais ambientes a mesma faixa
+é apresentada como referência de conforto para a fala, com a ressalva de que a NBR 15575
+não fixa limite de reverberação para eles.
+
+---
+
+## 7. Matriz de Confiabilidade
+
+O motor nunca apresenta um número sem dizer de onde ele veio. A ordem de preferência é:
+
+| Rótulo | Origem | Quando é usado |
+|---|---|---|
+| `medicao_usuario` | Medição in situ informada pelo usuário | Há $L_1$ e $L_2$, ou $L_i$, medidos com sonômetro |
+| `informado_usuario` | Valor de $R$ digitado pelo usuário | O usuário conhece o índice do fabricante |
+| `ensaio_laboratorio` | Catálogo com ensaio documentado | O sistema escolhido tem $R_w$/$L_{n,w}$ de ensaio |
+| `estimativa_teorica` | Lei da massa (item 4.6) | Elemento monolítico e sem ensaio cadastrado |
+| `sem_dado` | — | Nenhum caminho acima se aplica: o motor **recusa** o cálculo e explica o que falta |
+
+O último caso é deliberado: um resultado inventado é pior do que a ausência de resultado.

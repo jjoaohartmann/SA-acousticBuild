@@ -6,7 +6,7 @@ Implementa o fluxo de decisão estrito da Fase 0 e Fase 3 do Relatório Mestre:
 3. Propriedades físicas (densidade, espessura, massa superficial) != dados acústicos (Rw, Ln,w).
 4. Sem "sistema parecido" (não herda desempenho acústico de outros sistemas).
 5. Estrutura de resposta padronizada com:
-   resultado, metodo, confiabilidade, composicao, fontes, limitacoes.
+   resultado, método, confiabilidade, composição, fontes, limitacoes.
 """
 from __future__ import annotations
 
@@ -24,6 +24,7 @@ from models import (
 T0 = 0.5   # s (tempo de reverberação de referência NBR 15575 / ISO 16283)
 A0 = 10.0  # m² (área de absorção equivalente de referência ISO 717-2)
 K  = 0.16  # s/m (constante de Sabine)
+F_REFERENCIA = 500.0  # Hz — banda em que a lei da massa é avaliada (ISO 717-1)
 
 
 def calcular_absorcao_sabine(volume: float, tempo_reverb: float) -> float:
@@ -188,10 +189,16 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
 
         if S is None or float(S) <= 0:
             raise ValueError("Área do elemento separador (S) deve ser maior que zero.")
+        if float(S) > 500.0:
+            raise ValueError("Área do elemento (S) acima de 500 m² foge da faixa prevista pela ISO 12354-1.")
         if V is None or float(V) <= 0:
             raise ValueError("Volume do receptor (V) deve ser maior que zero.")
+        if float(V) > 10000.0:
+            raise ValueError("Volume do receptor (V) acima de 10.000 m³ foge da faixa de aplicação do modelo.")
         if T is None or float(T) <= 0:
             raise ValueError("Tempo de reverberação (T) deve ser maior que zero.")
+        if not (0.1 <= float(T) <= 5.0):
+            raise ValueError("Tempo de reverberação (T) deve ficar entre 0,1 s e 5,0 s — fora disso o valor não é fisicamente plausível para ambientes construídos.")
 
         S = float(S)
         V = float(V)
@@ -210,6 +217,10 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
             L2 = float(L2)
             if L1 <= 0 or L2 <= 0:
                 raise ValueError("Níveis de pressão sonora medidos L1 e L2 devem ser maiores que zero.")
+            if not (20.0 <= L1 <= 140.0) or not (0.0 < L2 <= 140.0):
+                raise ValueError("Níveis medidos fora da faixa plausível (20 a 140 dB). Verifique a leitura do sonômetro.")
+            if L2 > L1:
+                raise ValueError("O nível no ambiente receptor (L2) não pode ser maior que o do emissor (L1).")
 
             DnT = (L1 - L2) + 10.0 * math.log10(T / T0)
             R_aparente = (L1 - L2) + 10.0 * math.log10(S / A)
@@ -317,6 +328,8 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
             R_val = float(R_manual)
             if R_val <= 0:
                 raise ValueError("Redução sonora R informada deve ser maior que zero.")
+            if R_val > 80.0:
+                raise ValueError("Redução sonora R acima de 80 dB não é alcançável por sistemas construtivos reais. Confira o valor do catálogo.")
 
             L1_base = float(L1) if L1 is not None else 85.0
             L2_previsto = L1_base - R_val + 10.0 * math.log10(S / A)
@@ -374,8 +387,12 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
 
         if codigo_sistema:
             sistema_db = db.query(SistemaConstrutivo).filter(SistemaConstrutivo.codigo == codigo_sistema).first()
+            if sistema_db is None:
+                raise ValueError(f"Sistema construtivo '{codigo_sistema}' não existe no catálogo.")
         elif sistema_id:
             sistema_db = db.query(SistemaConstrutivo).filter(SistemaConstrutivo.id == int(sistema_id)).first()
+            if sistema_db is None:
+                raise ValueError(f"Sistema construtivo de id {sistema_id} não existe no catálogo.")
 
         camadas_input = dados.get("camadas")
         propriedades_fisicas = {}
@@ -414,9 +431,12 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
             if dado_acustico:
                 if tipo_analise == "aereo" and dado_acustico.rw is not None:
                     rw = float(dado_acustico.rw)
-                    # Modelo simplificado de previsão in situ DnT,w baseado em Rw laboratorial:
-                    # DnT,w = Rw + 10*log10(T / T0) - 10*log10(A / S)
-                    dnt_w = rw + 10.0 * math.log10(T / T0) - 10.0 * math.log10(A / S)
+                    # ISO 16283-1 / ISO 717-1:
+                    #   D   = R - 10*log10(S / A)      (diferença de nível bruta)
+                    #   DnT = D + 10*log10(T / T0)     (padronizada)
+                    # => DnT,w = Rw - 10*log10(S / A) + 10*log10(T / T0)
+                    # Sala mais absorvente (A maior) => menos som acumulado => DnT maior.
+                    dnt_w = rw - 10.0 * math.log10(S / A) + 10.0 * math.log10(T / T0)
 
                     return {
                         "tipo": "aereo",
@@ -439,7 +459,7 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                         "metodo": {
                             "nome": "Previsão simplificada em campo baseada em ensaio de laboratório",
                             "norma": dado_acustico.norma_ensaio or "ABNT NBR ISO 12354-1 / ISO 717-1",
-                            "equacao": "DnT,w ≈ Rw + 10*log10(T / T0) - 10*log10(A / S)"
+                            "equacao": "DnT,w ≈ Rw - 10*log10(S / A) + 10*log10(T / T0)"
                         },
                         "confiabilidade": dado_acustico.confiabilidade or "ensaio_laboratorio",
                         "origem": f"Resultado baseado em ensaio documentado do sistema ({sistema_db.codigo})",
@@ -472,9 +492,11 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
 
                 elif tipo_analise == "impacto" and dado_acustico.ln_w is not None:
                     ln_w = float(dado_acustico.ln_w)
-                    # Estimativa de campo L'nT,w a partir de Ln,w:
-                    # L'nT,w = Ln,w - 10*log10(A / A0) + 10*log10(T / T0)
-                    l_nt_w = ln_w - 10.0 * math.log10(A / A0) + 10.0 * math.log10(T / T0)
+                    # ISO 16283-2 / ISO 717-2:
+                    #   Ln  = Li + 10*log10(A / A0)   =>  Li = Ln - 10*log10(A / A0)
+                    #   LnT = Li - 10*log10(T / T0)
+                    # => L'nT,w = Ln,w - 10*log10(A / A0) - 10*log10(T / T0)
+                    l_nt_w = ln_w - 10.0 * math.log10(A / A0) - 10.0 * math.log10(T / T0)
 
                     return {
                         "tipo": "impacto",
@@ -497,7 +519,7 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                         "metodo": {
                             "nome": "Previsão simplificada in situ de ruído de impacto",
                             "norma": dado_acustico.norma_ensaio or "ABNT NBR ISO 12354-2 / ISO 717-2",
-                            "equacao": "L'nT,w ≈ Ln,w - 10*log10(A / A0) + 10*log10(T / T0)"
+                            "equacao": "L'nT,w ≈ Ln,w - 10*log10(A / A0) - 10*log10(T / T0)"
                         },
                         "confiabilidade": dado_acustico.confiabilidade or "documentado",
                         "origem": f"Resultado baseado em ensaio/dado documentado ({sistema_db.codigo})",
@@ -531,10 +553,37 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
         # 5. Composição Personalizada SEM Correspondência Documentada
         massa_total = propriedades_fisicas.get("massa_superficial_total")
 
-        # Modelo Teórico: Lei da Massa para elementos simples de 1 camada homogênea
-        if tipo_analise == "aereo" and len(composicao_detalhada) == 1 and massa_total is not None and massa_total > 10.0:
-            rw_estimado = 20.0 * math.log10(massa_total) + 10.0
-            dnt_w = rw_estimado + 10.0 * math.log10(T / T0) - 10.0 * math.log10(A / S)
+        # A lei da massa vale para o elemento que vibra como UM corpo só. Isso inclui
+        # várias camadas rígidas coladas entre si (bloco + argamassa dos dois lados, por
+        # exemplo) — o que importa é a massa superficial somada, não o número de camadas.
+        #
+        # Já uma camada leve/resiliente (lã de vidro, manta) desacopla as faces e cria um
+        # sistema massa-mola-massa, cujo comportamento a lei da massa NÃO descreve. Nesse
+        # caso o cálculo continua exigindo ensaio.
+        DENSIDADE_MIN_RIGIDA = 100.0  # kg/m³ — abaixo disso a camada é resiliente/cavidade
+
+        camadas_resilientes = [
+            c for c in composicao_detalhada
+            if c.get("densidade") is not None and float(c["densidade"]) < DENSIDADE_MIN_RIGIDA
+        ]
+        densidade_desconhecida = any(c.get("densidade") is None for c in composicao_detalhada)
+        elemento_monolitico = (
+            len(composicao_detalhada) >= 1
+            and not camadas_resilientes
+            and not densidade_desconhecida
+        )
+
+        if tipo_analise == "aereo" and elemento_monolitico and massa_total is not None and massa_total > 10.0:
+            # Lei da massa avaliada na banda de referência de 500 Hz:
+            #   R = 20*log10(m' * f) - 47   =>   R(500 Hz) = 20*log10(m') + 6,98
+            # A constante fica escrita como a conta que a origina, para não
+            # poder divergir da fórmula citada (antes era +10, sem origem).
+            rw_estimado = 20.0 * math.log10(massa_total) + (
+                20.0 * math.log10(F_REFERENCIA) - 47.0
+            )
+            # mesma relação normativa dos demais caminhos (ISO 16283-1):
+            # DnT = R - 10*log10(S / A) + 10*log10(T / T0)
+            dnt_w = rw_estimado - 10.0 * math.log10(S / A) + 10.0 * math.log10(T / T0)
 
             return {
                 "tipo": "aereo",
@@ -566,10 +615,16 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                     "espessura_total_cm": propriedades_fisicas.get("espessura_total_cm"),
                     "massa_superficial_kg_m2": round(massa_total, 2)
                 },
-                "fontes": ["Modelo teórico analítico de acústica de edificações"],
+                "fontes": ["Lei da massa (R = 20·log10(m'·f) − 47) avaliada em 500 Hz — modelo teórico, não é ensaio"],
                 "limitacoes": [
                     "Não existe ensaio acústico de laboratório documentado para esta composição específica.",
                     f"O resultado é uma estimativa teórica aproximada calculada a partir da massa superficial ({round(massa_total, 1)} kg/m²).",
+                    (
+                        f"A composição tem {len(composicao_detalhada)} camadas rígidas coladas entre si; "
+                        "elas foram tratadas como um único elemento vibrando em conjunto. "
+                        "Se houver qualquer descolamento ou cavidade de ar na execução, o desempenho real será diferente."
+                    ) if len(composicao_detalhada) > 1 else
+                    "Elemento tratado como camada única homogênea.",
                     "Modelos analíticos não consideram ressonâncias estruturais, amortecimento ou frequência crítica.",
                     "Esta estimativa serve apenas para anteprojeto e não substitui ensaios ou laudos acústicos."
                 ],

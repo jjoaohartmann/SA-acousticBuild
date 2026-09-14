@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { getSistemas } from '../../services/api';
 import LayerComposer from './LayerComposer';
 import SystemInfoCard from './SystemInfoCard';
@@ -18,7 +18,6 @@ export default function Step1Input({ form, setForm, onAdvanced }) {
 
   // Catálogo de sistemas do backend
   const [sistemas, setSistemas] = useState([]);
-  const [sistemaSelecionado, setSistemaSelecionado] = useState(null);
 
   useEffect(() => {
     getSistemas(elemento)
@@ -28,54 +27,54 @@ export default function Step1Input({ form, setForm, onAdvanced }) {
       .catch((err) => console.error('Erro ao buscar sistemas:', err));
   }, [elemento]);
 
-  // Atualiza sistema mapeado no caminho simplificado
-  useEffect(() => {
-    if (caminho !== 'simplificado' || sistemas.length === 0) return;
+  // Qual sistema do catálogo corresponde às escolhas guiadas.
+  // É valor DERIVADO das seleções — calculado no render, não guardado em estado.
+  const sistemaSelecionado = useMemo(() => {
+    if (caminho !== 'simplificado' || sistemas.length === 0) return null;
 
     let codigoAlvo = null;
     if (elemento === 'parede') {
       if (tipoParede === 'ceramica') {
-        if (espessuraParede === '14') codigoAlvo = 'PAR-CER-014';
-        else if (espessuraParede === '19') codigoAlvo = 'PAR-CER-019';
-        else if (espessuraParede === 'nao_sei') codigoAlvo = 'PAR-CER-014';
+        if (espessuraParede === '19') codigoAlvo = 'PAR-CER-019';
+        else codigoAlvo = 'PAR-CER-014'; // 14 cm e "não sei"
       } else if (tipoParede === 'concreto') {
-        if (espessuraParede === '10') codigoAlvo = 'PAR-CON-010';
-        else if (espessuraParede === '15') codigoAlvo = 'PAR-CON-015';
-        else codigoAlvo = 'PAR-CON-010';
+        codigoAlvo = espessuraParede === '15' ? 'PAR-CON-015' : 'PAR-CON-010';
       } else if (tipoParede === 'drywall') {
         codigoAlvo = 'PAR-DRY-073';
       }
+    } else if (tipoPiso === 'flutuante') {
+      codigoAlvo = 'LAJ-FLU-014';
+    } else if (tipoPiso === 'vinilico') {
+      codigoAlvo = 'LAJ-VIN-014';
     } else {
-      // piso_laje (ruído de impacto)
-      if (tipoPiso === 'flutuante') {
-        codigoAlvo = 'LAJ-FLU-014';
-      } else if (tipoPiso === 'vinilico') {
-        codigoAlvo = 'LAJ-VIN-014';
-      } else {
-        if (espessuraPiso === '10') codigoAlvo = 'LAJ-MAC-010';
-        else codigoAlvo = 'LAJ-MAC-014';
-      }
+      codigoAlvo = espessuraPiso === '10' ? 'LAJ-MAC-010' : 'LAJ-MAC-014';
     }
 
-    const encontrado = sistemas.find((s) => s.codigo === codigoAlvo);
-    setSistemaSelecionado(encontrado || null);
+    return sistemas.find((s) => s.codigo === codigoAlvo) || null;
+  }, [caminho, sistemas, elemento, tipoParede, espessuraParede, tipoPiso, espessuraPiso]);
 
-    if (encontrado) {
-      setForm((prev) => ({
-        ...prev,
-        elemento,
-        tipo: tipoRuido,
-        cenario: elemento === 'parede' ? 'parede_entre_unidades' : 'laje_entre_unidades',
-        caminho,
-        sistema_codigo: encontrado.codigo,
-        sistema_id: encontrado.id,
-        sistemaNome: encontrado.nome,
-        camadas: null,
-        dadosAcusticos: encontrado.dados_acusticos,
-        r: encontrado.dados_acusticos.find((d) => d.tipo_ruido === 'aereo')?.rw || prev.r,
-      }));
-    }
-  }, [elemento, tipoRuido, caminho, tipoParede, espessuraParede, tipoPiso, espessuraPiso, sistemas]);
+  // Sincroniza o sistema derivado com o formulário do wizard (estado do pai).
+  // O ref evita reenviar o mesmo sistema a cada render.
+  const ultimoSincronizado = useRef(null);
+  useEffect(() => {
+    if (!sistemaSelecionado) return;
+    if (ultimoSincronizado.current === sistemaSelecionado.codigo) return;
+    ultimoSincronizado.current = sistemaSelecionado.codigo;
+
+    setForm((prev) => ({
+      ...prev,
+      elemento,
+      tipo: tipoRuido,
+      cenario: elemento === 'parede' ? 'parede_entre_unidades' : 'laje_entre_unidades',
+      caminho,
+      sistema_codigo: sistemaSelecionado.codigo,
+      sistema_id: sistemaSelecionado.id,
+      sistemaNome: sistemaSelecionado.nome,
+      camadas: null,
+      dadosAcusticos: sistemaSelecionado.dados_acusticos,
+      r: sistemaSelecionado.dados_acusticos.find((d) => d.tipo_ruido === 'aereo')?.rw || prev.r,
+    }));
+  }, [sistemaSelecionado, elemento, tipoRuido, caminho, setForm]);
 
   const mudarElemento = (novo) => {
     setElemento(novo);

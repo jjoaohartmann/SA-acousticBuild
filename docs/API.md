@@ -1,200 +1,196 @@
-# 🔗 API — Documentação dos Endpoints
+# 🔌 API — AcousticBuild
 
-Documentação completa da API backend do AcousticBuild.
+Referência dos endpoints do back-end FastAPI. A documentação interativa gerada
+automaticamente fica em `/docs` (Swagger) e `/redoc` com o servidor no ar.
 
 ---
 
 ## 📍 Base URL
 
 ```
-http://localhost:8000
+http://127.0.0.1:8000
 ```
 
-Documentação interativa (Swagger): `http://localhost:8000/docs`
+No front-end o endereço vem de `VITE_API_URL`, com esse valor como padrão de
+desenvolvimento (`frontend/src/services/api.js`).
 
 ---
 
-## 📋 Endpoints
+## 🗺️ Mapa dos endpoints
 
-### Health Check
+| Método | Rota | Auth | Para quê |
+|---|---|:---:|---|
+| `GET` | `/` | — | Health check |
+| `POST` | `/auth/register` | — | Criar conta |
+| `POST` | `/auth/login` | — | Obter token JWT |
+| `GET` | `/auth/me` | 🔒 | Ler os dados da conta |
+| `PUT` | `/auth/me` | 🔒 | Editar nome, e-mail e/ou senha |
+| `GET` | `/materiais` | — | Catálogo de materiais |
+| `GET` | `/materiais/{material_id}` | — | Um material e suas variações |
+| `GET` | `/sistemas` | — | Catálogo de sistemas construtivos |
+| `GET` | `/sistemas/{codigo}` | — | Composição e ensaio de um sistema |
+| `POST` | `/sistemas/montar` | — | Montar composição por camadas |
+| `GET` | `/acustica/cenarios` | — | Cenários e limites da NBR 15575 |
+| `POST` | `/acustica/calcular` | — | Executar o cálculo acústico |
+| `POST` | `/acustica/salvar` | 🔒 | Salvar simulação no histórico |
+| `GET` | `/acustica/simulacoes` | 🔒 | Listar o histórico do usuário |
 
-```
-GET /
-```
-
-Retorna se a API está funcionando.
-
-**Resposta:**
-```json
-{
-  "message": "AcousticBuild API está no ar! 🚀"
-}
-```
-
----
-
-### Cadastro de Usuário
-
-```
-POST /auth/register
-```
-
-Cria um novo usuário no sistema.
-
-**Body (JSON):**
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| `name` | string | ✅ | Nome completo do usuário |
-| `email` | string | ✅ | E-mail válido |
-| `password` | string | ✅ | Senha (mínimo 6 caracteres) |
-
-**Exemplo:**
-```json
-{
-  "name": "Gabriela Senna",
-  "email": "gabriela.s@email.com",
-  "password": "minha-senha-123"
-}
-```
-
-**Resposta (201 Created):**
-```json
-{
-  "id": 1,
-  "name": "Gabriela Senna",
-  "email": "gabriela.s@email.com",
-  "created_at": "2026-07-07T14:00:00"
-}
-```
-
-**Erro (409 Conflict):**
-```json
-{
-  "detail": "Este e-mail já está cadastrado."
-}
-```
+🔒 = exige `Authorization: Bearer <token>`.
 
 ---
 
-### Login
+## 🔐 Autenticação
 
-```
-POST /auth/login
-```
+### `POST /auth/register`
 
-Autentica o usuário e retorna um token JWT.
-
-**Body (JSON):**
-
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| `email` | string | ✅ | E-mail cadastrado |
-| `password` | string | ✅ | Senha do usuário |
-
-**Exemplo:**
 ```json
-{
-  "email": "gabriela.s@email.com",
-  "password": "minha-senha-123"
-}
+{ "name": "Fulano de Tal", "email": "fulano@exemplo.com", "password": "senha123" }
 ```
 
-**Resposta (200 OK):**
+A senha tem **mínimo de 6 caracteres** (validado por Pydantic). Resposta `201`:
+
 ```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer",
-  "user": {
-    "id": 1,
-    "name": "Gabriela Senna",
-    "email": "gabriela.s@email.com",
-    "created_at": "2026-07-07T14:00:00"
-  }
-}
+{ "id": 1, "name": "Fulano de Tal", "email": "fulano@exemplo.com", "created_at": "2026-09-13T20:00:00" }
 ```
 
-**Erro (401 Unauthorized):**
+| Código | Quando |
+|---|---|
+| `201` | Conta criada |
+| `400` | E-mail já cadastrado |
+| `422` | Senha curta demais ou e-mail inválido |
+
+### `POST /auth/login`
+
 ```json
-{
-  "detail": "E-mail ou senha incorretos."
-}
+{ "email": "fulano@exemplo.com", "password": "senha123" }
 ```
+
+Resposta `200` com o token e o usuário:
+
+```json
+{ "access_token": "eyJhbGciOi...", "token_type": "bearer",
+  "user": { "id": 1, "name": "Fulano de Tal", "email": "fulano@exemplo.com" } }
+```
+
+O token é um JWT HS256 com `sub` (e-mail), `user_id` e `exp` (7 dias).
+
+### `GET /auth/me`
+
+Devolve o usuário autenticado. `401` se o token estiver ausente, expirado ou inválido.
+
+### `PUT /auth/me`
+
+Todos os campos são opcionais — envie só o que mudou:
+
+```json
+{ "name": "Novo Nome", "email": "novo@exemplo.com", "password": "novasenha" }
+```
+
+Como o e-mail faz parte do payload do JWT, a resposta **reemite o token**; o front-end
+precisa substituir o que está guardado:
+
+```json
+{ "access_token": "novo.token.aqui", "token_type": "bearer", "user": { "...": "..." } }
+```
+
+`400` se o novo e-mail já pertencer a outra conta.
 
 ---
 
-## 🔐 Autenticação JWT
+## 📚 Catálogo construtivo
 
-O token JWT é retornado no login e deve ser enviado no header `Authorization` para rotas protegidas (futuras):
+### `GET /materiais?categoria=<opcional>`
+Lista os materiais com densidade e propriedades físicas documentadas.
 
+### `GET /materiais/{material_id}`
+Detalhes de um material e suas variações dimensionais. `404` se não existir.
+
+### `GET /sistemas?tipo_elemento=<parede|piso_laje>`
+Lista os sistemas construtivos do catálogo.
+
+### `GET /sistemas/{codigo}`
+Composição em camadas, dados de ensaio e fontes rastreáveis. Ex.: `PAR-CER-014`.
+
+### `POST /sistemas/montar`
+Monta uma composição personalizada e devolve espessura total, massa superficial e — se
+houver correspondência exata no catálogo — o ensaio documentado.
+
+```json
+{ "camadas": [ { "material_id": 3, "espessura": 0.14 }, { "material_id": 1, "espessura": 0.015 } ] }
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-```
 
-**Configuração do Token:**
-
-| Propriedade | Valor |
-|-------------|-------|
-| Algoritmo | HS256 |
-| Expiração | 24 horas |
-| Secret Key | `acousticbuild-super-secret-key-troque-em-producao` |
-
-> ⚠️ A secret key atual é apenas para desenvolvimento. Em produção, utilize uma variável de ambiente.
+`422` se nenhuma camada for informada ou se as propriedades não puderem ser resolvidas.
 
 ---
 
-## 📦 Schemas (Pydantic)
+## 🧮 Cálculo acústico
 
-### UserCreate
-```python
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
+### `GET /acustica/cenarios`
+Retorna a tabela de cenários da NBR 15575 com os limites mínimo, intermediário e
+superior de cada um — é o que alimenta o seletor "Exigência legal" da calculadora.
+
+### `POST /acustica/calcular`
+
+```json
+{
+  "tipo_analise": "aereo",
+  "cenario": "parede_entre_unidades",
+  "ambiente_receptor_tipo": "dormitorio",
+  "sistema_codigo": "PAR-CER-014",
+  "area_elemento": 15,
+  "volume_receptor": 36,
+  "reverberacao": 0.6,
+  "l1": 85
+}
 ```
 
-### UserLogin
-```python
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-```
+Campos principais:
 
-### UserResponse
-```python
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: str
-    created_at: datetime
-```
+| Campo | Obrigatório | Observação |
+|---|:---:|---|
+| `tipo_analise` | sim | `aereo` ou `impacto` |
+| `cenario` | sim | Eixo da **exigência legal** (NBR 15575) |
+| `ambiente_receptor_tipo` | não | Eixo do **conforto** (NBR 10152); independente do cenário |
+| `area_elemento`, `volume_receptor`, `reverberacao` | sim | Geometria do ambiente receptor |
+| `sistema_codigo` / `sistema_id` / `camadas` | um deles | Como o elemento é descrito |
+| `l1`, `l2` | não | Medição in situ de ruído aéreo |
+| `reducao_sonora` | não | Valor de $R$ conhecido pelo usuário |
+| `nivel_impacto` / `li` | não | Medição com máquina de impacto |
 
-### Token
-```python
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    user: UserResponse
-```
+A resposta traz o indicador principal, o julgamento da NBR 15575, a leitura de conforto
+da NBR 10152, a avaliação de reverberação, as sugestões, a composição, as fontes, as
+limitações e o rótulo de confiabilidade. Quando nenhum caminho de cálculo é confiável, o
+motor devolve `indicador_principal: null` com o motivo — **não** um número inventado.
+
+`422` com `detail` explicando o problema quando: o `sistema_codigo` não existe, algum
+valor está fora das faixas físicas aceitas (S ≤ 500 m², V ≤ 10 000 m³, T entre 0,1 e 5 s,
+R ≤ 80 dB, níveis entre 20 e 140 dB) ou `L2 > L1`.
+
+### `POST /acustica/salvar` 🔒
+Grava `tipo_analise`, `dados_entrada` e `resultado` no histórico do usuário.
+
+### `GET /acustica/simulacoes` 🔒
+Lista as simulações salvas, da mais recente para a mais antiga.
 
 ---
 
-## 🗄️ Modelo do Banco
+## 🗄️ Banco de dados
 
-### User (SQLite)
+SQLite em `backend/acoust.db` (ignorado pelo Git). Tabelas: `users`, `simulacoes`,
+`materiais`, `variacoes_material`, `sistemas_construtivos`, `camadas_sistema`,
+`dados_acusticos` e `dados_frequencia`.
 
-| Coluna | Tipo | Restrições |
-|--------|------|------------|
-| id | Integer | PK, auto increment |
-| name | String | NOT NULL |
-| email | String | UNIQUE, NOT NULL, indexed |
-| password | String | NOT NULL (hash bcrypt) |
-| created_at | DateTime | DEFAULT now() |
+Popule o catálogo com:
+
+```bash
+python backend/seed.py
+```
 
 ---
 
 ## 🛡️ Segurança
 
-- **Senhas**: hash com bcrypt via `passlib`
-- **Tokens**: JWT com `python-jose`
-- **CORS**: liberado apenas para `http://localhost:5173` (frontend)
+- Senhas com hash **bcrypt** — nunca em texto puro.
+- Sessão por **JWT HS256**, validade de 7 dias.
+- CORS liberado para o dev server do Vite.
+- Rotas de histórico e de conta filtram sempre pelo usuário do token.

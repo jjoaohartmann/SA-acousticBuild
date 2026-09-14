@@ -1,0 +1,372 @@
+.page {
+  min-height: 100vh;
+  background: #001A41;
+}
+
+/* ===== Hero (réplica do Figma) ===== */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 150px 60px 90px;
+  background: radial-gradient(120% 130% at 78% 8%, #093A80 0%, #00224F 45%, #001334 100%);
+}
+
+.heroArt {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62%;
+  min-width: 620px;
+  object-fit: cover;
+  pointer-events: none;
+  /* o fundo escuro da arte some e só as linhas claras aparecem */
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 38%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 38%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 2.9rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
+  margin-bottom: 22px;
+}
+
+.highlight {
+  color: #2F6FFF;
+}
+
+.heroText {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 480px;
+}
+
+/* Cards missão / visão / valores */
+.pilaresGrid {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 80px auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 26px;
+}
+
+.pilarCard {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  padding: 32px 26px 30px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.pilarCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(47, 111, 255, 0.6);
+  background: rgba(47, 111, 255, 0.08);
+}
+
+.pilarIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pilarTitulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+}
+
+.pilarTexto {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ===== Blocos de texto ===== */
+.projeto,
+.equipe,
+.fontes {
+  padding: 90px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.projeto {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bloco {
+  max-width: 780px;
+}
+
+.label {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2F6FFF;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+  margin-bottom: 18px;
+}
+
+.bloco p {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.68);
+  margin-bottom: 14px;
+}
+
+/* ===== Equipe por ano ===== */
+.anoBloco {
+  margin-top: 64px;
+}
+
+.anoHeader {
+  margin-bottom: 28px;
+}
+
+.anoTituloLinha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.anoNumero {
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: #2F6FFF;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.anoBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #9DBBFF;
+  background: rgba(47, 111, 255, 0.16);
+  border: 1px solid rgba(47, 111, 255, 0.4);
+  border-radius: 30px;
+  padding: 6px 14px;
+}
+
+.anoDesc {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 620px;
+}
+
+/* CAPA: foto do grupo em destaque */
+.capa {
+  margin: 0 0 34px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+}
+
+.capa img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+}
+
+.capa figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 34px 24px 16px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, transparent, rgba(0, 12, 33, 0.92));
+}
+
+/* Integrantes lado a lado (nunca empilhados no desktop) */
+.integrantesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+  gap: 22px;
+  align-items: stretch;
+}
+
+.pessoaCard {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 20px 20px 24px;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.pessoaCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(47, 111, 255, 0.5);
+  background: rgba(47, 111, 255, 0.06);
+}
+
+.pessoaFoto {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: center 18%;
+  border-radius: 14px;
+  display: block;
+  margin-bottom: 18px;
+}
+
+.pessoaNome {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+}
+
+.pessoaBio {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+.pessoaBio:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== Fontes ===== */
+.fontes {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fontesGrid {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.fonteGrupo {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 24px 22px;
+}
+
+.fonteGrupoTitulo {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2F6FFF;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+}
+
+.fonteLista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fonteLista li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.fonteLista li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.fonteLista strong {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.fonteLista span {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 1024px) {
+  .heroArt {
+    width: 80%;
+    opacity: 0.4;
+  }
+
+  .fontesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero {
+    padding: 130px 24px 70px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .projeto,
+  .equipe,
+  .fontes {
+    padding: 64px 24px;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .anoNumero {
+    font-size: 2.4rem;
+  }
+
+  .capa img {
+    height: 240px;
+  }
+}
+
+.pessoaRepetido {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.55);
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getMateriais, montarSistema } from '../../services/api';
 import SystemInfoCard from './SystemInfoCard';
 
@@ -13,7 +13,12 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
     ]
   );
   const [resultadoMontagem, setResultadoMontagem] = useState(null);
-  const [montando, setMontando] = useState(false);
+
+  // Guardado em ref para não entrar nas deps do efeito (o pai recria a função a cada render)
+  const onCompositionChangeRef = useRef(onCompositionChange);
+  useEffect(() => {
+    onCompositionChangeRef.current = onCompositionChange;
+  }, [onCompositionChange]);
 
   // Carrega catálogo de materiais
   useEffect(() => {
@@ -43,7 +48,6 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
     const validas = camadas.filter((c) => c.material_id && c.espessura_cm > 0);
     if (validas.length === 0) return;
 
-    setMontando(true);
     const payload = camadas.map((c) => ({
       material_id: Number(c.material_id),
       espessura: Number(c.espessura_cm) / 100.0,
@@ -53,8 +57,8 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
     montarSistema(payload)
       .then((res) => {
         setResultadoMontagem(res.data);
-        if (onCompositionChange) {
-          onCompositionChange({
+        if (onCompositionChangeRef.current) {
+          onCompositionChangeRef.current({
             camadas: res.data.camadas,
             propriedades: {
               espessura_total_cm: res.data.espessura_total_cm,
@@ -68,7 +72,7 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
         }
       })
       .catch((err) => console.error('Erro ao montar composição:', err))
-      .finally(() => setMontando(false));
+
   }, [camadas]);
 
   const handleMaterialChange = (index, materialId) => {

@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PdfReportGenerator from './PdfReportGenerator';
-import styles from '../../style/Calculator.module.css';
+import NoiseGauge from './NoiseGauge';
+import InfoTip from './InfoTip';
+import {
+  IconWaveform, IconChartUp, IconCircleCheck,
+  IconCircleX, IconInfo, IconBulb,
+} from '../IconSet';
+import calcStyles from '../../style/Calculator.module.css';
+import styles from '../../style/Step3Results.module.css';
+
+const fmt = (valor, casas = 1) =>
+  typeof valor === 'number' ? valor.toFixed(casas).replace('.', ',') : '—';
 
 export default function Step3Results({ resultado, user, salvarSimulacao, saved, form = {} }) {
   const [detalhesAbertos, setDetalhesAbertos] = useState(false);
@@ -8,6 +18,7 @@ export default function Step3Results({ resultado, user, salvarSimulacao, saved, 
   if (!resultado) return null;
 
   const tipo = resultado.tipo || 'aereo';
+  const isImpacto = tipo === 'impacto' || tipo === 'lnt';
   const principal = resultado.indicador_principal;
   const secundario = resultado.indicador_secundario;
   const criterios = resultado.criterios || {};
@@ -16,244 +27,344 @@ export default function Step3Results({ resultado, user, salvarSimulacao, saved, 
   const limitacoes = resultado.limitacoes || [];
   const composicao = resultado.composicao || [];
   const propriedades = resultado.propriedades_fisicas || {};
+  const sugestoes = resultado.sugestoes || [];
+  const reverb = resultado.reverberacao_avaliacao;
+  const conforto = resultado.conforto;
 
-  const statusAtende = resultado.status_atendimento === 'ATENDE' || resultado.classificacao === 'atende';
+  const atende = resultado.status_atendimento === 'ATENDE' || resultado.classificacao === 'atende';
   const semDado = resultado.confiabilidade === 'sem_dado' || !principal;
 
+  // Card 1 — o motor de sistemas não devolve L2, então cai para a absorção equivalente
+  const nivelBruto = isImpacto ? detalhes.li : detalhes.l2_previsto;
+  const temNivel = typeof nivelBruto === 'number';
+  const card1 = temNivel
+    ? {
+        label: isImpacto
+          ? 'Nível de pressão sonora de impacto (Li)'
+          : 'Nível de pressão sonora no ambiente receptor (L₂)',
+        valor: `${fmt(nivelBruto)} dB`,
+        hint: isImpacto
+          ? 'Medido com máquina de percussão padronizada'
+          : 'Previsto no ambiente receptor',
+      }
+    : {
+        label: 'Absorção sonora equivalente (A)',
+        valor: `${fmt(detalhes.absorcao_equivalente)} m²`,
+        hint: 'Calculada pela fórmula de Sabine: A = 0,16 · V / T',
+      };
+
+  // Card 2 — indicador secundário; o motor de sistemas devolve o índice dentro de detalhes
+  const rFallback = typeof detalhes.rw === 'number' ? detalhes.rw : detalhes.r;
+  const card2 = typeof secundario?.valor === 'number'
+    ? {
+        nome: secundario.nome,
+        valor: `${fmt(secundario.valor)} ${secundario.unidade}`,
+        hint: secundario.descricao,
+      }
+    : {
+        nome: typeof detalhes.rw === 'number' ? 'Rw' : 'R',
+        valor: typeof rFallback === 'number' ? `${fmt(rFallback)} dB` : '—',
+        hint: 'Índice de redução sonora do elemento construtivo',
+      };
+
+  const limiteTexto = criterios.referencia
+    ? `Critério NBR 15575: ${isImpacto ? '≤' : '≥'} ${fmt(criterios.referencia, 0)} dB`
+    : 'Critério sob consulta';
+
   return (
-    <div className={styles.card}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px', marginBottom: '24px' }}>
-        <div>
-          <span style={{ fontSize: '0.8rem', color: '#93c5fd', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.4px' }}>
-            Relatório de Desempenho Acústico
-          </span>
-          <h2 className={styles.cardTitle} style={{ margin: '4px 0 0 0' }}>
-            {criterios.cenario || (tipo === 'impacto' ? 'Avaliação de Ruído de Impacto' : 'Avaliação de Isolamento Aéreo')}
-          </h2>
+    <div className={styles.wrapper}>
+      {/* ===== Resultados ===== */}
+      <div className={styles.panel}>
+        <div className={styles.panelHead}>
+          <div>
+            <h2 className={styles.panelTitle}>Resultados da previsão acústica</h2>
+            <p className={styles.panelSub}>
+              {criterios.cenario || (isImpacto ? 'Avaliação de ruído de impacto' : 'Avaliação de isolamento ao ruído aéreo')}
+            </p>
+          </div>
+          <PdfReportGenerator resultado={resultado} form={form} user={user} />
         </div>
 
-        {/* Exportação em PDF */}
-        <PdfReportGenerator resultado={resultado} form={form} user={user} />
+        {semDado ? (
+          <div className={styles.semDado}>
+            <h3>Não vamos inventar um número para essa combinação</h3>
+            <p>
+              Não existe ensaio de laboratório publicado para essa combinação exata de camadas.
+              Conseguimos calcular a espessura e a massa dela, mas isolamento acústico
+              <strong> não se deduz da massa</strong> quando há mais de uma camada: o resultado
+              depende de como as camadas vibram juntas, e isso só o ensaio mede.
+            </p>
+            <p>
+              Muita calculadora entrega um número mesmo assim. Preferimos dizer que não sabemos —
+              um valor inventado aqui vira decisão errada na obra.
+            </p>
+
+            <div className={styles.saidas}>
+              <strong className={styles.saidasTitulo}>Como seguir daqui:</strong>
+              <ol className={styles.saidasLista}>
+                <li>
+                  <strong>Tem o catálogo do fabricante?</strong> Volte ao passo 2 e informe o
+                  Rw do produto no campo de medição. O cálculo roda na hora.
+                </li>
+                <li>
+                  <strong>Não tem o dado?</strong> Volte ao passo 1 e escolha
+                  &ldquo;Opção Pronta&rdquo;: são 10 sistemas com ensaio documentado e fonte
+                  rastreável.
+                </li>
+                <li>
+                  <strong>Precisa exatamente dessa combinação?</strong> Só um ensaio in situ
+                  (ISO 16283-1) resolve — e aí você informa o valor medido aqui.
+                </li>
+              </ol>
+            </div>
+          </div>
+        ) : (
+          <>
+          {/* ===== PROTAGONISTA: quanto de ruído chega (escala "menos é melhor") ===== */}
+          {conforto ? (
+            <div className={`${styles.hero} ${styles['hero_' + conforto.status]}`}>
+              <div className={styles.heroTopo}>
+                <div>
+                  <span className={styles.heroLabel}>
+                    Quanto de ruído chega {conforto.ambiente
+                      ? `${conforto.artigo || 'no'} ${conforto.ambiente.toLowerCase()}`
+                      : 'no ambiente'}
+                    <InfoTip termo={isImpacto ? 'LnT' : 'L2'} />
+                  </span>
+                  <div className={styles.heroValorLinha}>
+                    <span className={styles.heroValor}>{fmt(conforto.nivel_estimado, 0)}</span>
+                    <span className={styles.heroUnidade}>dB</span>
+                  </div>
+                  <span className={styles.heroCotidiano}>≈ {conforto.comparacao_cotidiano}</span>
+                </div>
+                <span className={styles.heroBadge}>
+                  {conforto.status === 'confortavel' ? 'CONFORTÁVEL'
+                    : conforto.status === 'aceitavel' ? 'ACIMA DO IDEAL' : 'DESCONFORTÁVEL'}
+                </span>
+              </div>
+
+              <NoiseGauge
+                valor={conforto.nivel_estimado}
+                recomendado={conforto.recomendado}
+                min={conforto.escala?.min ?? 20}
+                max={conforto.escala?.max ?? 70}
+              />
+
+              <p className={styles.heroResumo}>{conforto.resumo}</p>
+              <p className={styles.heroNota}>{conforto.observacao}</p>
+            </div>
+          ) : (
+            <div className={styles.hero}>
+              <span className={styles.heroLabel}>{card1.label}</span>
+              <div className={styles.heroValorLinha}>
+                <span className={styles.heroValor}>{card1.valor}</span>
+              </div>
+              <span className={styles.heroCotidiano}>{card1.hint}</span>
+            </div>
+          )}
+
+          {/* Caminho do som: mostra ONDE cada indicador entra na história */}
+          <div className={styles.caminho}>
+            <h3 className={styles.caminhoTitulo}>Como esse número foi parar aí</h3>
+            <div className={styles.caminhoPassos}>
+              <div className={styles.passo}>
+                <span className={styles.passoOrdem}>1</span>
+                <span className={styles.passoTexto}>
+                  {isImpacto ? 'Alguém pisa forte no andar de cima' : 'Barulho no ambiente vizinho'}
+                </span>
+                <span className={styles.passoValor}>
+                  {isImpacto ? `${fmt(detalhes.li, 0)} dB` : `${fmt(detalhes.l1 ?? 85, 0)} dB`}
+                </span>
+              </div>
+
+              <span className={styles.passoSeta}>→</span>
+
+              <div className={styles.passo}>
+                <span className={styles.passoOrdem}>2</span>
+                <span className={styles.passoTexto}>
+                  {isImpacto ? 'A laje absorve parte do impacto' : 'A parede barra parte do som'}
+                </span>
+                <span className={styles.passoValor}>
+                  &minus;{card2.valor}
+                </span>
+              </div>
+
+              <span className={styles.passoSeta}>→</span>
+
+              <div className={styles.passo}>
+                <span className={styles.passoOrdem}>3</span>
+                <span className={styles.passoTexto}>
+                  {isImpacto ? 'Chega no vizinho de baixo' : 'Sobra no seu ambiente'}
+                </span>
+                <span className={`${styles.passoValor} ${styles.passoValorFinal}`}>
+                  {conforto ? `${fmt(conforto.nivel_estimado, 0)} dB` : '—'}
+                </span>
+              </div>
+            </div>
+
+            <p className={styles.caminhoNota}>
+              O <strong>{principal?.nome}</strong> ({fmt(principal?.valor)} dB) mede o passo 2 já
+              considerando o tamanho e o acabamento do seu ambiente — por isso ele difere do valor
+              de catálogo. É esse número que a NBR 15575 fiscaliza.
+            </p>
+          </div>
+
+          <h3 className={styles.subTitulo}>Indicadores normativos (ABNT NBR 15575)</h3>
+
+          <div className={styles.grid}>
+            {/* Indicador secundário (R ou L'n) */}
+            <div className={styles.resultCard}>
+              <div className={styles.resultTop}>
+                <span className={styles.resultIcon}><IconWaveform size={22} color="#2F6FFF" /></span>
+                <span className={styles.resultLabel}>
+                  {isImpacto ? 'Impacto que a laje deixa passar' : 'O quanto a parede bloqueia'} ({card2.nome})
+                  <InfoTip termo={card2.nome === 'Rw' ? 'Rw' : 'R'} />
+                </span>
+              </div>
+              <span className={styles.resultValue}>{card2.valor}</span>
+              <span className={styles.resultHint}>{card2.hint}</span>
+            </div>
+
+            {/* 3 — Indicador principal (DnT ou L'nT) */}
+            <div className={styles.resultCard}>
+              <div className={styles.resultTop}>
+                <span className={styles.resultIcon}><IconChartUp size={22} color="#2F6FFF" /></span>
+                <span className={styles.resultLabel}>
+                  {isImpacto ? 'Barulho de passos que chega embaixo' : 'Isolamento real na obra'} ({principal?.nome})
+                  <InfoTip termo={isImpacto ? 'LnT' : (principal?.nome === 'DnT,w' ? 'DnT,w' : 'DnT')} />
+                </span>
+              </div>
+              <span className={styles.resultValue}>{fmt(principal?.valor)} {principal?.unidade}</span>
+              <span className={styles.resultHint}>{limiteTexto}</span>
+            </div>
+
+            {/* 4 — Classificação normativa */}
+            <div className={`${styles.resultCard} ${styles.cardVeredito} ${atende ? styles.statusOk : styles.statusFail}`}>
+              <div className={styles.resultTop}>
+                <span className={styles.resultIcon}>
+                  {atende
+                    ? <IconCircleCheck size={22} color="#4ADE80" />
+                    : <IconCircleX size={22} color="#F87171" />}
+                </span>
+                <span className={styles.resultLabel}>Classificação de desempenho (NBR 15575)</span>
+              </div>
+              <span className={styles.veredictoTexto}>
+                <span className={styles.resultValue}>{atende ? 'ATENDE' : 'NÃO ATENDE'}</span>
+                <span className={styles.resultHint}>
+                  {resultado.nivel_normativo && resultado.nivel_normativo !== 'nao_atende'
+                    ? `Nível ${resultado.nivel_normativo}`
+                    : 'Abaixo do patamar mínimo exigido'}
+                </span>
+              </span>
+            </div>
+          </div>
+          </>
+        )}
       </div>
 
-      {/* CASO A: RESULTADO DISPONÍVEL */}
-      {!semDado ? (
-        <>
-          {/* Card de Destaque do Resultado Principal e Origem */}
-          <div
-            style={{
-              background: '#0a1532',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '16px',
-              padding: '24px',
-              marginBottom: '20px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '20px',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <div>
-              <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'rgba(255, 255, 255, 0.65)', fontWeight: 600 }}>
-                {principal?.descricao || 'Indicador Principal de Desempenho'}
-              </span>
-              <div style={{ fontSize: '2.8rem', fontWeight: 800, color: statusAtende ? '#4ade80' : '#f87171', lineHeight: 1.1, margin: '6px 0' }}>
-                {principal?.nome} = {principal?.valor?.toFixed(1)} {principal?.unidade}
-              </div>
-              <div style={{ fontSize: '0.86rem', color: 'rgba(255, 255, 255, 0.8)' }}>
-                <strong>Origem do valor: </strong>
-                {resultado.origem || 'Cálculo analítico fundamentado em ensaio de laboratório'}
-              </div>
+      {/* ===== Interpretação + Recomendações ===== */}
+      {!semDado && (
+        <div className={styles.infoGrid}>
+          <div className={styles.infoCard}>
+            <div className={styles.infoHead}>
+              <span className={styles.infoIcon}><IconInfo size={20} color="#2F6FFF" /></span>
+              <h3 className={styles.infoTitle}>Interpretação dos resultados</h3>
             </div>
-
-            {/* Badge de Confiabilidade */}
-            <div style={{ textAlign: 'right' }}>
-              <span
-                style={{
-                  display: 'inline-block',
-                  padding: '6px 14px',
-                  borderRadius: '999px',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.2px',
-                  background:
-                    resultado.confiabilidade === 'ensaio_laboratorio' || resultado.confiabilidade === 'documentado'
-                      ? 'rgba(34, 197, 94, 0.14)'
-                      : resultado.confiabilidade === 'medicao_usuario'
-                      ? 'rgba(59, 130, 246, 0.14)'
-                      : 'rgba(234, 179, 8, 0.14)',
-                  color:
-                    resultado.confiabilidade === 'ensaio_laboratorio' || resultado.confiabilidade === 'documentado'
-                      ? '#4ade80'
-                      : resultado.confiabilidade === 'medicao_usuario'
-                      ? '#93c5fd'
-                      : '#fde047',
-                  border: '1px solid currentColor',
-                }}
-              >
-                {resultado.confiabilidade === 'ensaio_laboratorio'
-                  ? 'Ensaio de Laboratório Documentado'
-                  : resultado.confiabilidade === 'medicao_usuario'
-                  ? 'Medição in situ do Usuário'
-                  : resultado.confiabilidade === 'estimativa_teorica'
-                  ? 'Estimativa Teórica (Lei da Massa)'
-                  : 'Dado Documentado'}
-              </span>
-            </div>
+            {resultado.motivo && <p className={styles.infoText}>{resultado.motivo}</p>}
+            <p className={styles.infoText}>
+              <strong>Origem do valor:</strong> {resultado.origem || 'Cálculo analítico normativo'}
+            </p>
+            {reverb?.diagnostico && (
+              <p className={styles.infoText}>
+                <strong>Tempo de reverberação:</strong> {reverb.diagnostico}
+              </p>
+            )}
           </div>
 
-          {/* Julgamento Normativo NBR 15575 */}
-          <div
-            style={{
-              background: statusAtende ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
-              border: `1px solid ${statusAtende ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-              borderRadius: '14px',
-              padding: '18px 24px',
-              marginBottom: '24px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '16px',
-            }}
-          >
-            <div>
-              <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, color: 'rgba(255, 255, 255, 0.6)', letterSpacing: '0.3px' }}>
-                Avaliação Conforme ABNT NBR 15575
-              </span>
-              <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFFFFF', marginTop: '2px' }}>
-                Critério Exigido: {criterios.referencia ? (tipo === 'aereo' ? `≥ ${criterios.referencia} dB` : `≤ ${criterios.referencia} dB`) : 'Sob consulta'}
-              </div>
-              <div style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '2px' }}>
-                Cenário: {criterios.cenario || 'Requisitos Gerais de Desempenho'}
-              </div>
+          <div className={styles.infoCard}>
+            <div className={styles.infoHead}>
+              <span className={styles.infoIcon}><IconBulb size={20} color="#2F6FFF" /></span>
+              <h3 className={styles.infoTitle}>Recomendações</h3>
             </div>
-
-            <div>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '8px 20px',
-                  borderRadius: '999px',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  letterSpacing: '0.3px',
-                  background: statusAtende ? '#15803d' : '#b91c1c',
-                  color: '#FFFFFF',
-                  boxShadow: statusAtende
-                    ? '0 2px 10px rgba(22, 163, 74, 0.3)'
-                    : '0 2px 10px rgba(220, 38, 38, 0.3)',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {statusAtende ? 'ATENDE AO CRITÉRIO' : 'NÃO ATENDE AO CRITÉRIO'}
-              </span>
-            </div>
+            {sugestoes.length > 0 ? (
+              <ul className={styles.recList}>
+                {sugestoes.map((s, i) => (
+                  <li key={i}>
+                    <span className={styles.recBullet}>•</span>
+                    <span>
+                      <span className={styles.recTitulo}>{s.recomendacao || s}</span>
+                      {s.motivo && <span className={styles.recMotivo}>{s.motivo}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.infoText}>
+                O sistema atende ao critério avaliado. Nenhuma intervenção corretiva é necessária
+                para este cenário.
+              </p>
+            )}
           </div>
-        </>
-      ) : (
-        /* CASO B: SEM DADO ACÚSTICO DOCUMENTADO */
-        <div
-          style={{
-            background: 'rgba(234, 179, 8, 0.08)',
-            border: '1px solid rgba(234, 179, 8, 0.3)',
-            borderRadius: '14px',
-            padding: '22px',
-            marginBottom: '24px',
-          }}
-        >
-          <h3 style={{ margin: '0 0 8px 0', color: '#fde047', fontSize: '1.1rem', fontWeight: 700 }}>
-            Cálculo Acústico Suspenso por Ausência de Ensaio Documentado
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.85)', lineHeight: '1.5' }}>
-            A AcousticBuild adota o princípio de <strong>não inventar desempenhos acústicos</strong> para sistemas multicamadas que não possuam ensaios laboratoriais ou referências normativas comprovadas. As propriedades físicas da composição foram determinadas, mas o isolamento sonoro exige dado de ensaio específico.
-          </p>
         </div>
       )}
 
-      {/* Detalhamento Técnico Expansível (Accordion) */}
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '16px' }}>
+      {/* ===== Aviso normativo ===== */}
+      <div className={styles.disclaimer}>
+        <IconInfo size={20} color="#7DA6FF" />
+        <p className={styles.disclaimerText}>
+          Os resultados são estimativas técnicas calculadas conforme as normas ISO 12354-1 e
+          12354-2 e classificadas pela ABNT NBR 15575, a partir dos dados informados. Não
+          substituem ensaio acústico in situ nem laudo emitido por profissional habilitado.
+        </p>
+      </div>
+
+      {/* ===== Detalhamento técnico ===== */}
+      <div className={styles.panel}>
         <button
           type="button"
+          className={styles.detailsToggle}
           onClick={() => setDetalhesAbertos(!detalhesAbertos)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#93c5fd',
-            fontSize: '0.88rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: '6px 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'color 0.2s ease',
-          }}
         >
           <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ transform: detalhesAbertos ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: detalhesAbertos ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}
           >
-            <polyline points="9 18 15 12 9 6"></polyline>
+            <polyline points="9 18 15 12 9 6" />
           </svg>
-          <span>{detalhesAbertos ? 'Ocultar Detalhamento Técnico' : 'Ver Detalhamento Técnico e Memória de Cálculo'}</span>
+          {detalhesAbertos ? 'Ocultar memória de cálculo' : 'Ver memória de cálculo e fontes'}
         </button>
 
         {detalhesAbertos && (
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '20px',
-              background: '#0a142c',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              fontSize: '0.85rem',
-              lineHeight: '1.6',
-            }}
-          >
-            {/* Metodologia */}
-            <div style={{ marginBottom: '16px' }}>
-              <strong style={{ color: '#93c5fd' }}>Modelo e Equação Normalizada:</strong>
+          <div className={styles.detailsBox}>
+            <div className={styles.detailsBlock}>
+              <h4>Modelo e equação</h4>
               <div>{resultado.metodo?.nome || 'ISO 12354 / ISO 16283'}</div>
               {resultado.metodo?.equacao && (
-                <div style={{ background: '#070E22', padding: '6px 12px', borderRadius: '6px', marginTop: '4px', fontFamily: 'monospace', color: '#93c5fd' }}>
-                  {resultado.metodo.equacao}
-                </div>
+                <div className={styles.formula}>{resultado.metodo.equacao}</div>
               )}
             </div>
 
-            {/* Parâmetros do Ambiente */}
-            <div style={{ marginBottom: '16px' }}>
-              <strong style={{ color: '#93c5fd' }}>Parâmetros Geométricos e Físicos:</strong>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginTop: '6px' }}>
-                <div>Área Separadora (S): <strong>{detalhes.s || form.area || 15} m²</strong></div>
-                <div>Volume Receptor (V): <strong>{detalhes.v || form.volume || 36} m³</strong></div>
-                <div>Tempo de Reverb (T): <strong>{detalhes.t || form.t || 0.6} s</strong></div>
-                <div>Absorção Sabine (A): <strong>{detalhes.absorcao_equivalente || '—'} m²</strong></div>
+            <div className={styles.detailsBlock}>
+              <h4>Parâmetros geométricos e físicos</h4>
+              <div className={styles.detailsGrid}>
+                {!isImpacto && <div>Área separadora (S): <strong>{detalhes.s ?? form.area ?? '—'} m²</strong></div>}
+                <div>Volume receptor (V): <strong>{detalhes.v ?? form.volume ?? '—'} m³</strong></div>
+                <div>Tempo de reverberação (T): <strong>{detalhes.t ?? form.t ?? '—'} s</strong></div>
+                <div>Absorção Sabine (A): <strong>{detalhes.absorcao_equivalente ?? '—'} m²</strong></div>
                 {propriedades.espessura_total_cm && (
-                  <div>Espessura Total: <strong>{propriedades.espessura_total_cm} cm</strong></div>
+                  <div>Espessura total: <strong>{propriedades.espessura_total_cm} cm</strong></div>
                 )}
                 {propriedades.massa_superficial_kg_m2 && (
-                  <div>Massa Superficial (m'): <strong>{propriedades.massa_superficial_kg_m2} kg/m²</strong></div>
+                  <div>Massa superficial (m&apos;): <strong>{propriedades.massa_superficial_kg_m2} kg/m²</strong></div>
                 )}
               </div>
             </div>
 
-            {/* Camadas da Composição */}
             {composicao.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <strong style={{ color: '#93c5fd' }}>Composição Estrutural das Camadas:</strong>
-                <ul style={{ margin: '6px 0 0 16px', padding: 0 }}>
+              <div className={styles.detailsBlock}>
+                <h4>Composição das camadas</h4>
+                <ul className={styles.detailsList}>
                   {composicao.map((c, i) => (
                     <li key={i}>
                       Camada {c.ordem || i + 1}: {c.material_nome || c.material} — {c.espessura_cm} cm
@@ -264,47 +375,41 @@ export default function Step3Results({ resultado, user, salvarSimulacao, saved, 
               </div>
             )}
 
-            {/* Fontes Rastreáveis */}
             {fontes.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <strong style={{ color: '#93c5fd' }}>Fontes Documentais dos Dados Acústicos:</strong>
-                <ul style={{ margin: '6px 0 0 16px', padding: 0 }}>
-                  {fontes.map((f, i) => (
-                    <li key={i}>{f}</li>
-                  ))}
+              <div className={styles.detailsBlock}>
+                <h4>Fontes dos dados acústicos</h4>
+                <ul className={styles.detailsList}>
+                  {fontes.map((f, i) => <li key={i}>{f}</li>)}
                 </ul>
               </div>
             )}
 
-            {/* Observações e Limitações do Cálculo */}
-            <div>
-              <strong style={{ color: '#fde047' }}>Observações e Limitações do Método:</strong>
-              <ul style={{ margin: '6px 0 0 16px', padding: 0, color: 'rgba(255, 255, 255, 0.7)' }}>
-                {limitacoes.map((lim, i) => (
-                  <li key={i}>{lim}</li>
-                ))}
-                <li>O resultado é uma estimativa técnica que não substitui a realização de ensaio acústico in situ formal com laudo pericial.</li>
+            <div className={styles.detailsBlock}>
+              <h4>Limitações do método</h4>
+              <ul className={styles.detailsList}>
+                {limitacoes.map((lim, i) => <li key={i}>{lim}</li>)}
+                <li>Estimativa técnica: não substitui ensaio acústico in situ com laudo pericial.</li>
               </ul>
             </div>
           </div>
         )}
       </div>
 
-      {/* Ação de Salvar Simulação */}
+      {/* ===== Salvar ===== */}
       {salvarSimulacao && (
-        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
+        <div className={styles.actions}>
           {user ? (
             <button
               type="button"
-              className={styles.secondaryBtn}
+              className={calcStyles.secondaryBtn}
               onClick={salvarSimulacao}
               disabled={saved}
             >
-              <span>{saved ? 'Simulação Salva no Histórico' : 'Salvar no Meu Histórico'}</span>
+              {saved ? 'Simulação salva no histórico' : 'Salvar no meu histórico'}
             </button>
           ) : (
-            <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-              Faça login para salvar esta simulação em seu perfil.
+            <span className={styles.hintLogin}>
+              Faça login para salvar esta simulação no seu perfil.
             </span>
           )}
         </div>

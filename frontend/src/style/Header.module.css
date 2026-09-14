@@ -1,5 +1,5 @@
 .header {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -8,6 +8,23 @@
   align-items: center;
   padding: 20px 40px;
   z-index: 100;
+  background: transparent;
+  backdrop-filter: none;
+  transition: background 0.25s ease, backdrop-filter 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease;
+}
+
+.header.scrolled {
+  background: rgba(0, 26, 65, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 14px 40px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .hamburger {
@@ -69,7 +86,11 @@
   .header {
     padding: 16px 20px;
   }
-  
+
+  .logo {
+    display: none;
+  }
+
   .btnOutline,
   .btnPrimary {
     padding: 8px 18px;

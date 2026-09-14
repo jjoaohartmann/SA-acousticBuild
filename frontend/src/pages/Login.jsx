@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
+import { IconEnvelope, IconLock } from '../components/IconSet';
 import styles from '../style/Login.module.css';
 
 export default function Login() {
@@ -34,24 +35,29 @@ export default function Login() {
 
   return (
     <div className={styles.container}>
+      <Link to="/" className={styles.backLink}>← Início</Link>
 
-      <Link to="/" className={styles.backLink}>Início</Link>
-
+      {/* Lado claro — formulário */}
       <div className={styles.formSide}>
         <div className={styles.formBox}>
-          <h2 className={styles.formTitle}>Bem-vindo de volta!</h2>
-          <p className={styles.formSubtitle}>Entre com suas credenciais para continuar</p>
+          <h1 className={styles.formTitle}>Entrar</h1>
+
+
+          <p className={styles.formHint}>Entre com o seu email:</p>
 
           {error && <div className={styles.errorBox}>{error}</div>}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>E-mail</label>
+              <span className={styles.inputIcon}>
+                <IconEnvelope size={20} color="#1E5EFF" />
+              </span>
               <input
                 className={styles.input}
                 type="email"
                 name="email"
-                placeholder="seu@email.com"
+                placeholder="email"
+                aria-label="E-mail"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -59,44 +65,39 @@ export default function Login() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Senha</label>
+              <span className={styles.inputIcon}>
+                <IconLock size={20} color="#1E5EFF" />
+              </span>
               <input
                 className={styles.input}
                 type="password"
                 name="password"
-                placeholder="Sua senha"
+                placeholder="senha"
+                aria-label="Senha"
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
             </div>
 
-            <button
-              type="submit"
-              className={`${styles.button} ${loading ? styles.buttonDisabled : ''}`}
-              disabled={loading}
-            >
+            <button type="submit" className={styles.button} disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
-
-          <p className={styles.switchText}>
-            Não tem uma conta?{' '}
-            <Link to="/register" className={styles.link}>Cadastrar-se</Link>
-          </p>
         </div>
       </div>
 
+      {/* Lado escuro — boas-vindas */}
       <div className={styles.panel}>
         <div className={styles.panelContent}>
-          <Logo width={320} light={true} />
-
-          <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: '40px', fontSize: '1rem', lineHeight: '1.6' }}>
-             Entre com suas informações pessoais para acessar nossos serviços.
-        </p>
+          <Logo width={300} />
+          <h2 className={styles.panelTitle}>Bem-vindo(a) de volta!</h2>
+          <p className={styles.panelText}>
+            Entre com suas informações pessoais para acessar nossos serviços
+          </p>
+          <Link to="/register" className={styles.panelLink}>É meu primeiro acesso</Link>
         </div>
       </div>
-
     </div>
   );
 }

@@ -79,19 +79,23 @@ def test_critico_2_override_manual_sobrepoe_sistema(db):
     print(f"\n[OK] Teste Crítico 2: Override manual aplicado com sucesso (confiabilidade: {res['confiabilidade']})")
 
 
-def test_critico_3_composicao_sem_dado_acustico_nao_inventa_decibeis(db):
+def test_critico_3_composicao_com_camada_resiliente_nao_inventa_decibeis(db):
     """
     Teste Crítico 3:
-    Composição multicamada personalizada sem ensaio correspondente.
-    O motor NÃO pode inventar Rw ou Ln,w! Deve retornar resultado = None e registrar limitações.
-    """
-    mat_bloco = db.query(Material).filter(Material.categoria == "alvenaria").first()
-    mat_vinilico = db.query(Material).filter(Material.categoria == "piso").first()
+    Composição com camada resiliente (lã de vidro, manta) e sem ensaio correspondente.
 
-    # Composição absurda/inédita: Bloco de alvenaria + Piso vinílico (multicamada sem modelo clássico)
+    A lei da massa descreve elementos que vibram como um corpo só. Uma camada leve no
+    meio desacopla as faces e cria um sistema massa-mola-massa, cujo desempenho NÃO se
+    deduz da massa superficial. Nesse caso o motor deve recusar, não estimar.
+    """
+    mat_placa = db.query(Material).filter(Material.nome.like("%gesso%")).first()
+    mat_la = db.query(Material).filter(Material.densidade < 100).first()
+    assert mat_placa and mat_la, "seed precisa ter placa de gesso e um material resiliente"
+
     camadas = [
-        {"material_id": mat_bloco.id, "espessura": 0.14},
-        {"material_id": mat_vinilico.id, "espessura": 0.005}
+        {"material_id": mat_placa.id, "espessura": 0.0125},
+        {"material_id": mat_la.id, "espessura": 0.10},   # resiliente: desacopla as faces
+        {"material_id": mat_placa.id, "espessura": 0.0125},
     ]
 
     dados = {
@@ -99,15 +103,44 @@ def test_critico_3_composicao_sem_dado_acustico_nao_inventa_decibeis(db):
         "area_elemento": 12.0,
         "volume_receptor": 35.0,
         "reverberacao": 0.5,
-        "camadas": camadas
+        "camadas": camadas,
     }
 
     res = executar_calculo_motor(dados, db=db)
-    assert res["resultado"] is None, "Composição multicamada sem ensaio NÃO deve gerar resultado acústico arbitrário!"
+    assert res["resultado"] is None, "Composição desacoplada sem ensaio NÃO pode gerar decibéis estimados!"
     assert res["confiabilidade"] == "sem_dado"
     assert len(res["limitacoes"]) > 0
-    assert any("não gera decibéis" in lim.lower() or "não inventa" in lim.lower() for lim in res["limitacoes"])
-    print("\n[OK] Teste Crítico 3: Sistema sem ensaio não inventou decibéis (resultado: None)")
+    print("[OK] Teste Crítico 3: composição com camada resiliente não inventou decibéis")
+
+
+def test_critico_3b_multicamada_rigida_pode_ser_estimada(db):
+    """
+    Contraparte do Crítico 3: camadas rígidas coladas (bloco + argamassa) vibram juntas,
+    então a lei da massa se aplica sobre a massa somada — e o motor deve estimar,
+    sempre rotulando o resultado como 'estimativa_teorica'.
+    """
+    mat_bloco = db.query(Material).filter(Material.categoria == "alvenaria").first()
+    mat_arg = db.query(Material).filter(Material.nome.like("%rgamassa%")).first()
+    assert mat_bloco and mat_arg
+
+    dados = {
+        "tipo_analise": "aereo",
+        "area_elemento": 12.0,
+        "volume_receptor": 35.0,
+        "reverberacao": 0.5,
+        "camadas": [
+            {"material_id": mat_arg.id, "espessura": 0.02},
+            {"material_id": mat_bloco.id, "espessura": 0.14},
+            {"material_id": mat_arg.id, "espessura": 0.02},
+        ],
+    }
+
+    res = executar_calculo_motor(dados, db=db)
+    assert res["resultado"] is not None, "Composição rígida colada deve permitir estimativa"
+    assert res["confiabilidade"] in ("estimativa_teorica", "ensaio_laboratorio")
+    if res["confiabilidade"] == "estimativa_teorica":
+        assert any("estimativa" in lim.lower() for lim in res["limitacoes"]),             "A estimativa precisa estar declarada nas limitações"
+    print("[OK] Teste Crítico 3b: multicamada rígida estimada e rotulada corretamente")
 
 
 def test_critico_4_diferenciacao_null_vs_zero_e_massa_superficial(db):
