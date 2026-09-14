@@ -27,6 +27,22 @@ K  = 0.16  # s/m (constante de Sabine)
 F_REFERENCIA = 500.0  # Hz — banda em que a lei da massa é avaliada (ISO 717-1)
 
 
+def _fontes_das_densidades(composicao: list[dict[str, Any]]) -> list[str]:
+    """Fontes das densidades usadas, uma linha por material, sem repetir.
+
+    A massa superficial vem das densidades das camadas; quando não há ensaio,
+    o resultado inteiro depende delas. Declarar a origem aqui evita um relatório
+    que cita o modelo teórico mas esconde de onde vieram os números de entrada.
+    """
+    vistos: dict[str, str] = {}
+    for camada in composicao:
+        fonte = camada.get("fonte_densidade")
+        nome = camada.get("material_nome")
+        if fonte and nome and nome not in vistos:
+            vistos[nome] = fonte
+    return [f"Densidade de {nome}: {fonte}" for nome, fonte in vistos.items()]
+
+
 def calcular_absorcao_sabine(volume: float, tempo_reverb: float) -> float:
     """Calcula a absorção equivalente pela fórmula de Sabine: A = 0.16 * V / T."""
     if tempo_reverb <= 0:
@@ -99,6 +115,14 @@ def resolver_propriedades_camadas(
             else:
                 possui_massa_completa = False
 
+            # A origem da densidade viaja junto com a camada: sem ensaio, o
+            # resultado inteiro se apoia nela, e ela precisa ser rastreável.
+            fonte_densidade = None
+            if variacao is not None and getattr(variacao, "fonte", None):
+                fonte_densidade = variacao.fonte
+            elif material is not None and getattr(material, "fonte", None):
+                fonte_densidade = material.fonte
+
             camadas_detalhadas.append({
                 "ordem": idx + 1,
                 "material_id": material.id if material else mat_id,
@@ -106,6 +130,7 @@ def resolver_propriedades_camadas(
                 "espessura_m": round(esp, 4) if esp is not None else None,
                 "espessura_cm": round(esp * 100.0, 2) if esp is not None else None,
                 "densidade": densidade,
+                "fonte_densidade": fonte_densidade,
                 "massa_superficial_camada": round(massa_camada, 2) if massa_camada is not None else None,
                 "posicao": cam.get("posicao")
             })
@@ -606,7 +631,10 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                 "metodo": {
                     "nome": "Estimativa teórica simplificada por Lei da Massa",
                     "norma": "Formulação acústica clássica para painéis simples homogêneos",
-                    "equacao": "Rw ≈ 20*log10(m') + 10; DnT,w ≈ Rw + 10*log10(T/T0) - 10*log10(A/S)"
+                    "equacao": (
+                        "Rw ≈ 20*log10(m') + (20*log10(500) − 47) = 20*log10(m') + 6,98; "
+                        "DnT,w ≈ Rw − 10*log10(S/A) + 10*log10(T/T0)"
+                    )
                 },
                 "confiabilidade": "estimativa_teorica",
                 "origem": "Resultado estimado via modelo teórico (Lei da Massa)",
@@ -615,7 +643,12 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                     "espessura_total_cm": propriedades_fisicas.get("espessura_total_cm"),
                     "massa_superficial_kg_m2": round(massa_total, 2)
                 },
-                "fontes": ["Lei da massa (R = 20·log10(m'·f) − 47) avaliada em 500 Hz — modelo teórico, não é ensaio"],
+                # Sem ensaio, o resultado repousa sobre as densidades das camadas:
+                # elas entram nas fontes junto com o modelo.
+                "fontes": [
+                    "Lei da massa (R = 20·log10(m'·f) − 47) avaliada em 500 Hz — modelo teórico, não é ensaio",
+                    *_fontes_das_densidades(composicao_detalhada),
+                ],
                 "limitacoes": [
                     "Não existe ensaio acústico de laboratório documentado para esta composição específica.",
                     f"O resultado é uma estimativa teórica aproximada calculada a partir da massa superficial ({round(massa_total, 1)} kg/m²).",

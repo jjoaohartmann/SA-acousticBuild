@@ -14,6 +14,12 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
   );
   const [resultadoMontagem, setResultadoMontagem] = useState(null);
 
+  // Materiais distintos em uso, na ordem das camadas — é deles que sai a massa
+  // superficial e, sem ensaio, o resultado inteiro.
+  const materiaisEmUso = [...new Set(camadas.map((c) => c.material_id).filter(Boolean))]
+    .map((id) => materiais.find((m) => m.id === id))
+    .filter(Boolean);
+
   // Guardado em ref para não entrar nas deps do efeito (o pai recria a função a cada render)
   const onCompositionChangeRef = useRef(onCompositionChange);
   useEffect(() => {
@@ -381,6 +387,59 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
           </div>
         ))}
       </div>
+
+      {/* Procedência das densidades.
+          Quando não há ensaio, a estimativa inteira se apoia nestes números —
+          então a origem deles precisa estar à vista, não só no banco. */}
+      {materiaisEmUso.length > 0 && (
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '14px 18px',
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '12px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.6px',
+              color: 'rgba(255, 255, 255, 0.55)',
+              marginBottom: '10px',
+            }}
+          >
+            De onde vêm as densidades usadas
+          </div>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '8px' }}>
+            {materiaisEmUso.map((m) => (
+              <li
+                key={m.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '14px',
+                  flexWrap: 'wrap',
+                  fontSize: '0.82rem',
+                  lineHeight: 1.4,
+                }}
+              >
+                <span style={{ color: '#FFFFFF' }}>
+                  {m.nome}
+                  <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    {' '}— {m.densidade ? `${m.densidade} kg/m³` : 'densidade não documentada'}
+                  </span>
+                </span>
+                <span style={{ color: '#8ab4f8', textAlign: 'right' }}>
+                  {m.fonte || 'sem fonte declarada'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Card com resultado da validação física e correspondência do sistema */}
       {resultadoMontagem && (

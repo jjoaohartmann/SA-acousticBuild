@@ -198,11 +198,65 @@ Cada laje tem dois registros de dado acústico — um para ruído aéreo ($R_w$,
 outro para ruído de impacto ($L_{n,w}$, Tabela A.2) — porque são fenômenos distintos,
 julgados por partes diferentes da norma.
 
-**Densidades dos materiais** ($\rho$): ABNT NBR 15220-2, ABNT NBR 14715, ABNT NBR 6118,
-catálogos Saint-Gobain/ISOVER, ProAcústica e Tarkett.
-
 Tudo isso está em [`backend/seed.py`](../backend/seed.py), com os campos `fonte` e
 `norma_ensaio` gravados em cada registro — é o que a interface exibe no cartão do sistema.
+
+---
+
+## 5.1 Dado: densidade dos materiais
+
+Quando não existe ensaio para a composição, a estimativa pela lei da massa se apoia
+**inteiramente** nestas densidades. Por isso cada uma tem fonte obrigatória — não há
+material cadastrado sem origem declarada.
+
+| # | Material | $\rho$ (kg/m³) | Fonte |
+|---|---|---:|---|
+| 1 | Bloco cerâmico de vedação | 1200 | ABNT NBR 15220-2 / Manual da Cerâmica Vermelha |
+| 2 | Bloco de concreto vazado | 1400 | ABNT NBR 15220-2 |
+| 3 | Argamassa de cimento e areia | 1900 | ABNT NBR 15220-2 |
+| 4 | Concreto armado maciço | 2400 | ABNT NBR 6118 / ABNT NBR 15220-2 |
+| 5 | Placa de gesso acartonado (drywall) | 800 | ABNT NBR 14715 |
+| 6 | Lã de vidro para isolamento acústico | 14 | Catálogo Técnico Saint-Gobain / ISOVER |
+| 7 | Manta acústica de polietileno expandido | 30 | Catálogo ProAcústica de Sistemas de Piso |
+| 8 | Contrapiso regularizado de argamassa | 2000 | ABNT NBR 15220-2 |
+| 9 | Piso vinílico em réguas (colado) | 1300 | Ficha Técnica Tarkett Brasil |
+| 10 | Piso cerâmico / porcelanato | 2200 | ABNT NBR 15220-2 |
+
+### Variações dimensionais
+
+Alguns materiais têm massa superficial ($m'$) medida diretamente para uma espessura
+comercial específica, em vez de calculada por $\rho \times e$. Nesses casos vale o valor
+tabelado, com sua própria fonte:
+
+| Material | Variação | $e$ | $m'$ (kg/m²) | Fonte |
+|---|---|---:|---:|---|
+| Bloco cerâmico | 14 cm | 0,14 m | 110 | ABNT NBR 15220-2 / ProAcústica |
+| Bloco cerâmico | 19 cm | 0,19 m | 145 | ABNT NBR 15220-2 / ProAcústica |
+| Argamassa | 1,5 cm | 0,015 m | 28,5 | ABNT NBR 15220-2 |
+| Concreto armado | 10 cm | 0,10 m | 240 | ABNT NBR 15220-2 |
+| Concreto armado | 14 cm | 0,14 m | 336 | ABNT NBR 15220-2 |
+| Concreto armado | 15 cm | 0,15 m | 360 | ABNT NBR 15220-2 |
+| Placa de gesso | 12,5 mm ST | 0,0125 m | 9,5 | ABNT NBR 14715 |
+| Lã de vidro | 50 mm | 0,05 m | 0,7 | Catálogo ISOVER |
+| Manta acústica | 5 mm | 0,005 m | 0,15 | Catálogo ProAcústica |
+| Contrapiso | 3 cm | 0,03 m | 60 | ABNT NBR 15220-2 |
+| Contrapiso | 5 cm | 0,05 m | 100 | ABNT NBR 15220-2 |
+| Piso vinílico | 2 mm | 0,002 m | 2,6 | Ficha Técnica Tarkett |
+
+> **Sobre a NBR 15220-2:** é uma norma de *desempenho térmico*. O que se usa dela aqui é
+> apenas a tabela de propriedades físicas de materiais de construção do Anexo B — massa
+> específica. Nada acústico vem dessa norma. A distinção importa: densidade é propriedade
+> física, desempenho acústico é ensaio.
+
+### Onde isso aparece na plataforma
+
+A procedência não fica só no banco de dados:
+
+- ao montar uma composição por camadas, o painel **"De onde vêm as densidades usadas"**
+  lista cada material com sua densidade e sua fonte;
+- no resultado de uma **estimativa teórica**, as fontes das densidades entram na lista de
+  fontes junto com o modelo, porque é sobre elas que o número se apoia;
+- cada camada devolvida pela API carrega o campo `fonte_densidade`.
 
 > ⚠️ **Para a equipe:** os números de relatório do IPT identificam ensaios reais, mas a
 > plataforma não hospeda cópia deles. Antes de publicar, guarde os PDFs (ou a referência
