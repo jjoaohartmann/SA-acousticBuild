@@ -14,6 +14,24 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     simulacoes = relationship("Simulacao", back_populates="user", cascade="all, delete-orphan")
+    tokens_redefinicao = relationship("TokenRedefinicaoSenha", cascade="all, delete-orphan")
+
+
+class TokenRedefinicaoSenha(Base):
+    """Link de "esqueci minha senha": uso único e com validade curta.
+
+    Só o hash SHA-256 do token é gravado. Quem tiver acesso ao banco não
+    consegue montar um link válido a partir desta tabela.
+    Datas em UTC sem fuso (o SQLite não guarda o fuso de forma confiável).
+    """
+    __tablename__ = "tokens_redefinicao_senha"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    token_hash = Column(String(64), unique=True, index=True, nullable=False)
+    criado_em  = Column(DateTime, nullable=False)
+    expira_em  = Column(DateTime, nullable=False)
+    usado_em   = Column(DateTime, nullable=True)   # também marca links invalidados
 
 
 class Simulacao(Base):

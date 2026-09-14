@@ -26,6 +26,8 @@ desenvolvimento (`frontend/src/services/api.js`).
 | `GET` | `/` | — | Health check |
 | `POST` | `/auth/register` | — | Criar conta |
 | `POST` | `/auth/login` | — | Obter token JWT |
+| `POST` | `/auth/esqueci-senha` | — | Pedir link de redefinição de senha |
+| `POST` | `/auth/redefinir-senha` | — | Criar senha nova com o link |
 | `GET` | `/auth/me` | 🔒 | Ler os dados da conta |
 | `PUT` | `/auth/me` | 🔒 | Editar nome, e-mail e/ou senha |
 | `GET` | `/materiais` | — | Catálogo de materiais |
@@ -59,7 +61,7 @@ A senha tem **mínimo de 6 caracteres** (validado por Pydantic). Resposta `201`:
 | Código | Quando |
 |---|---|
 | `201` | Conta criada |
-| `400` | E-mail já cadastrado |
+| `409` | E-mail já cadastrado |
 | `422` | Senha curta demais ou e-mail inválido |
 
 ### `POST /auth/login`
@@ -75,7 +77,7 @@ Resposta `200` com o token e o usuário:
   "user": { "id": 1, "name": "Fulano de Tal", "email": "fulano@exemplo.com" } }
 ```
 
-O token é um JWT HS256 com `sub` (e-mail), `user_id` e `exp` (7 dias).
+O token é um JWT HS256 com `sub` (e-mail), `user_id` e `exp` (24 horas).
 
 ### `GET /auth/me`
 
@@ -96,7 +98,52 @@ precisa substituir o que está guardado:
 { "access_token": "novo.token.aqui", "token_type": "bearer", "user": { "...": "..." } }
 ```
 
-`400` se o novo e-mail já pertencer a outra conta.
+`409` se o novo e-mail já pertencer a outra conta.
+
+### `POST /auth/esqueci-senha`
+
+```json
+{ "email": "fulano@exemplo.com" }
+```
+
+Responde **sempre** `200` com a mesma mensagem, exista ou não a conta — senão o
+formulário serviria para descobrir quais e-mails estão cadastrados:
+
+```json
+{ "detail": "Se existir uma conta com este e-mail, enviamos um link para redefinir a senha. Ele vale por 30 minutos." }
+```
+
+O link **nunca** volta na resposta. Se voltasse, bastaria saber o e-mail de alguém para
+trocar a senha dessa pessoa. Ele é entregue:
+
+- **por e-mail**, quando `SMTP_HOST` está configurado;
+- **no terminal do back-end**, quando não está (desenvolvimento local).
+
+Regras do link: vale 30 minutos, serve uma vez só, pedir um novo cancela os anteriores,
+e no máximo 3 pedidos por conta a cada 15 minutos (o excedente é ignorado sem mudar a
+resposta). No banco fica apenas o hash SHA-256 do token.
+
+### `POST /auth/redefinir-senha`
+
+```json
+{ "token": "<token do link>", "nova_senha": "senhanova123" }
+```
+
+| Código | Quando |
+|---|---|
+| `200` | Senha trocada; todos os outros links pendentes da conta são cancelados |
+| `400` | Link inválido, expirado, já usado ou cancelado — sem dizer qual dos quatro |
+| `422` | Senha com menos de 6 caracteres (o link continua valendo) |
+
+### Variáveis de ambiente do e-mail
+
+| Variável | Padrão | Uso |
+|---|---|---|
+| `SMTP_HOST` | — | Servidor SMTP. Sem ela, o link vai para o terminal |
+| `SMTP_PORT` | `587` | Porta (STARTTLS) |
+| `SMTP_USER` / `SMTP_PASSWORD` | — | Credenciais do servidor |
+| `SMTP_FROM` | `SMTP_USER` | Remetente |
+| `FRONTEND_URL` | `http://localhost:5173` | Endereço usado para montar o link |
 
 ---
 
@@ -194,6 +241,7 @@ python backend/seed.py
 ## 🛡️ Segurança
 
 - Senhas com hash **bcrypt** — nunca em texto puro.
-- Sessão por **JWT HS256**, validade de 7 dias.
+- Sessão por **JWT HS256**, validade de 24 horas.
+- Recuperação de senha por link de uso único, com só o hash guardado no banco.
 - CORS liberado para o dev server do Vite.
 - Rotas de histórico e de conta filtram sempre pelo usuário do token.

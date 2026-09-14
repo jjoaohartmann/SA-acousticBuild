@@ -37,6 +37,20 @@ class Token(BaseModel):
     user: UserResponse
 
 
+class EsqueciSenhaRequest(BaseModel):
+    email: EmailStr
+
+
+class RedefinirSenhaRequest(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+    # mesma regra do cadastro e do PUT /auth/me
+    nova_senha: str = Field(min_length=6, max_length=128)
+
+
+class MensagemResponse(BaseModel):
+    detail: str
+
+
 # ==========================================================
 # Catálogo de Materiais e Sistemas Construtivos
 # ==========================================================

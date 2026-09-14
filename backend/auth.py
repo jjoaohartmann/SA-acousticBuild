@@ -8,7 +8,12 @@ from models import User
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-SECRET_KEY = "acousticbuild-super-secret-key-troque-em-producao"
+import os
+
+# O repositório é público: com a chave fixa no código, qualquer pessoa consegue
+# assinar um token de login válido para qualquer conta. Em produção a chave TEM
+# que vir do ambiente; o valor abaixo só existe para o desenvolvimento local.
+SECRET_KEY = os.getenv("SECRET_KEY", "acousticbuild-chave-apenas-desenvolvimento")  # noqa: S105
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 

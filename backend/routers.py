@@ -1,11 +1,26 @@
+import recuperacao
 from auth import create_access_token, get_current_user, hash_password, verify_password
 from database import get_db
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from models import User
-from schemas import Token, UserCreate, UserLogin, UserResponse, UserUpdate
+from schemas import (
+    EsqueciSenhaRequest,
+    MensagemResponse,
+    RedefinirSenhaRequest,
+    Token,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+    UserUpdate,
+)
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
+
+MENSAGEM_PEDIDO_ENVIADO = (
+    "Se existir uma conta com este e-mail, enviamos um link para redefinir a senha. "
+    f"Ele vale por {recuperacao.VALIDADE_MINUTOS} minutos."
+)
 
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -67,3 +82,32 @@ def update_me(
     # o e-mail entra no token, então ele é reemitido para não invalidar a sessão
     token = create_access_token(data={"sub": user.email, "user_id": user.id})
     return {"access_token": token, "token_type": "bearer", "user": user}
+
+
+@router.post("/esqueci-senha", response_model=MensagemResponse)
+def esqueci_senha(
+    dados: EsqueciSenhaRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    # Mesma resposta exista ou não a conta — ver recuperacao.py.
+    user = db.query(User).filter(User.email == dados.email).first()
+    if user is not None:
+        token = recuperacao.emitir_token(db, user)
+        if token is not None:
+            # Em segundo plano: o tempo de resposta não pode denunciar,
+            # pela demora do envio, que a conta existe.
+            background_tasks.add_task(
+                recuperacao.enviar_link, user.email, user.name, recuperacao.montar_link(token)
+            )
+    return {"detail": MENSAGEM_PEDIDO_ENVIADO}
+
+
+@router.post("/redefinir-senha", response_model=MensagemResponse)
+def redefinir_senha(dados: RedefinirSenhaRequest, db: Session = Depends(get_db)):
+    if not recuperacao.redefinir_senha(db, dados.token, dados.nova_senha):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este link é inválido ou expirou. Peça um novo.",
+        )
+    return {"detail": "Senha redefinida. Você já pode entrar com a nova senha."}

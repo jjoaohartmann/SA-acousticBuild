@@ -16,6 +16,8 @@ Module de mesmo nome em `src/style/`.
 | `Support.jsx` | `/suporte` | — | Canais de contato e perguntas frequentes |
 | `Login.jsx` | `/login` | — | Entrada na conta |
 | `Register.jsx` | `/register` | — | Criação de conta |
+| `EsqueciSenha.jsx` | `/esqueci-senha` | — | Pedido do link de redefinição; resposta igual exista ou não a conta |
+| `RedefinirSenha.jsx` | `/redefinir-senha?token=…` | — | Senha nova a partir do link; tira o token da URL assim que o lê |
 | `UserProfile.jsx` | `/profile` | 🔒 | Dados da conta e edição de perfil |
 | `Terms.jsx` | `/termos` | — | Termos de uso |
 | `Privacy.jsx` | `/privacidade` | — | Política de privacidade |

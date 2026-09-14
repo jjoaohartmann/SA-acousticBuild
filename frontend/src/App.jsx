@@ -5,6 +5,8 @@ import ScrollToHash from './components/ScrollToHash';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import EsqueciSenha from './pages/EsqueciSenha';
+import RedefinirSenha from './pages/RedefinirSenha';
 import Support from './pages/Support';
 import About from './pages/About';
 import Terms from './pages/Terms';
@@ -25,6 +27,8 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={user ? <Navigate to="/profile" /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/profile" /> : <Register />} />
+      <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+      <Route path="/redefinir-senha" element={<RedefinirSenha />} />
       <Route path="/suporte" element={<Support />} />
       <Route path="/sobre" element={<About />} />
       <Route path="/termos" element={<Terms />} />

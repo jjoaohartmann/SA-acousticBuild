@@ -140,6 +140,66 @@
   text-align: left;
 }
 
+/* ===== Recuperação de senha ===== */
+.forgotRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+  padding-right: 8px;
+}
+
+.textLink {
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E5EFF;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.textLink:hover {
+  color: #1650e0;
+}
+
+.successBox {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.formText {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #334155;
+  margin-bottom: 20px;
+}
+
+.fieldHint {
+  margin: -4px 0 0 18px;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: left;
+}
+
+.formActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
 /* ===== Lado escuro (boas-vindas) ===== */
 .panel {
   flex: 1;

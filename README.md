@@ -140,7 +140,8 @@ SA-acousticBuild/
 │   ├── models.py            # Modelos ORM (usuários, catálogo, simulações)
 │   ├── schemas.py           # Schemas Pydantic
 │   ├── auth.py              # Hash bcrypt e JWT
-│   ├── routers.py           # /auth/register, /auth/login, /auth/me
+│   ├── routers.py           # /auth/register, /login, /me, /esqueci-senha, /redefinir-senha
+│   ├── recuperacao.py       # Links de redefinição de senha (uso único)
 │   ├── catalogo.py          # /materiais, /sistemas, /sistemas/montar
 │   ├── acustica.py          # /acustica/calcular, /cenarios, histórico
 │   ├── engine.py            # Motor de cálculo e matriz de confiabilidade
@@ -150,7 +151,7 @@ SA-acousticBuild/
 │   ├── suggestions.py       # Recomendações a partir do resultado
 │   ├── formatar.py          # Números com vírgula decimal (pt-BR)
 │   ├── seed.py              # Popula o catálogo construtivo
-│   ├── tests/               # Suíte pytest (21 testes)
+│   ├── tests/               # Suíte pytest (31 testes)
 │   └── requirements.txt     # Dependências Python
 │
 ├── frontend/
@@ -207,6 +208,8 @@ SA-acousticBuild/
   /termos            Termos de uso
   /privacidade       Política de privacidade
   /login /register   Entrar ou criar conta
+  /esqueci-senha     Pedir link para redefinir a senha
+  /redefinir-senha   Criar senha nova a partir do link
 
 [Exige conta]
   /profile             Perfil — ver e editar nome, e-mail e senha (PUT /auth/me)
@@ -227,6 +230,8 @@ Referência completa em [`docs/API.md`](docs/API.md).
 | GET | `/` | Health check da API | ❌ Não |
 | POST | `/auth/register` | Cadastrar novo usuário | ❌ Não |
 | POST | `/auth/login` | Login + token JWT | ❌ Não |
+| POST | `/auth/esqueci-senha` | Pedir link de redefinição | ❌ Não |
+| POST | `/auth/redefinir-senha` | Criar senha nova com o link | ❌ Não |
 | GET | `/auth/me` | Dados da conta | ✅ Sim |
 | PUT | `/auth/me` | Editar nome, e-mail ou senha | ✅ Sim |
 | GET | `/materiais` | Catálogo de materiais | ❌ Não |

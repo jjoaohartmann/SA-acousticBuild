@@ -76,8 +76,13 @@ export default function Login() {
                 aria-label="Senha"
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
                 required
               />
+            </div>
+
+            <div className={styles.forgotRow}>
+              <Link to="/esqueci-senha" className={styles.textLink}>Esqueci minha senha</Link>
             </div>
 
             <button type="submit" className={styles.button} disabled={loading}>
