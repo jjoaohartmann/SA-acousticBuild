@@ -182,7 +182,9 @@ SA-acousticBuild/
 │   └── package.json
 │
 ├── docs/                    # Documentação adicional
+│   ├── FONTES.md            # Todas as fontes, por papel (critério/método/dado)
 │   ├── MATRIZ_CALCULO_E_FONTES.md  # Fórmulas, catálogo e confiabilidade
+│   ├── APRESENTACAO.md      # Roteiro para banca e feira
 │   ├── API.md               # Endpoints da API
 │   ├── COMPONENTS.md        # Catálogo de componentes
 │   ├── HOME_PAGE.md         # Landing page detalhada
@@ -288,6 +290,21 @@ Vantagens:
 - ✅ Classes com escopo automático
 - ✅ Sem conflitos entre componentes
 - ✅ Manutenção facilitada
+
+---
+
+## 📚 Documentação
+
+| Documento | Para quê |
+|---|---|
+| [`docs/FONTES.md`](docs/FONTES.md) | Todas as fontes usadas, separadas por papel: critério, método e dado |
+| [`docs/MATRIZ_CALCULO_E_FONTES.md`](docs/MATRIZ_CALCULO_E_FONTES.md) | Fórmulas, modelagem do banco, catálogo e matriz de confiabilidade |
+| [`docs/APRESENTACAO.md`](docs/APRESENTACAO.md) | Roteiro de apresentação para banca e feira |
+| [`docs/API.md`](docs/API.md) | Referência dos 14 endpoints |
+| [`docs/COMPONENTS.md`](docs/COMPONENTS.md) | Catálogo de componentes React |
+| [`docs/HOME_PAGE.md`](docs/HOME_PAGE.md) | Estrutura da landing page |
+| [`docs/USER_PROFILE.md`](docs/USER_PROFILE.md) | Telas de perfil e edição |
+| [`docs/PALETTE.md`](docs/PALETTE.md) | Identidade visual |
 
 ---
 

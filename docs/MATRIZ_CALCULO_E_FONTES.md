@@ -3,6 +3,9 @@
 
 Este documento descreve detalhadamente a formulação matemática, o catálogo de sistemas documentados, a modelagem relacional e os endpoints da API da Calculadora AcousticBuild.
 
+> Para a lista completa de fontes — separadas por papel (critério, método e dado), com o
+> que cada uma define e onde é usada no código — veja [`FONTES.md`](FONTES.md).
+
 ---
 
 ## 1. Princípios Invioláveis de Implementação

@@ -62,9 +62,9 @@ const SARA = {
   nome: 'Sara Rotenski Pereira',
   foto: fotoSara,
   bio: [
-    'Sara Rotenski Pereira nasceu em Florianópolis em 2007, atualmente é estudante do 3º ano do Ensino Médio integrado ao curso técnico em Desenvolvimento de Sistemas na Escola SESI. Pretende ingressar na Universidade Federal de Santa Catarina no curso de Ciência da Computação e construir uma carreira na área da tecnologia.',
-    'A estudante faz parte do grupo de Iniciação Científica de Matemática de sua escola desde 2023 e foi finalista da FEBRACE 2025 graças ao projeto “Desenvolvimento de uma Plataforma Integrada para Análise dos Níveis de Ruído Rodoviário”, que desenvolveu em 2024. Esse mesmo projeto também foi finalista da FENIC 2024, em Salvador e da FEBIC 2024, onde recebeu o prêmio de banner destaque (exposição) da feira e o credenciamento para a Copa Science 2025 no México. Nesse evento, o projeto foi premiado com medalha de ouro na categoria das Ciências Exatas e recebeu mais uma credencial, desta vez para a Colômbia.',
-    'O AcousticBuild foi finalista do Infomatrix 2025 e credenciado para o evento MILSET 2026 em Fortaleza, capital do Ceará. Além disso, Sara possui uma menção honrosa na OBMEP (Olimpíada Brasileira de Matemática) em 2022.',
+    'Sara Rotenski Pereira nasceu em Florianópolis em 2007. Em 2025, se formou no Ensino Médio integrado ao curso técnico em Desenvolvimento de Sistemas na Escola SESI e, atualmente, é acadêmica do bacharelado em Ciência de Dados e Inteligência Artificial no UniSENAI.',
+    'A estudante fez parte do grupo de Iniciação Científica de Matemática de sua escola de 2023 até 2025 e foi finalista da FEBRACE 2025 graças ao projeto “Desenvolvimento de uma Plataforma Integrada para Análise dos Níveis de Ruído Rodoviário”, que desenvolveu em 2024. Esse mesmo projeto também foi finalista da FENIC 2024, em Salvador e da FEBIC 2024, onde recebeu o prêmio de banner destaque (exposição) da feira e o credenciamento para a Copa Science 2025 no México. Nesse evento, o projeto foi premiado com medalha de ouro na categoria das Ciências Exatas e recebeu mais uma credencial, desta vez para a Colômbia.',
+    'O AcousticBuild foi finalista do Infomatrix 2025 e credenciado para o evento MILSET 2026 em Fortaleza, capital do Ceará. Também foi finalista da FEBRACE 2026, em São Paulo. Além disso, Sara possui uma menção honrosa na OBMEP (Olimpíada Brasileira de Matemática) em 2022.',
   ],
 };
 

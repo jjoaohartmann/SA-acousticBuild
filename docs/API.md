@@ -3,6 +3,9 @@
 Referência dos endpoints do back-end FastAPI. A documentação interativa gerada
 automaticamente fica em `/docs` (Swagger) e `/redoc` com o servidor no ar.
 
+Fórmulas e critérios: [`MATRIZ_CALCULO_E_FONTES.md`](MATRIZ_CALCULO_E_FONTES.md).
+Fontes: [`FONTES.md`](FONTES.md).
+
 ---
 
 ## 📍 Base URL

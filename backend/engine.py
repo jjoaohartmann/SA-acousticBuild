@@ -355,7 +355,7 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                 },
                 "metodo": {
                     "nome": "Previsão acústica baseada em valor de R informado pelo usuário",
-                    "norma": "UNE-EN 12354-1 / ISO 16283-1",
+                    "norma": "EN 12354-1 / ISO 16283-1",
                     "equacao": "L2 = L1 - R + 10*log10(S / A); DnT = (L1 - L2) + 10*log10(T / T0)"
                 },
                 "confiabilidade": "informado_usuario",

@@ -54,7 +54,7 @@ def _validar_positivo(valores):
 
 def calcular_tipo_aereo(dados):
     """
-    Cálculo de isolamento ao ruído aéreo (UNE-EN 12354-1 / ISO 16283-1).
+    Cálculo de isolamento ao ruído aéreo (EN 12354-1 / ISO 16283-1).
     """
     S = dados.get('area_elemento') or dados.get('s')
     V = dados.get('volume_receptor') or dados.get('v')
@@ -180,7 +180,7 @@ def calcular_tipo_aereo(dados):
 
 def calcular_tipo_impacto(dados):
     """
-    Cálculo do nível de pressao sonora de impacto (UNE-EN 12354-2 / ISO 16283-2).
+    Cálculo do nível de pressao sonora de impacto (EN 12354-2 / ISO 16283-2).
     """
     V = dados.get('volume_receptor') or dados.get('v')
     T = dados.get('reverberacao') or dados.get('t') or dados.get('t2')
