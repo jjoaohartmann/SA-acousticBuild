@@ -25,6 +25,16 @@ export const GLOSSARIO = {
     texto: 'O nível de ruído que chega no apartamento de baixo quando alguém pisa forte ou derruba algo em cima. Aqui é o contrário: quanto menor, melhor.',
     ancora: 'A NBR 15575 exige no máximo 55 dB entre apartamentos.',
   },
+  Lnw: {
+    titulo: 'Impacto de laboratório (Ln,w)',
+    texto: 'O barulho que chega embaixo quando uma máquina padronizada bate na laje, medido em laboratório e resumido num número só. Como no piso, quanto menor, melhor.',
+    ancora: 'Laje de concreto sem tratamento passa de 75 dB; com piso flutuante cai para perto de 55 dB.',
+  },
+  Ln: {
+    titulo: 'Impacto normalizado (L’n)',
+    texto: 'O impacto medido no local, ajustado para uma absorção de referência de 10 m², para poder comparar cômodos diferentes. Quanto menor, melhor.',
+    ancora: 'Definido pelas ISO 16283-2 e ISO 717-2.',
+  },
   L2: {
     titulo: 'Ruído que chega no ambiente (L₂)',
     texto: 'Quanto de barulho sobra do outro lado da parede depois que ela bloqueia parte do som. Quanto menor, melhor.',

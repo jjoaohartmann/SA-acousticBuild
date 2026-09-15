@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMateriais, montarSistema } from '../../services/api';
 import SystemInfoCard from './SystemInfoCard';
+import { fmtNum } from './caminhoDoSom';
 
 export default function LayerComposer({ onCompositionChange, initialLayers }) {
   const [materiais, setMateriais] = useState([]);
@@ -219,9 +220,9 @@ export default function LayerComposer({ onCompositionChange, initialLayers }) {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}
-                title={`${mat?.nome || 'Material'}: ${camada.espessura_cm} cm`}
+                title={`${mat?.nome || 'Material'}: ${fmtNum(camada.espessura_cm)} cm`}
               >
-                {mat?.nome?.split(' ')[0] || `C${idx + 1}`} ({camada.espessura_cm}cm)
+                {mat?.nome?.split(' ')[0] || `C${idx + 1}`} ({fmtNum(camada.espessura_cm)} cm)
               </div>
             );
           })}

@@ -205,6 +205,7 @@ O motor nunca apresenta um número sem dizer de onde ele veio. A ordem de prefer
 | `medicao_usuario` | Medição in situ informada pelo usuário | Há $L_1$ e $L_2$, ou $L_i$, medidos com sonômetro |
 | `informado_usuario` | Valor de $R$ digitado pelo usuário | O usuário conhece o índice do fabricante |
 | `ensaio_laboratorio` | Catálogo com ensaio documentado | O sistema escolhido tem $R_w$/$L_{n,w}$ de ensaio |
+| `documentado` | Tabela normativa | O dado vem de tabela de norma (ex.: lajes da NBR 15575-3, Anexo A) |
 | `estimativa_teorica` | Lei da massa (item 4.6) | Elemento monolítico e sem ensaio cadastrado |
 | `sem_dado` | — | Nenhum caminho acima se aplica: o motor **recusa** o cálculo e explica o que falta |
 

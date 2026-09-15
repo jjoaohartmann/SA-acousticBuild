@@ -14,6 +14,7 @@ import math
 from typing import Any
 
 from database import SessionLocal
+from formatar import num
 from models import (
     DadoAcustico,
     Material,
@@ -651,7 +652,7 @@ def executar_calculo_motor(dados: dict[str, Any], db: Any | None = None) -> dict
                 ],
                 "limitacoes": [
                     "Não existe ensaio acústico de laboratório documentado para esta composição específica.",
-                    f"O resultado é uma estimativa teórica aproximada calculada a partir da massa superficial ({round(massa_total, 1)} kg/m²).",
+                    f"O resultado é uma estimativa teórica aproximada calculada a partir da massa superficial ({num(massa_total, 1)} kg/m²).",
                     (
                         f"A composição tem {len(composicao_detalhada)} camadas rígidas coladas entre si; "
                         "elas foram tratadas como um único elemento vibrando em conjunto. "

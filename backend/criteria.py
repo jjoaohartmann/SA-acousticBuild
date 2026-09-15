@@ -5,8 +5,9 @@ Regras técnicas:
 - Ruído de impacto (L'nT): menor é melhor (operador 'max', limites decrescentes).
 - Tempo de reverberação (T): faixa ideal de 0,4 a 0,6 s para salas de aula (ANSI/ASA S12.60).
 """
-from formatar import num
 from typing import Any
+
+from formatar import num
 
 CRITERIOS_CENARIOS: dict[str, dict[str, dict[str, Any]]] = {
     'aereo': {

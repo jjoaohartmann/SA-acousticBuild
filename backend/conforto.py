@@ -16,8 +16,9 @@ O nível calculado aqui vem de uma fonte específica no ambiente emissor e não 
 ponderado em A. A comparação é, portanto, ORIENTATIVA (contextualiza o conforto)
 e não substitui o julgamento normativo formal, que continua sendo o da NBR 15575.
 """
-from formatar import num
 from typing import Any
+
+from formatar import num
 
 # NBR 10152:2017, Tabela 1 — nível recomendado por tipo de ambiente (dB)
 AMBIENTES_NBR10152: dict[str, dict[str, Any]] = {
@@ -47,8 +48,8 @@ REFERENCIAS_COTIDIANO: list[dict[str, Any]] = [
     {'nivel': 40.0, 'descricao': 'Área residencial tranquila à noite'},
     {'nivel': 50.0, 'descricao': 'Conversa em voz baixa / geladeira'},
     {'nivel': 60.0, 'descricao': 'Conversa normal a 1 metro'},
-    {'nivel': 70.0, 'descricao': 'Aspirador de po / TV alta'},
-    {'nivel': 80.0, 'descricao': 'Transito intenso'},
+    {'nivel': 70.0, 'descricao': 'Aspirador de pó / TV alta'},
+    {'nivel': 80.0, 'descricao': 'Trânsito intenso'},
 ]
 
 
@@ -73,6 +74,18 @@ def traduzir_percepcao(diferenca_db: float) -> str:
     return f'cerca de {num(vezes, 1)}'.replace('.', ',') + '× mais alto do que o recomendado'
 
 
+OBSERVACAO_AEREO = (
+    'Comparação orientativa: a NBR 10152 trata de nível de ruído de fundo (LAeq) '
+    'do ambiente. O julgamento normativo formal deste cálculo é o da NBR 15575.'
+)
+# No piso a distância entre as duas grandezas é ainda maior, e precisa ser dita.
+OBSERVACAO_IMPACTO = (
+    "Comparação orientativa: o L'nT,w vem de uma máquina de impacto padronizada, "
+    'não de passos reais, e a NBR 10152 trata de ruído de fundo (LAeq) do ambiente. '
+    'O julgamento normativo formal deste cálculo é o da NBR 15575-3.'
+)
+
+
 def resolver_ambiente(cenario: str | None, ambiente_tipo: str | None) -> str:
     """Chave do ambiente NBR 10152: o que o usuário escolheu ou, na falta, o
     palpite derivado do cenário NBR 15575."""
@@ -85,6 +98,7 @@ def avaliar_conforto(
     nivel_recebido: float | None,
     cenario: str | None,
     ambiente_tipo: str | None = None,
+    tipo: str = 'aereo',
 ) -> dict[str, Any] | None:
     """Compara o nível que chega ao ambiente receptor com a NBR 10152.
 
@@ -106,19 +120,19 @@ def avaliar_conforto(
     if diferenca <= 0:
         status = 'confortavel'
         resumo = (
-            f'O nível estimado ({num(nivel, 0)} dB) está dentro do recomendado pela '
+            f'O nível estimado ({num(nivel, 1)} dB) está dentro do recomendado pela '
             f'NBR 10152 para {ambiente["nome"].lower()} (até {num(recomendado, 0)} dB).'
         )
     elif diferenca <= 5:
         status = 'aceitavel'
         resumo = (
-            f'O nível estimado ({num(nivel, 0)} dB) ultrapassa em {num(diferenca, 0)} dB o recomendado '
+            f'O nível estimado ({num(nivel, 1)} dB) ultrapassa em {num(diferenca, 1)} dB o recomendado '
             f'pela NBR 10152 para {ambiente["nome"].lower()} ({num(recomendado, 0)} dB) — {traduzir_percepcao(diferenca)}.'
         )
     else:
         status = 'desconfortavel'
         resumo = (
-            f'O nível estimado ({num(nivel, 0)} dB) ultrapassa em {num(diferenca, 0)} dB o recomendado '
+            f'O nível estimado ({num(nivel, 1)} dB) ultrapassa em {num(diferenca, 1)} dB o recomendado '
             f'pela NBR 10152 para {ambiente["nome"].lower()} ({num(recomendado, 0)} dB) — {traduzir_percepcao(diferenca)}.'
         )
 
@@ -137,8 +151,5 @@ def avaliar_conforto(
         'comparacao_cotidiano': referencia_mais_proxima(nivel),
         'escala': {'min': 20.0, 'max': round(escala_max, 1)},
         'referencias': REFERENCIAS_COTIDIANO,
-        'observacao': (
-            'Comparação orientativa: a NBR 10152 trata de nível de ruído de fundo (LAeq) '
-            'do ambiente. O julgamento normativo formal deste cálculo é o da NBR 15575.'
-        ),
+        'observacao': OBSERVACAO_IMPACTO if tipo in ('impacto', 'lnt') else OBSERVACAO_AEREO,
     }

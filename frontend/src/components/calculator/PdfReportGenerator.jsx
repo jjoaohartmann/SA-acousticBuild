@@ -1,17 +1,20 @@
 import { useRef, useState } from 'react';
+import { fmtDb, fmtNum, montarCaminho } from './caminhoDoSom';
 
 export default function PdfReportGenerator({ resultado, form, user }) {
   const reportRef = useRef(null);
   const [gerando, setGerando] = useState(false);
 
-  const principal = resultado?.indicador_principal;
   const conforto = resultado?.conforto;
   const detalhes = resultado?.detalhes || {};
   const sugestoes = resultado?.sugestoes || [];
-  const fmt = (v, c = 1) =>
-    typeof v === 'number' ? v.toFixed(c).replace('.', ',') : '—';
+  const fmt = (v, c = 1) => fmtDb(v, c) ?? '—';
+  const n = (v) => fmtNum(v) ?? '—';
   const criterios = resultado?.criterios;
   const statusAtende = resultado?.status_atendimento === 'ATENDE' || resultado?.classificacao === 'atende';
+  // A mesma leitura de três passos da tela: o PDF não pode contar outra história.
+  const caminho = resultado ? montarCaminho(resultado) : null;
+  const isImpacto = caminho?.tipo === 'impacto';
 
   const gerarPdf = async () => {
     if (!reportRef.current) return;
@@ -137,7 +140,7 @@ export default function PdfReportGenerator({ resultado, form, user }) {
                   : 'Ruído que chega no ambiente receptor'}
               </span>
               <div style={{ fontSize: '34px', fontWeight: 800, color: statusAtende ? '#15803d' : '#b91c1c', margin: '4px 0' }}>
-                {conforto ? `${fmt(conforto.nivel_estimado, 0)} dB` : '—'}
+                {caminho?.destaque ? `${caminho.destaque} dB` : '—'}
               </div>
               {conforto && (
                 <div style={{ fontSize: '12px', color: '#475569' }}>
@@ -169,34 +172,28 @@ export default function PdfReportGenerator({ resultado, form, user }) {
               </div>
               {criterios && (
                 <div style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>
-                  Exigência: {resultado?.tipo === 'aereo' ? `≥ ${criterios.referencia}` : `≤ ${criterios.referencia}`} dB
+                  Exigência: {isImpacto ? '≤' : '≥'} {fmt(criterios.referencia, 0)} dB
                 </div>
               )}
             </div>
           </div>
 
           {/* Caminho do som — mesma leitura da tela */}
-          {conforto && (
+          {caminho?.completo && (
             <div style={{ marginBottom: '22px' }}>
               <h3 style={{ fontSize: '14px', color: '#2F6FFF', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '0 0 10px 0' }}>
                 1. Como esse número foi obtido
               </h3>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch', fontSize: '12px' }}>
-                {[
-                  { n: 1, t: 'Barulho no ambiente vizinho', v: `${fmt(detalhes.l1 ?? 85, 0)} dB` },
-                  { n: 2, t: 'A parede barra parte do som', v: `−${fmt(detalhes.rw ?? detalhes.r)} dB` },
-                  { n: 3, t: 'Sobra no ambiente receptor', v: `${fmt(conforto.nivel_estimado, 0)} dB` },
-                ].map((p) => (
-                  <div key={p.n} style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px' }}>
-                    <div style={{ color: '#64748b', marginBottom: '4px' }}>{p.n}. {p.t}</div>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{p.v}</div>
+                {caminho.passos.map((p, i) => (
+                  <div key={p.texto} style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px' }}>
+                    <div style={{ color: '#64748b', marginBottom: '4px' }}>{i + 1}. {p.texto}</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{p.sinal}{p.valor} dB</div>
                   </div>
                 ))}
               </div>
               <p style={{ fontSize: '11px', color: '#475569', margin: '8px 0 0 0', lineHeight: 1.5 }}>
-                O {principal?.nome} ({fmt(principal?.valor)} dB) mede o passo 2 já considerando o
-                tamanho e o acabamento do ambiente — por isso difere do valor de catálogo. É esse
-                número que a NBR 15575 fiscaliza (exigência: {resultado?.tipo === 'aereo' ? '≥' : '≤'} {criterios?.referencia} dB).
+                {caminho.nota}
               </p>
             </div>
           )}
@@ -227,10 +224,10 @@ export default function PdfReportGenerator({ resultado, form, user }) {
               <div><strong>Elemento:</strong> {form.elemento === 'piso_laje' ? 'Piso / Laje' : 'Parede de Vedação'}</div>
               {form.sistemaNome && <div><strong>Sistema Documentado:</strong> {form.sistemaNome} {form.sistema_codigo && `(${form.sistema_codigo})`}</div>}
               {resultado?.propriedades_fisicas?.espessura_total_cm && (
-                <div><strong>Espessura Total:</strong> {resultado.propriedades_fisicas.espessura_total_cm} cm</div>
+                <div><strong>Espessura Total:</strong> {n(resultado.propriedades_fisicas.espessura_total_cm)} cm</div>
               )}
               {resultado?.propriedades_fisicas?.massa_superficial_kg_m2 && (
-                <div><strong>Massa Superficial (m'):</strong> {resultado.propriedades_fisicas.massa_superficial_kg_m2} kg/m²</div>
+                <div><strong>Massa Superficial (m'):</strong> {n(resultado.propriedades_fisicas.massa_superficial_kg_m2)} kg/m²</div>
               )}
             </div>
 
@@ -250,8 +247,8 @@ export default function PdfReportGenerator({ resultado, form, user }) {
                     <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '6px' }}>{c.ordem || i + 1}</td>
                       <td style={{ padding: '6px' }}>{c.material_nome || c.material}</td>
-                      <td style={{ padding: '6px', textAlign: 'right' }}>{c.espessura_cm ?? '—'}</td>
-                      <td style={{ padding: '6px', textAlign: 'right' }}>{c.densidade ?? '—'}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>{n(c.espessura_cm)}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>{n(c.densidade)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -265,10 +262,10 @@ export default function PdfReportGenerator({ resultado, form, user }) {
               4. Parâmetros do Ambiente Receptor
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', fontSize: '12px' }}>
-              <div><strong>Área (S):</strong> {detalhes.s ?? form.area ?? '—'} m²</div>
-              <div><strong>Volume (V):</strong> {detalhes.v ?? form.volume ?? '—'} m³</div>
-              <div><strong>Reverberação (T):</strong> {detalhes.t ?? form.t ?? '—'} s</div>
-              <div><strong>Absorção (A):</strong> {resultado?.detalhes?.absorcao_equivalente || '—'} m²</div>
+              <div><strong>Área (S):</strong> {n(detalhes.s ?? form.area)} m²</div>
+              <div><strong>Volume (V):</strong> {n(detalhes.v ?? form.volume)} m³</div>
+              <div><strong>Reverberação (T):</strong> {n(detalhes.t ?? form.t)} s</div>
+              <div><strong>Absorção (A):</strong> {n(detalhes.absorcao_equivalente)} m²</div>
             </div>
           </div>
 

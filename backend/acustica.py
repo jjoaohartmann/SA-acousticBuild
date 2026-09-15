@@ -1,5 +1,5 @@
-import math
 import json
+import math
 from contextlib import suppress
 from typing import Any
 
@@ -37,6 +37,7 @@ def _montar_resposta(
     incluir_narrativa: bool = True,
     metadados: dict[str, Any] | None = None,
     ambiente_tipo: str | None = None,
+    l1: float | None = None,
 ) -> dict[str, Any]:
     principal = resultado.get('indicador_principal')
     if principal is None and resultado.get('resultado'):
@@ -85,18 +86,26 @@ def _montar_resposta(
 
     # Nível que efetivamente chega ao ambiente receptor — é ele que se compara
     # com a NBR 10152 (escala intuitiva: menos decibéis é sempre melhor).
-    det = resultado.get('detalhes', {})
+    det = resultado.setdefault('detalhes', {})
     if tipo in ('aereo', 'dnt'):
+        # O L1 escolhido no passo 2 precisa chegar até aqui. Os caminhos por
+        # sistema do catálogo e por estimativa não o devolvem em `detalhes`, e o
+        # nível recebido era calculado sempre com 85 dB — o seletor não fazia efeito.
+        if det.get('l1') is None:
+            det['l1'] = float(l1) if l1 is not None else 85.0
+            det['l1_padrao'] = l1 is None
         nivel_recebido = det.get('l2_previsto', det.get('l2'))
-        # no caminho por sistema documentado o L2 não é devolvido; reconstrói-se
-        # a partir do indicador padronizado: L2 = L1 - DnT + 10*log10(T/T0)
+        # nesses caminhos o L2 é reconstruído do indicador padronizado:
+        # L2 = L1 - DnT + 10*log10(T/T0)
         if nivel_recebido is None and det.get('dnt') is not None and det.get('t'):
-            l1_base = float(det.get('l1') or 85.0)
-            nivel_recebido = l1_base - float(det['dnt']) + 10.0 * math.log10(float(det['t']) / 0.5)
+            nivel_recebido = (
+                float(det['l1']) - float(det['dnt']) + 10.0 * math.log10(float(det['t']) / 0.5)
+            )
+            det['l2_previsto'] = round(nivel_recebido, 2)
     else:
         nivel_recebido = det.get('lnt', det.get('ln'))
 
-    conforto = avaliar_conforto(nivel_recebido, cenario, ambiente_tipo)
+    conforto = avaliar_conforto(nivel_recebido, cenario, ambiente_tipo, tipo=tipo)
 
     # Status direto em relação ao critério selecionado (ATENDE / NÃO ATENDE)
     status_atendimento = "ATENDE" if classificacao.get("nivel") in ("minimo", "intermediario", "superior", "atende") else "NÃO ATENDE"
@@ -104,7 +113,11 @@ def _montar_resposta(
     resposta: dict[str, Any] = {
         "tipo": tipo,
         "indicador_principal": principal,
-        "indicador_secundario": resultado.get('indicador_secundario'),
+        # a estimativa pela lei da massa aninha o Rw teórico em `resultado`
+        "indicador_secundario": (
+            resultado.get('indicador_secundario')
+            or (resultado.get('resultado') or {}).get('indicador_secundario')
+        ),
         "classificacao": classificacao['classificacao'],
         "nivel_normativo": classificacao.get('nivel'),
         "status_atendimento": status_atendimento,
@@ -178,6 +191,7 @@ def calcular(request: CalcularRequest, db: Session = Depends(get_db)):
         cenario=cenario,
         metadados=metadados,
         ambiente_tipo=payload.get('ambiente_receptor_tipo'),
+        l1=payload.get('l1'),
     )
 
 

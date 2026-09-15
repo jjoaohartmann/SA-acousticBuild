@@ -54,34 +54,41 @@ export default function MySimulations() {
               const classificacao = sim.resultado?.classificacao;
               // 'indisponivel' significa "faltou dado", não "reprovou" — pintar
               // de vermelho e escrever "Não Atende" seria mentir sobre o sistema.
+              const seloSemDado = { texto: 'Sem dado para julgar', cor: '#FACC15' };
               const selo = {
                 atende: { texto: 'Atende NBR 15575', cor: '#22C55E' },
                 nao_atende: { texto: 'Não Atende', cor: '#F43F5E' },
-                indisponivel: { texto: 'Sem dado para julgar', cor: '#FACC15' },
+                indisponivel: seloSemDado,
+                // é o valor que o back-end grava quando recusa o cálculo
+                'NÃO DETERMINADO': seloSemDado,
               }[classificacao];
 
               return (
                 <li key={sim.id} className={styles.item}>
                   <div className={styles.itemInfo}>
                     <span className={styles.itemType}>{tipoLabel}</span>
-                    {principal && (
-                      <span className={styles.itemValue}>
-                        {principal.nome} ={' '}
-                        {Number.isFinite(principal.valor)
-                          ? `${principal.valor.toFixed(2)} ${principal.unidade}`
-                          : '—'}
-                        {selo && (
-                          <span style={{
-                            marginLeft: '10px',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            color: selo.cor,
-                          }}>
-                            ({selo.texto})
-                          </span>
-                        )}
-                      </span>
-                    )}
+                    {/* O selo fica fora do indicador: quando não há número, ainda
+                        é preciso dizer por quê — antes a linha sumia inteira. */}
+                    <span className={styles.itemValue}>
+                      {principal ? (
+                        <>
+                          {principal.nome} ={' '}
+                          {Number.isFinite(principal.valor)
+                            ? `${principal.valor.toFixed(2).replace('.', ',')} ${principal.unidade}`
+                            : '—'}
+                        </>
+                      ) : 'Sem resultado numérico'}
+                      {selo && (
+                        <span style={{
+                          marginLeft: '10px',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          color: selo.cor,
+                        }}>
+                          ({selo.texto})
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <span className={styles.itemDate}>
                     {new Date(sim.criado_em).toLocaleDateString('pt-BR')}

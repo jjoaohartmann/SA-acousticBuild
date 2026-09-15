@@ -311,7 +311,7 @@ export default function Step2Parameters({ form, setForm, onCalculate }) {
           Absorção Sonora de Sabine: <code style={{ color: '#8ab4f8' }}>A = 0,16 · V / T</code>
         </span>
         <span style={{ fontSize: '1rem', fontWeight: 700, color: '#2F6FFF' }}>
-          A = {A !== null ? `${A.toFixed(2)} m²` : '—'}
+          A = {A !== null ? `${A.toFixed(2).replace('.', ',')} m²` : '—'}
         </span>
       </div>
 

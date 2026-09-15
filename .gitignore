@@ -47,3 +47,7 @@ ehthumbs.db
 *~
 # --- Ferramentas de IA / editores agênticos ---
 .claude/
+
+# --- Configuração local de ferramentas de lint/tipagem ---
+pyrightconfig.json
+ruff.toml

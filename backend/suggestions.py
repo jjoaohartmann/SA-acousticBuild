@@ -153,7 +153,13 @@ def gerar_sugestoes(tipo: str, resultado: dict, classificacao: dict | None = Non
 
 def narrar(tipo: str, resultado: dict, sugestoes: list[dict]) -> dict:
     """Narra em linguagem natural e técnica o resumo dos resultados obtidos."""
-    principal = resultado.get('indicador_principal', {})
+    # sistemas do catálogo e estimativas aninham o indicador em `resultado`;
+    # sem isso a frase saía "o indicador principal obtido foi  = 0,00 dB"
+    principal = (
+        resultado.get('indicador_principal')
+        or (resultado.get('resultado') or {}).get('indicador_principal')
+        or {}
+    )
     valor = principal.get('valor', 0)
     nome = principal.get('nome', '')
     unidade = principal.get('unidade', 'dB')

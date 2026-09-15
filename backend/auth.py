@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 
 from database import get_db
@@ -7,8 +8,6 @@ from jose import JWTError, jwt
 from models import User
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-
-import os
 
 # O repositório é público: com a chave fixa no código, qualquer pessoa consegue
 # assinar um token de login válido para qualquer conta. Em produção a chave TEM

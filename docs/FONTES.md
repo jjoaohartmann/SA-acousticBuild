@@ -275,6 +275,7 @@ caminho de cálculo nesta ordem:
 | `medicao_usuario` | Medição in situ do usuário | Há $L_1$ e $L_2$, ou $L_i$, medidos |
 | `informado_usuario` | Valor de $R$ digitado | O usuário conhece o índice do fabricante |
 | `ensaio_laboratorio` | Catálogo com ensaio | O sistema escolhido tem ensaio documentado |
+| `documentado` | Tabela normativa | O dado vem de tabela de norma (ex.: lajes da NBR 15575-3, Anexo A), não de ensaio próprio do sistema |
 | `estimativa_teorica` | Lei da massa | Elemento monolítico, sem ensaio cadastrado |
 | `sem_dado` | — | **Nenhum dos anteriores: o cálculo é recusado** |
 

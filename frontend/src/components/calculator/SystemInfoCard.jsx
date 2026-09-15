@@ -1,5 +1,7 @@
 
 
+import { fmtNum } from './caminhoDoSom';
+
 export default function SystemInfoCard({
   sistema,
   propriedadesFisicas,
@@ -118,7 +120,7 @@ export default function SystemInfoCard({
         <div>
           <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.6)' }}>Espessura Total</div>
           <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFFFFF' }}>
-            {espessuraCm !== null && espessuraCm !== undefined ? `${espessuraCm} cm` : 'Não informada'}
+            {espessuraCm !== null && espessuraCm !== undefined ? `${fmtNum(espessuraCm)} cm` : 'Não informada'}
           </div>
         </div>
 
@@ -126,7 +128,7 @@ export default function SystemInfoCard({
           <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.6)' }}>Massa Superficial (m')</div>
           <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFFFFF' }}>
             {massaTotal !== null && massaTotal !== undefined ? (
-              `${massaTotal} kg/m²`
+              `${fmtNum(massaTotal)} kg/m²`
             ) : (
               <span style={{ fontSize: '0.85rem', color: '#f39c12', fontWeight: 500 }}>
                 Não determinada (faltam densidades)

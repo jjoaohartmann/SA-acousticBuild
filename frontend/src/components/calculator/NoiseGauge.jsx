@@ -2,7 +2,9 @@ import styles from '../../style/NoiseGauge.module.css';
 
 // Régua de conforto: a pessoa lê a POSIÇÃO do marcador, não precisa saber
 // se mais dB é melhor ou pior. Escala sempre "menos é melhor" (NBR 10152).
-export default function NoiseGauge({ valor, recomendado, min = 20, max = 70 }) {
+// `rotulo` é o mesmo texto do número em destaque, para o marcador não mostrar
+// "55" enquanto o destaque logo acima mostra "55,4".
+export default function NoiseGauge({ valor, recomendado, min = 20, max = 70, rotulo }) {
   const faixa = Math.max(max - min, 1);
   const pct = (v) => Math.min(Math.max(((v - min) / faixa) * 100, 0), 100);
 
@@ -28,7 +30,7 @@ export default function NoiseGauge({ valor, recomendado, min = 20, max = 70 }) {
 
         {/* resultado calculado */}
         <span className={styles.marcador} style={{ left: `${posValor}%` }}>
-          <span className={styles.marcadorValor}>{Math.round(valor)} dB</span>
+          <span className={styles.marcadorValor}>{rotulo ?? Math.round(valor)} dB</span>
         </span>
       </div>
 
