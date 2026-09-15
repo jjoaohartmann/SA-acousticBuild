@@ -1,11 +1,9 @@
 import axios from 'axios';
 
-// Em desenvolvimento aponta para o backend local (localhost:8000).
-// Em producao (front e back no MESMO dominio da Vercel) usa origem relativa ''.
-// Sobrescreva via VITE_API_URL caso o backend fique em outro dominio.
-const baseURL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'http://localhost:8000' : '');
+// URL/endereco do backend (API).
+// - PRODUCAO: defina VITE_API_URL na Vercel com a URL do backend na Render.
+// - DEV LOCAL: sem VITE_API_URL, cai automaticamente em http://localhost:8000.
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const api = axios.create({ baseURL });
 

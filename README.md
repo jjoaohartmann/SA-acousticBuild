@@ -253,28 +253,38 @@ Vantagens:
 
 ---
 
-## ☁️ Deploy na Vercel (automático)
+## ☁️ Deploy (automático)
 
-O projeto está pronto para a Vercel: **backend (FastAPI) e frontend (React/Vite) no mesmo domínio**, com deploy automático a cada `git push` no `main` (o `vercel.json` na raiz faz o roteamento).
+Arquitectura: **frontend (React/Vite) → Vercel** · **backend (FastAPI) → Render** · **banco Postgres (Neon)**. Todo `push` no `main` publica os dois automaticamente.
 
-### 1) Crie um Postgres gratuito
-Use o **Neon** ([neon.tech](https://neon.tech)) ou o **Vercel Postgres**. Gere uma connection string `postgres://...` (o sistema converte para `postgresql+psycopg` automaticamente).
+### 1) Banco Postgres
+Crie um banco gratuito no **Neon** ([neon.tech](https://neon.tech)) e guarde a `DATABASE_URL` (o código converte `postgres://` → `postgresql+psycopg://` sozinho).
 
-### 2) Configure as variáveis de ambiente na Vercel
-| Variável | Exemplo | Obrigatória? |
-|---|---|---|
-| `DATABASE_URL` | `postgres://user:pass@host/db?sslmode=require` | ✅ |
-| `SECRET_KEY` | uma frase longa e aleatória | recomendada |
-| `ALLOWED_ORIGINS` | (opcional — front e back no mesmo domínio) | — |
+### 2) Backend — Render
+1. Cree a conta em [render.com](https://render.com) → **New → Web Service** → conecte o GitHub.
+2. Selecione o repositório; a Render detecta el `backend/render.yaml` (root `backend`).
+3. Em *Environment*, defina:
 
-### 3) Importe o repositório na Vercel
-- Vercel detecta o `vercel.json` e publica **backend + frontend juntos**.
-- O domínio gerado (ex.: `SA-acousticBuild-xxx.vercel.app`) serve os dois.
+| Variável | Obrigatoria? |
+|---|---|
+| `DATABASE_URL` | ✅ |
+| `SECRET_KEY` | recomendada |
+| `ALLOWED_ORIGINS` | = URL do frontend na Vercel (ex.: `https://xxx.vercel.app`) — se vazio, abre a qualquer origem |
+
+4. Deploy. Resultado: `https://xxx.onrender.com`.
+
+> El free de la Render "duerme" tras ~15 min sin uso (el 1er acesso tarda ~1 min — es normal).
+
+### 3) Frontend — Vercel
+1. En vercel.com → **Add New → Project** → importe el GitHub.
+2. **Root Directory = `frontend`** · Framework preset **Vite** .
+3. Env var: `VITE_API_URL = https://xxx.onrender.com`.
+4. Deploy. Resultado: `https://xxx.vercel.app`.
 
 ### 4) Pronto 🎉
-- **Deploy automático**: todo push no `main` republica o site.
-- Roteamento: `/auth/*`, `/acustica/*`, `/docs` → backend · demais rotas → SPA React.
-- Comandos locais não mudam: continue usando `npm run dev` e `uvicorn main:app`.
+- **Deploy automático**: push en `main` → Vercel y Render actualizan solos.
+- Las rutas del frontend (`/login`, `/calculadora`…) funcionan directo (rewrite SPA en `frontend/vercel.json`).
+- Local sin cambios: `npm run dev` (front) + `uvicorn main:app` (back).
 
 ---
 
